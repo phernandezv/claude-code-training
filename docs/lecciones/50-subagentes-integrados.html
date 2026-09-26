@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>20. Aprobar, editar e iterar sobre un plan · Curso Claude Code</title>
-<meta name="description" content="Las opciones al terminar un plan (auto mode, aprobar ediciones manualmente, seguir planificando), editar el plan con Ctrl+G, iterar con feedback, limpiar el contexto al aprobar y volver a planificar a mitad de la implementación.">
+<title>50. &quot;Subagentes integrados: Explore, Plan y general-purpose&quot; · Curso Claude Code</title>
+<meta name="description" content="Los subagentes que trae Claude Code - Explore (búsqueda de solo lectura con niveles de exhaustividad), Plan (investigación en modo plan) y general-purpose (tareas complejas con edición) - más los auxiliares, cómo elegirlos, sobrescribirlos y desactivarlos.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="20-aprobar-editar-e-iterar-un-plan">
+<body data-slug="50-subagentes-integrados">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -84,189 +84,172 @@
 <li data-slug="54-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/54-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">54</span>Orquestar varios subagentes en paralelo</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 3 · Planificar y elegir modelo</p>
-    <h1><span class="num-grande">20</span>Aprobar, editar e iterar sobre un plan</h1>
-    <p class="resumen">Las opciones al terminar un plan (auto mode, aprobar ediciones manualmente, seguir planificando), editar el plan con Ctrl+G, iterar con feedback, limpiar el contexto al aprobar y volver a planificar a mitad de la implementación.</p>
+    <p class="migas">Sección 7 · Subagentes</p>
+    <h1><span class="num-grande">50</span>&quot;Subagentes integrados: Explore, Plan y general-purpose&quot;</h1>
+    <p class="resumen">Los subagentes que trae Claude Code - Explore (búsqueda de solo lectura con niveles de exhaustividad), Plan (investigación en modo plan) y general-purpose (tareas complejas con edición) - más los auxiliares, cómo elegirlos, sobrescribirlos y desactivarlos.</p>
     <article class="leccion">
 <h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
 <ul>
-<li>Conocer las opciones del diálogo de aprobación y qué modo activa cada una.</li>
-<li>Editar el plan directamente con <code>Ctrl+G</code>.</li>
-<li>Iterar sobre el plan con feedback preciso.</li>
-<li>Volver a planificar si la implementación se tuerce.</li>
+<li>Conocer los subagentes integrados y para qué los usa Claude.</li>
+<li>Pedir explícitamente el más adecuado para cada tarea.</li>
+<li>Sobrescribir o desactivar uno integrado.</li>
 </ul>
-<h2 id="el-dialogo-de-aprobacion">El diálogo de aprobación<a class="headerlink" href="#el-dialogo-de-aprobacion" title="Permanent link">#</a></h2>
-<p>Cuando Claude termina el plan, te lo muestra y pregunta cómo seguir. Las opciones habituales son:</p>
+<h2 id="resumen-rapido">Resumen rápido<a class="headerlink" href="#resumen-rapido" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Opción</th>
-<th>Qué pasa</th>
+<th>Subagente</th>
+<th>Herramientas</th>
+<th>Modelo</th>
+<th>Carga <code>CLAUDE.md</code></th>
+<th>Para qué</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Yes, and use auto mode</strong></td>
-<td>Aprueba y continúa en <strong>modo auto</strong> (el clasificador revisa las acciones). Si auto no está disponible, aparece como <em>Yes, auto-accept edits</em> (modo <code>acceptEdits</code>)</td>
+<td><strong>Explore</strong></td>
+<td>Solo lectura (sin Write/Edit)</td>
+<td>Hereda el de la sesión (con tope en Opus)</td>
+<td>No</td>
+<td>Buscar y entender código rápido</td>
 </tr>
 <tr>
-<td><strong>Yes, manually approve edits</strong></td>
-<td>Aprueba y vuelve a <strong>Manual</strong>: revisarás cada edición</td>
+<td><strong>Plan</strong></td>
+<td>Solo lectura</td>
+<td>Hereda el de la sesión</td>
+<td>No</td>
+<td>Investigar durante el modo plan</td>
 </tr>
 <tr>
-<td><strong>No, keep planning</strong></td>
-<td>Sigue en modo plan; escribe qué quieres cambiar</td>
+<td><strong>general-purpose</strong></td>
+<td>Todas las disponibles para subagentes</td>
+<td>El de la sesión (o <code>CLAUDE_CODE_SUBAGENT_MODEL</code>)</td>
+<td>Sí</td>
+<td>Tareas de varios pasos que exploran <strong>y</strong> modifican</td>
 </tr>
 </tbody>
 </table>
-<p>Al aprobar, <strong>sales del modo plan</strong> y Claude empieza a editar según el modo elegido. Además, la sesión recibe un título automático basado en el plan (si no la habías nombrado).</p>
+<p>Además hay auxiliares que Claude usa solo: por ejemplo el que configura la barra de estado (<code>/statusline</code>) o el que responde preguntas sobre el propio Claude Code.</p>
+<h2 id="explore">Explore<a class="headerlink" href="#explore" title="Permanent link">#</a></h2>
+<p>Un agente <strong>rápido y de solo lectura</strong> para localizar y entender código.</p>
+<ul>
+<li>No puede editar ni escribir archivos.</li>
+<li>Omite <code>CLAUDE.md</code> y el estado de Git para arrancar ligero y barato.</li>
+<li>Claude le indica un nivel de exhaustividad: <strong>quick</strong> (búsqueda puntual), <strong>medium</strong> (equilibrado) o <strong>very thorough</strong> (análisis completo).</li>
+</ul>
+<p>Cuándo lo usa Claude: cuando necesita buscar o entender algo sin cambiar nada. Puedes pedirlo:</p>
+<pre><code class="language-text">&gt; Con el agente Explore (muy exhaustivo), encuentra todos los puntos donde se
+  calculan impuestos y dime si hay lógica duplicada.
+
+&gt; Explore rápido: ¿en qué archivo se define la ruta /api/checkout?
+</code></pre>
 <div class="admonition tip">
-<p class="admonition-title">¿Qué opción elijo?</p>
-<ul>
-<li>Plan claro, cambio en una rama, confías en el enfoque → <strong>auto mode</strong> (o auto-accept edits).</li>
-<li>Código delicado o que conoces poco → <strong>manually approve edits</strong>.</li>
-<li>Tienes dudas → <strong>keep planning</strong>. Es gratis comparado con deshacer.</li>
-</ul>
+<p class="admonition-title">Explore más barato</p>
+<p>Explore hereda el modelo de tu sesión. Si quieres que las búsquedas usen un modelo más económico, define tu propio subagente llamado <code>Explore</code> con <code>model: haiku</code> (en <code>.claude/agents/</code> o <code>~/.claude/agents/</code>): sobrescribe al integrado.</p>
 </div>
-<h3 id="aprobar-y-limpiar-el-contexto">Aprobar y limpiar el contexto<a class="headerlink" href="#aprobar-y-limpiar-el-contexto" title="Permanent link">#</a></h3>
-<p>La exploración previa al plan puede haber llenado el contexto con archivos leídos. Si activas el ajuste <code>showClearContextOnPlanAccept</code>, aparece una opción adicional que <strong>aprueba el plan y limpia el contexto de planificación</strong>: Claude arranca la implementación con el plan y poco más, lo que ahorra tokens en tareas largas.</p>
-<pre><code class="language-json">{
-  &quot;showClearContextOnPlanAccept&quot;: true
-}
+<h2 id="plan">Plan<a class="headerlink" href="#plan" title="Permanent link">#</a></h2>
+<p>Un agente de investigación de <strong>solo lectura</strong> que Claude usa en <strong>modo plan</strong> para reunir contexto antes de presentar el plan. Así, la exploración no llena la conversación principal, que queda limpia para discutir el plan.</p>
+<p>No sueles invocarlo a mano: aparece cuando planificas (lecciones 18–20).</p>
+<h2 id="general-purpose">general-purpose<a class="headerlink" href="#general-purpose" title="Permanent link">#</a></h2>
+<p>Un agente capaz para <strong>tareas complejas de varios pasos</strong> que requieren explorar y actuar: investigar, modificar código, ejecutar comandos, interpretar resultados.</p>
+<pre><code class="language-text">&gt; Usa un subagente general-purpose para actualizar todas las llamadas a la
+  API v1 de pagos a la v2 en src/billing/, ejecutar los tests del módulo y
+  devolverme un resumen de los cambios y cualquier caso dudoso.
 </code></pre>
-<h2 id="editar-el-plan-directamente-ctrlg">Editar el plan directamente: <code>Ctrl+G</code><a class="headerlink" href="#editar-el-plan-directamente-ctrlg" title="Permanent link">#</a></h2>
-<p>Cuando el plan está casi bien pero quieres retocar detalles, pulsa <strong><code>Ctrl+G</code></strong> en el diálogo: el plan se abre en tu editor de texto (el definido en <code>$EDITOR</code>). Cambia lo que quieras, guarda y cierra; Claude continuará con tu versión.</p>
-<p>Útil para:</p>
-<ul>
-<li>Reordenar pasos.</li>
-<li>Borrar un paso que sobra ("no hace falta tocar el README").</li>
-<li>Añadir un requisito que se te olvidó.</li>
-<li>Precisar un nombre de función o una ruta.</li>
-</ul>
-<pre><code class="language-bash"># Si no tienes editor configurado:
-export EDITOR=&quot;code --wait&quot;   # VS Code
-export EDITOR=&quot;nano&quot;          # nano
-</code></pre>
-<h2 id="iterar-con-feedback">Iterar con feedback<a class="headerlink" href="#iterar-con-feedback" title="Permanent link">#</a></h2>
-<p>Si eliges <strong>No, keep planning</strong>, escribe feedback <strong>concreto</strong>:</p>
+<p>Al poder editar, sus cambios se hacen en tu árbol de trabajo. Recuerda que las ediciones de subagentes <strong>no</strong> se deshacen con <code>/rewind</code>: trabaja con Git limpio.</p>
+<h2 id="como-elige-claude">Cómo elige Claude<a class="headerlink" href="#como-elige-claude" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Feedback flojo</th>
-<th>Feedback útil</th>
+<th>Si la tarea…</th>
+<th>Claude suele usar</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>"No me convence"</td>
-<td>"No añadas una dependencia nueva; usa <code>csv-stringify</code>, que ya está en package.json"</td>
+<td>Solo requiere buscar/entender</td>
+<td>Explore</td>
 </tr>
 <tr>
-<td>"Hazlo más simple"</td>
-<td>"Elimina el job en segundo plano: el límite de 10.000 filas permite generar el CSV en la propia petición con streaming"</td>
+<td>Es investigación dentro del modo plan</td>
+<td>Plan</td>
 </tr>
 <tr>
-<td>"Falta algo"</td>
-<td>"Falta el caso de usuarios sin permisos de exportación: devuelve 403 y añade un test"</td>
+<td>Requiere varios pasos y cambios</td>
+<td>general-purpose</td>
+</tr>
+<tr>
+<td>Encaja con la descripción de un subagente tuyo</td>
+<td>Tu subagente personalizado</td>
 </tr>
 </tbody>
 </table>
-<p>Tras cada ronda, vuelve a revisar el plan completo (no solo el cambio que pediste): a veces un ajuste afecta a otros pasos.</p>
-<h3 id="patron-dos-alternativas">Patrón: dos alternativas<a class="headerlink" href="#patron-dos-alternativas" title="Permanent link">#</a></h3>
-<p>Cuando no tienes claro el enfoque, pide que compare:</p>
-<pre><code class="language-text">&gt; Antes de cerrar el plan, dame dos alternativas (A: job + S3, B: streaming
-  directo) con pros, contras y esfuerzo estimado. Luego recomiéndame una.
+<p>Puedes forzarlo nombrándolo o con <code>@</code>.</p>
+<h2 id="reanudar-subagentes">Reanudar subagentes<a class="headerlink" href="#reanudar-subagentes" title="Permanent link">#</a></h2>
+<p>Cada invocación crea una instancia nueva. Si quieres <strong>continuar</strong> el trabajo de un subagente (con todo su historial), pídele a Claude que lo retome:</p>
+<pre><code class="language-text">&gt; Continúa la revisión anterior y ahora analiza la lógica de autorización.
 </code></pre>
-<h2 id="durante-la-implementacion">Durante la implementación<a class="headerlink" href="#durante-la-implementacion" title="Permanent link">#</a></h2>
-<p>El plan no es un contrato inmutable. Mientras Claude implementa:</p>
-<ul>
-<li><strong>Vigila la lista de tareas</strong> (<code>Ctrl+T</code>): debería reflejar los pasos del plan.</li>
-<li><strong>Interrumpe con <code>Esc</code></strong> si ves que se desvía, y corrige.</li>
-<li>Si descubres algo que invalida el plan (una dependencia inesperada, un requisito nuevo), <strong>vuelve a planificar</strong>:</li>
-</ul>
-<pre><code class="language-text">/plan Hemos descubierto que el servicio de pedidos no expone los filtros por
-fecha. Replanifica los pasos 3–5 teniendo esto en cuenta.
-</code></pre>
-<p>O pulsa <code>Shift+Tab</code> hasta volver a <code>plan mode on</code>.</p>
-<h2 id="recuperarse-de-un-mal-plan">Recuperarse de un mal plan<a class="headerlink" href="#recuperarse-de-un-mal-plan" title="Permanent link">#</a></h2>
-<p>Si aprobaste y el resultado no es lo que querías:</p>
-<ol>
-<li><code>Esc</code> para detener.</li>
-<li><code>/rewind</code> (o <code>Esc Esc</code>) → vuelve al mensaje anterior a la aprobación → <em>Restore code and conversation</em>.</li>
-<li>Vuelve a planificar con lo aprendido.</li>
-</ol>
-<p>Recuerda: <code>/rewind</code> no deshace cambios hechos con comandos Bash; si hubo migraciones o instalaciones, revisa con <code>git status</code>.</p>
-<h2 id="hacer-que-el-proyecto-planifique-por-defecto">Hacer que el proyecto planifique por defecto<a class="headerlink" href="#hacer-que-el-proyecto-planifique-por-defecto" title="Permanent link">#</a></h2>
-<p>Para repos delicados, puedes hacer que las sesiones arranquen en plan:</p>
+<p>Explore y Plan son de un solo uso y no se pueden reanudar; usa general-purpose o uno personalizado si necesitas continuidad.</p>
+<h2 id="desactivar-o-restringir">Desactivar o restringir<a class="headerlink" href="#desactivar-o-restringir" title="Permanent link">#</a></h2>
+<p>Con reglas de permisos:</p>
 <pre><code class="language-json">{
   &quot;permissions&quot;: {
-    &quot;defaultMode&quot;: &quot;plan&quot;
+    &quot;deny&quot;: [&quot;Agent(Explore)&quot;]
   }
 }
 </code></pre>
-<p>(en <code>.claude/settings.json</code>). En VS Code, usa el ajuste <code>claudeCode.initialPermissionMode: "plan"</code>.</p>
-<h2 id="flujo-completo-de-ejemplo">Flujo completo de ejemplo<a class="headerlink" href="#flujo-completo-de-ejemplo" title="Permanent link">#</a></h2>
-<pre><code class="language-text">$ claude -n export-csv --permission-mode plan
+<p>o al arrancar:</p>
+<pre><code class="language-bash">claude --disallowedTools &quot;Agent(Explore)&quot;
+</code></pre>
+<p>Para forzar un modelo en <strong>todos</strong> los subagentes, existe la variable <code>CLAUDE_CODE_SUBAGENT_MODEL</code>.</p>
+<h2 id="ejemplo-de-flujo-combinado">Ejemplo de flujo combinado<a class="headerlink" href="#ejemplo-de-flujo-combinado" title="Permanent link">#</a></h2>
+<pre><code class="language-text">&gt; Quiero migrar el cliente HTTP a fetch nativo.
 
-&gt; Quiero exportar pedidos a CSV desde el panel respetando los filtros. Hazme
-  primero las preguntas que necesites.
-  (Claude pregunta por volumen, formato de fechas, permisos…)
+  ● Agent(Explore, very thorough): localizar usos de axios y sus opciones
+    → 23 usos en 11 archivos; 3 usan interceptores
 
-&gt; Máx. 10.000 filas, fechas ISO, solo rol &quot;manager&quot;. Propón el plan.
-  (Claude presenta el plan)
+  (planificas con Claude en la conversación principal)
 
-&gt; [No, keep planning] Usa streaming en la propia petición en vez de un job.
-  (plan actualizado)
+  ● Agent(general-purpose): migrar los 8 archivos sin interceptores y
+    ejecutar sus tests → hecho, 2 tests ajustados
 
-&gt; [Ctrl+G] (quitas un paso sobre el README y guardas)
-
-&gt; [Yes, and use auto mode]
-  (Claude implementa, ejecuta tests, resume)
-
-&gt; /diff
-&gt; Crea un commit con un mensaje convencional.
+&gt; Los 3 con interceptores los hacemos juntos aquí, paso a paso.
 </code></pre>
 <h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
 <ul>
-<li>Al aprobar eliges el modo: auto/acceptEdits o Manual; o sigues planificando.</li>
-<li><code>Ctrl+G</code> abre el plan en tu editor para retocarlo.</li>
-<li>Feedback concreto y verificable produce mejores iteraciones.</li>
-<li>Puedes volver a planificar en cualquier momento con <code>/plan</code> o <code>Shift+Tab</code>.</li>
+<li>Explore: solo lectura, rápido, sin <code>CLAUDE.md</code>, con niveles de exhaustividad.</li>
+<li>Plan: investigación de solo lectura en modo plan.</li>
+<li>general-purpose: tareas de varios pasos con edición.</li>
+<li>Pide el adecuado por nombre o <code>@</code>; sobrescribe (<code>Explore</code> con <code>model: haiku</code>) o deniega con <code>Agent(...)</code>.</li>
 </ul>
 <h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
 <ol>
-<li>Genera un plan y rechaza la primera versión con un feedback concreto. Compara ambas versiones.</li>
-<li>Usa <code>Ctrl+G</code> para eliminar un paso y añadir un requisito.</li>
-<li>Aprueba con <em>manually approve edits</em> y rechaza una edición concreta explicando por qué.</li>
-<li>Activa <code>showClearContextOnPlanAccept</code> y compara <code>/context</code> tras aprobar con y sin limpiar.</li>
+<li>Pide la misma búsqueda con Explore "quick" y "very thorough". Compara tiempo y resultado.</li>
+<li>Crea <code>~/.claude/agents/explore.md</code> con <code>name: Explore</code> y <code>model: haiku</code> y comprueba el cambio.</li>
+<li>Delega a general-purpose un refactor mecánico acotado y revisa el diff.</li>
 </ol>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/permission-modes#review-and-approve-a-plan">Revisar y aprobar un plan</a></li>
-<li><a href="https://code.claude.com/docs/en/checkpointing">Checkpointing</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents#built-in-subagents">Subagentes integrados</a></li>
+<li><a href="https://code.claude.com/docs/en/permissions">Permisos: reglas Agent(...)</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="19-entrar-y-leer-un-plan-en-modo-plan.html"><small>← Anterior</small>19. Entrar en modo plan y leer un plan</a><a class="next" href="21-compromisos-entre-modelos-opus-sonnet-haiku.html"><small>Siguiente →</small>21. &quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></nav>
+    <nav class="paginacion"><a class="prev" href="49-que-es-un-subagente.html"><small>← Anterior</small>49. &quot;Qué es un subagente: contexto aislado, devuelve solo resultados&quot;</a><a class="next" href="51-por-que-ayudan-los-subagentes-en-paralelo.html"><small>Siguiente →</small>51. &quot;Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad&quot;</a></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#el-dialogo-de-aprobacion">El diálogo de aprobación</a><ul>
-<li><a href="#aprobar-y-limpiar-el-contexto">Aprobar y limpiar el contexto</a></li>
-</ul>
-</li>
-<li><a href="#editar-el-plan-directamente-ctrlg">Editar el plan directamente: Ctrl+G</a></li>
-<li><a href="#iterar-con-feedback">Iterar con feedback</a><ul>
-<li><a href="#patron-dos-alternativas">Patrón: dos alternativas</a></li>
-</ul>
-</li>
-<li><a href="#durante-la-implementacion">Durante la implementación</a></li>
-<li><a href="#recuperarse-de-un-mal-plan">Recuperarse de un mal plan</a></li>
-<li><a href="#hacer-que-el-proyecto-planifique-por-defecto">Hacer que el proyecto planifique por defecto</a></li>
-<li><a href="#flujo-completo-de-ejemplo">Flujo completo de ejemplo</a></li>
+<li><a href="#resumen-rapido">Resumen rápido</a></li>
+<li><a href="#explore">Explore</a></li>
+<li><a href="#plan">Plan</a></li>
+<li><a href="#general-purpose">general-purpose</a></li>
+<li><a href="#como-elige-claude">Cómo elige Claude</a></li>
+<li><a href="#reanudar-subagentes">Reanudar subagentes</a></li>
+<li><a href="#desactivar-o-restringir">Desactivar o restringir</a></li>
+<li><a href="#ejemplo-de-flujo-combinado">Ejemplo de flujo combinado</a></li>
 <li><a href="#resumen">Resumen</a></li>
 <li><a href="#ejercicios">Ejercicios</a></li>
 <li><a href="#referencias">Referencias</a></li>

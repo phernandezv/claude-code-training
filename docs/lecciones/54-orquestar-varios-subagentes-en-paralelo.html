@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>20. Aprobar, editar e iterar sobre un plan · Curso Claude Code</title>
-<meta name="description" content="Las opciones al terminar un plan (auto mode, aprobar ediciones manualmente, seguir planificando), editar el plan con Ctrl+G, iterar con feedback, limpiar el contexto al aprobar y volver a planificar a mitad de la implementación.">
+<title>54. Orquestar varios subagentes en paralelo · Curso Claude Code</title>
+<meta name="description" content="Patrones de orquestación - fan-out/fan-in, cadena (pipeline), especialistas con revisión cruzada, coordinador con --agent, aislamiento con worktrees, anidación, gestión con /tasks, y cuándo pasar a equipos de agentes o workflows dinámicos.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="20-aprobar-editar-e-iterar-un-plan">
+<body data-slug="54-orquestar-varios-subagentes-en-paralelo">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -84,189 +84,193 @@
 <li data-slug="54-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/54-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">54</span>Orquestar varios subagentes en paralelo</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 3 · Planificar y elegir modelo</p>
-    <h1><span class="num-grande">20</span>Aprobar, editar e iterar sobre un plan</h1>
-    <p class="resumen">Las opciones al terminar un plan (auto mode, aprobar ediciones manualmente, seguir planificando), editar el plan con Ctrl+G, iterar con feedback, limpiar el contexto al aprobar y volver a planificar a mitad de la implementación.</p>
+    <p class="migas">Sección 7 · Subagentes</p>
+    <h1><span class="num-grande">54</span>Orquestar varios subagentes en paralelo</h1>
+    <p class="resumen">Patrones de orquestación - fan-out/fan-in, cadena (pipeline), especialistas con revisión cruzada, coordinador con --agent, aislamiento con worktrees, anidación, gestión con /tasks, y cuándo pasar a equipos de agentes o workflows dinámicos.</p>
     <article class="leccion">
 <h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
 <ul>
-<li>Conocer las opciones del diálogo de aprobación y qué modo activa cada una.</li>
-<li>Editar el plan directamente con <code>Ctrl+G</code>.</li>
-<li>Iterar sobre el plan con feedback preciso.</li>
-<li>Volver a planificar si la implementación se tuerce.</li>
+<li>Aplicar los patrones básicos de orquestación: <strong>fan-out/fan-in</strong>, <strong>cadena</strong> y <strong>revisión cruzada</strong>.</li>
+<li>Evitar conflictos cuando varios subagentes editan código (worktrees).</li>
+<li>Construir un <strong>coordinador</strong> reutilizable.</li>
+<li>Saber cuándo escalar a equipos de agentes o workflows dinámicos.</li>
 </ul>
-<h2 id="el-dialogo-de-aprobacion">El diálogo de aprobación<a class="headerlink" href="#el-dialogo-de-aprobacion" title="Permanent link">#</a></h2>
-<p>Cuando Claude termina el plan, te lo muestra y pregunta cómo seguir. Las opciones habituales son:</p>
-<table>
-<thead>
-<tr>
-<th>Opción</th>
-<th>Qué pasa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Yes, and use auto mode</strong></td>
-<td>Aprueba y continúa en <strong>modo auto</strong> (el clasificador revisa las acciones). Si auto no está disponible, aparece como <em>Yes, auto-accept edits</em> (modo <code>acceptEdits</code>)</td>
-</tr>
-<tr>
-<td><strong>Yes, manually approve edits</strong></td>
-<td>Aprueba y vuelve a <strong>Manual</strong>: revisarás cada edición</td>
-</tr>
-<tr>
-<td><strong>No, keep planning</strong></td>
-<td>Sigue en modo plan; escribe qué quieres cambiar</td>
-</tr>
-</tbody>
-</table>
-<p>Al aprobar, <strong>sales del modo plan</strong> y Claude empieza a editar según el modo elegido. Además, la sesión recibe un título automático basado en el plan (si no la habías nombrado).</p>
-<div class="admonition tip">
-<p class="admonition-title">¿Qué opción elijo?</p>
-<ul>
-<li>Plan claro, cambio en una rama, confías en el enfoque → <strong>auto mode</strong> (o auto-accept edits).</li>
-<li>Código delicado o que conoces poco → <strong>manually approve edits</strong>.</li>
-<li>Tienes dudas → <strong>keep planning</strong>. Es gratis comparado con deshacer.</li>
-</ul>
-</div>
-<h3 id="aprobar-y-limpiar-el-contexto">Aprobar y limpiar el contexto<a class="headerlink" href="#aprobar-y-limpiar-el-contexto" title="Permanent link">#</a></h3>
-<p>La exploración previa al plan puede haber llenado el contexto con archivos leídos. Si activas el ajuste <code>showClearContextOnPlanAccept</code>, aparece una opción adicional que <strong>aprueba el plan y limpia el contexto de planificación</strong>: Claude arranca la implementación con el plan y poco más, lo que ahorra tokens en tareas largas.</p>
-<pre><code class="language-json">{
-  &quot;showClearContextOnPlanAccept&quot;: true
-}
+<h2 id="patron-1-fan-out-fan-in">Patrón 1: fan-out / fan-in<a class="headerlink" href="#patron-1-fan-out-fan-in" title="Permanent link">#</a></h2>
+<p>Repartir trabajo independiente y luego sintetizar.</p>
+<pre><code class="language-text">&gt; Queremos migrar los 12 endpoints de src/http/v1/ a v2. Primero lista los
+  endpoints. Después lanza un subagente por cada grupo de 3 endpoints para
+  migrarlos (cada uno solo toca sus archivos) y ejecuta sus tests. Al final
+  une los resultados: qué se migró, qué falló y qué requiere decisión.
 </code></pre>
-<h2 id="editar-el-plan-directamente-ctrlg">Editar el plan directamente: <code>Ctrl+G</code><a class="headerlink" href="#editar-el-plan-directamente-ctrlg" title="Permanent link">#</a></h2>
-<p>Cuando el plan está casi bien pero quieres retocar detalles, pulsa <strong><code>Ctrl+G</code></strong> en el diálogo: el plan se abre en tu editor de texto (el definido en <code>$EDITOR</code>). Cambia lo que quieras, guarda y cierra; Claude continuará con tu versión.</p>
-<p>Útil para:</p>
-<ul>
-<li>Reordenar pasos.</li>
-<li>Borrar un paso que sobra ("no hace falta tocar el README").</li>
-<li>Añadir un requisito que se te olvidó.</li>
-<li>Precisar un nombre de función o una ruta.</li>
-</ul>
-<pre><code class="language-bash"># Si no tienes editor configurado:
-export EDITOR=&quot;code --wait&quot;   # VS Code
-export EDITOR=&quot;nano&quot;          # nano
+<pre><code class="language-text">          ┌─► Subagente 1 (endpoints 1-3) ─┐
+Principal ├─► Subagente 2 (endpoints 4-6) ─┼─► Síntesis y siguiente paso
+          ├─► Subagente 3 (endpoints 7-9) ─┤
+          └─► Subagente 4 (10-12)         ─┘
 </code></pre>
-<h2 id="iterar-con-feedback">Iterar con feedback<a class="headerlink" href="#iterar-con-feedback" title="Permanent link">#</a></h2>
-<p>Si eliges <strong>No, keep planning</strong>, escribe feedback <strong>concreto</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Feedback flojo</th>
-<th>Feedback útil</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>"No me convence"</td>
-<td>"No añadas una dependencia nueva; usa <code>csv-stringify</code>, que ya está en package.json"</td>
-</tr>
-<tr>
-<td>"Hazlo más simple"</td>
-<td>"Elimina el job en segundo plano: el límite de 10.000 filas permite generar el CSV en la propia petición con streaming"</td>
-</tr>
-<tr>
-<td>"Falta algo"</td>
-<td>"Falta el caso de usuarios sin permisos de exportación: devuelve 403 y añade un test"</td>
-</tr>
-</tbody>
-</table>
-<p>Tras cada ronda, vuelve a revisar el plan completo (no solo el cambio que pediste): a veces un ajuste afecta a otros pasos.</p>
-<h3 id="patron-dos-alternativas">Patrón: dos alternativas<a class="headerlink" href="#patron-dos-alternativas" title="Permanent link">#</a></h3>
-<p>Cuando no tienes claro el enfoque, pide que compare:</p>
-<pre><code class="language-text">&gt; Antes de cerrar el plan, dame dos alternativas (A: job + S3, B: streaming
-  directo) con pros, contras y esfuerzo estimado. Luego recomiéndame una.
+<p>Claves: partes <strong>independientes</strong>, archivos <strong>disjuntos</strong> y un <strong>formato de resultado</strong> común.</p>
+<h2 id="patron-2-cadena-pipeline">Patrón 2: cadena (pipeline)<a class="headerlink" href="#patron-2-cadena-pipeline" title="Permanent link">#</a></h2>
+<p>Cuando cada paso necesita el resultado del anterior:</p>
+<pre><code class="language-text">&gt; 1) Usa el subagente investigador para localizar las consultas lentas del
+     módulo de informes.
+  2) Pasa su lista al experto-sql para proponer índices y reescrituras.
+  3) Con el implementador, aplica las propuestas aprobadas y ejecuta los tests.
+  Detente entre el paso 2 y el 3 para que yo apruebe.
 </code></pre>
-<h2 id="durante-la-implementacion">Durante la implementación<a class="headerlink" href="#durante-la-implementacion" title="Permanent link">#</a></h2>
-<p>El plan no es un contrato inmutable. Mientras Claude implementa:</p>
-<ul>
-<li><strong>Vigila la lista de tareas</strong> (<code>Ctrl+T</code>): debería reflejar los pasos del plan.</li>
-<li><strong>Interrumpe con <code>Esc</code></strong> si ves que se desvía, y corrige.</li>
-<li>Si descubres algo que invalida el plan (una dependencia inesperada, un requisito nuevo), <strong>vuelve a planificar</strong>:</li>
-</ul>
-<pre><code class="language-text">/plan Hemos descubierto que el servicio de pedidos no expone los filtros por
-fecha. Replanifica los pasos 3–5 teniendo esto en cuenta.
+<p>La conversación principal pasa a cada subagente solo lo relevante del paso anterior.</p>
+<h2 id="patron-3-especialistas-revision-cruzada">Patrón 3: especialistas + revisión cruzada<a class="headerlink" href="#patron-3-especialistas-revision-cruzada" title="Permanent link">#</a></h2>
+<p>Varios expertos analizan lo mismo desde ángulos distintos, y otro verifica:</p>
+<pre><code class="language-text">&gt; Revisa este PR en paralelo con: revisor-seguridad, un subagente de
+  rendimiento y otro de tests. Luego lanza un subagente verificador que
+  compruebe cada hallazgo contra el código real y descarte falsos positivos.
+  Entrégame solo los hallazgos confirmados, ordenados por severidad.
 </code></pre>
-<p>O pulsa <code>Shift+Tab</code> hasta volver a <code>plan mode on</code>.</p>
-<h2 id="recuperarse-de-un-mal-plan">Recuperarse de un mal plan<a class="headerlink" href="#recuperarse-de-un-mal-plan" title="Permanent link">#</a></h2>
-<p>Si aprobaste y el resultado no es lo que querías:</p>
+<p>La verificación reduce el ruido de los falsos positivos.</p>
+<h2 id="patron-4-coordinador-reutilizable">Patrón 4: coordinador reutilizable<a class="headerlink" href="#patron-4-coordinador-reutilizable" title="Permanent link">#</a></h2>
+<p>Guarda la orquestación como un agente para ejecutar la sesión completa en ese rol:</p>
+<p><code>.claude/agents/coordinador-migracion.md</code>:</p>
+<pre><code class="language-markdown">---
+name: coordinador-migracion
+description: Coordina migraciones grandes repartiendo el trabajo entre subagentes.
+tools: Agent(investigador, implementador, ejecutor-tests), Read, Grep, Glob, Bash
+model: opus
+---
+Eres el coordinador de una migración. Proceso:
+1. Con `investigador`, inventaría todo lo que hay que migrar y agrúpalo en
+   lotes independientes (archivos disjuntos).
+2. Presenta el plan de lotes y espera confirmación.
+3. Lanza un `implementador` por lote, en paralelo (máx. 4 a la vez).
+4. Tras cada lote, usa `ejecutor-tests` sobre los archivos afectados.
+5. Mantén una tabla de estado (lote, estado, incidencias) y resume al final.
+Nunca edites archivos tú directamente.
+</code></pre>
+<pre><code class="language-bash">claude --agent coordinador-migracion
+</code></pre>
+<p>La sintaxis <code>Agent(...)</code> en <code>tools</code> limita en quién puede delegar.</p>
+<h2 id="evitar-conflictos-worktrees">Evitar conflictos: worktrees<a class="headerlink" href="#evitar-conflictos-worktrees" title="Permanent link">#</a></h2>
+<p>Si varios subagentes <strong>editan</strong> a la vez, pueden pisarse. Soluciones:</p>
 <ol>
-<li><code>Esc</code> para detener.</li>
-<li><code>/rewind</code> (o <code>Esc Esc</code>) → vuelve al mensaje anterior a la aprobación → <em>Restore code and conversation</em>.</li>
-<li>Vuelve a planificar con lo aprendido.</li>
+<li><strong>Repartir archivos disjuntos</strong> (lo más simple).</li>
+<li><strong>Aislar cada subagente en un worktree</strong> con <code>isolation: worktree</code> en su definición (o pidiéndolo al delegar). Cada uno trabaja en una copia aislada del repo en su propia rama; tú integras después.</li>
 </ol>
-<p>Recuerda: <code>/rewind</code> no deshace cambios hechos con comandos Bash; si hubo migraciones o instalaciones, revisa con <code>git status</code>.</p>
-<h2 id="hacer-que-el-proyecto-planifique-por-defecto">Hacer que el proyecto planifique por defecto<a class="headerlink" href="#hacer-que-el-proyecto-planifique-por-defecto" title="Permanent link">#</a></h2>
-<p>Para repos delicados, puedes hacer que las sesiones arranquen en plan:</p>
-<pre><code class="language-json">{
-  &quot;permissions&quot;: {
-    &quot;defaultMode&quot;: &quot;plan&quot;
-  }
-}
+<pre><code class="language-markdown">---
+name: implementador
+description: Implementa un lote de cambios bien definido.
+isolation: worktree
+model: sonnet
+---
 </code></pre>
-<p>(en <code>.claude/settings.json</code>). En VS Code, usa el ajuste <code>claudeCode.initialPermissionMode: "plan"</code>.</p>
-<h2 id="flujo-completo-de-ejemplo">Flujo completo de ejemplo<a class="headerlink" href="#flujo-completo-de-ejemplo" title="Permanent link">#</a></h2>
-<pre><code class="language-text">$ claude -n export-csv --permission-mode plan
-
-&gt; Quiero exportar pedidos a CSV desde el panel respetando los filtros. Hazme
-  primero las preguntas que necesites.
-  (Claude pregunta por volumen, formato de fechas, permisos…)
-
-&gt; Máx. 10.000 filas, fechas ISO, solo rol &quot;manager&quot;. Propón el plan.
-  (Claude presenta el plan)
-
-&gt; [No, keep planning] Usa streaming en la propia petición en vez de un job.
-  (plan actualizado)
-
-&gt; [Ctrl+G] (quitas un paso sobre el README y guardas)
-
-&gt; [Yes, and use auto mode]
-  (Claude implementa, ejecuta tests, resume)
-
-&gt; /diff
-&gt; Crea un commit con un mensaje convencional.
-</code></pre>
+<p>Después, revisa e integra las ramas resultantes (merge o cherry-pick) y resuelve conflictos si los hay (lección 29).</p>
+<h2 id="anidacion">Anidación<a class="headerlink" href="#anidacion" title="Permanent link">#</a></h2>
+<p>Por defecto un subagente puede lanzar sus propios subagentes hasta 3 niveles por debajo de la conversación principal. Útil, por ejemplo, para un revisor que lanza un verificador por hallazgo. Ajustable con <code>CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code> (<code>1</code> desactiva la anidación). Más niveles = más coste y más difícil de seguir: úsalo con moderación.</p>
+<h2 id="supervisar-la-ejecucion">Supervisar la ejecución<a class="headerlink" href="#supervisar-la-ejecucion" title="Permanent link">#</a></h2>
+<ul>
+<li>El panel bajo el cuadro de entrada muestra los subagentes en curso (en árbol si hay anidación).</li>
+<li><code>/tasks</code> lista y permite detener trabajos en segundo plano (<code>Ctrl+X Ctrl+K</code> detiene todos los subagentes en segundo plano de la sesión).</li>
+<li><code>Ctrl+O</code> abre la transcripción para ver qué hizo cada uno.</li>
+<li>Puedes pedir a Claude que <strong>retome</strong> un subagente para continuar su trabajo con su historial.</li>
+</ul>
+<h2 id="buenas-practicas-de-orquestacion">Buenas prácticas de orquestación<a class="headerlink" href="#buenas-practicas-de-orquestacion" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Práctica</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plan de reparto explícito antes de lanzar</td>
+<td>Evita solapamientos y huecos</td>
+</tr>
+<tr>
+<td>Formato de resultado común</td>
+<td>Síntesis sencilla y barata</td>
+</tr>
+<tr>
+<td>Límite de paralelismo razonable (3–5)</td>
+<td>Coste controlado, más fácil de supervisar</td>
+</tr>
+<tr>
+<td>Punto de aprobación humana entre fases</td>
+<td>Detectar errores antes de que se propaguen</td>
+</tr>
+<tr>
+<td>Verificación independiente</td>
+<td>Menos falsos positivos</td>
+</tr>
+<tr>
+<td>Modelos por rol (haiku buscar, opus decidir)</td>
+<td>Coste/calidad equilibrados</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cuando-escalar">Cuándo escalar<a class="headerlink" href="#cuando-escalar" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>Herramienta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unos pocos trabajos delegados por turno</td>
+<td><strong>Subagentes</strong> (esta sección)</td>
+</tr>
+<tr>
+<td>Sesiones independientes de larga duración que hablan entre sí y comparten una lista de tareas</td>
+<td><strong>Equipos de agentes</strong> (experimental; se activa con <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code>)</td>
+</tr>
+<tr>
+<td>Decenas o cientos de agentes, orquestación repetible y reanudable</td>
+<td><strong>Workflows dinámicos</strong>: Claude escribe un script que orquesta subagentes y se ejecuta en segundo plano</td>
+</tr>
+<tr>
+<td>Trabajo paralelo que no cabe en una sesión</td>
+<td>Varias sesiones con worktrees o en segundo plano (<code>/background</code>, <code>claude agents</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Los equipos de agentes y los workflows consumen bastantes más tokens: resérvalos para trabajos que de verdad lo requieran.</p>
 <h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
 <ul>
-<li>Al aprobar eliges el modo: auto/acceptEdits o Manual; o sigues planificando.</li>
-<li><code>Ctrl+G</code> abre el plan en tu editor para retocarlo.</li>
-<li>Feedback concreto y verificable produce mejores iteraciones.</li>
-<li>Puedes volver a planificar en cualquier momento con <code>/plan</code> o <code>Shift+Tab</code>.</li>
+<li>Fan-out/fan-in para partes independientes; cadena para pasos dependientes; especialistas + verificador para revisiones.</li>
+<li>Coordinadores como agentes con <code>Agent(...)</code> para limitar la delegación.</li>
+<li>Worktrees (<code>isolation: worktree</code>) para ediciones en paralelo sin conflictos.</li>
+<li>Supervisa con el panel, <code>/tasks</code> y <code>Ctrl+O</code>; escala a equipos o workflows solo cuando haga falta.</li>
 </ul>
 <h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
 <ol>
-<li>Genera un plan y rechaza la primera versión con un feedback concreto. Compara ambas versiones.</li>
-<li>Usa <code>Ctrl+G</code> para eliminar un paso y añadir un requisito.</li>
-<li>Aprueba con <em>manually approve edits</em> y rechaza una edición concreta explicando por qué.</li>
-<li>Activa <code>showClearContextOnPlanAccept</code> y compara <code>/context</code> tras aprobar con y sin limpiar.</li>
+<li>Aplica fan-out/fan-in para investigar 3–4 áreas de tu repo con formato común.</li>
+<li>Monta una cadena investigador → experto → implementador con un punto de aprobación.</li>
+<li>Crea un coordinador con <code>Agent(...)</code> y ejecútalo con <code>claude --agent</code>.</li>
+<li>Lanza dos implementadores con <code>isolation: worktree</code> y luego integra sus ramas.</li>
 </ol>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/permission-modes#review-and-approve-a-plan">Revisar y aprobar un plan</a></li>
-<li><a href="https://code.claude.com/docs/en/checkpointing">Checkpointing</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents">Subagentes: patrones y anidación</a></li>
+<li><a href="https://code.claude.com/docs/en/agent-teams">Equipos de agentes</a></li>
+<li><a href="https://code.claude.com/docs/en/workflows">Workflows dinámicos</a></li>
+<li><a href="https://code.claude.com/docs/en/worktrees">Worktrees</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="19-entrar-y-leer-un-plan-en-modo-plan.html"><small>← Anterior</small>19. Entrar en modo plan y leer un plan</a><a class="next" href="21-compromisos-entre-modelos-opus-sonnet-haiku.html"><small>Siguiente →</small>21. &quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></nav>
+    <nav class="paginacion"><a class="prev" href="53-permisos-de-herramientas-y-mcp-para-subagentes.html"><small>← Anterior</small>53. Permisos de herramientas y MCP para subagentes</a><span></span></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#el-dialogo-de-aprobacion">El diálogo de aprobación</a><ul>
-<li><a href="#aprobar-y-limpiar-el-contexto">Aprobar y limpiar el contexto</a></li>
-</ul>
-</li>
-<li><a href="#editar-el-plan-directamente-ctrlg">Editar el plan directamente: Ctrl+G</a></li>
-<li><a href="#iterar-con-feedback">Iterar con feedback</a><ul>
-<li><a href="#patron-dos-alternativas">Patrón: dos alternativas</a></li>
-</ul>
-</li>
-<li><a href="#durante-la-implementacion">Durante la implementación</a></li>
-<li><a href="#recuperarse-de-un-mal-plan">Recuperarse de un mal plan</a></li>
-<li><a href="#hacer-que-el-proyecto-planifique-por-defecto">Hacer que el proyecto planifique por defecto</a></li>
-<li><a href="#flujo-completo-de-ejemplo">Flujo completo de ejemplo</a></li>
+<li><a href="#patron-1-fan-out-fan-in">Patrón 1: fan-out / fan-in</a></li>
+<li><a href="#patron-2-cadena-pipeline">Patrón 2: cadena (pipeline)</a></li>
+<li><a href="#patron-3-especialistas-revision-cruzada">Patrón 3: especialistas + revisión cruzada</a></li>
+<li><a href="#patron-4-coordinador-reutilizable">Patrón 4: coordinador reutilizable</a></li>
+<li><a href="#evitar-conflictos-worktrees">Evitar conflictos: worktrees</a></li>
+<li><a href="#anidacion">Anidación</a></li>
+<li><a href="#supervisar-la-ejecucion">Supervisar la ejecución</a></li>
+<li><a href="#buenas-practicas-de-orquestacion">Buenas prácticas de orquestación</a></li>
+<li><a href="#cuando-escalar">Cuándo escalar</a></li>
 <li><a href="#resumen">Resumen</a></li>
 <li><a href="#ejercicios">Ejercicios</a></li>
 <li><a href="#referencias">Referencias</a></li>

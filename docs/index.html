@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curso Claude Code en español</title>
-<meta name="description" content="Curso práctico de Claude Code en español: 48 lecciones con comandos, ejemplos y proyectos.">
+<meta name="description" content="Curso práctico de Claude Code en español: 54 lecciones con comandos, ejemplos y proyectos.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body class="portada">
@@ -73,11 +73,19 @@
 <li data-slug="46-escribir-y-acotar-tu-propio-hook"><a href="lecciones/46-escribir-y-acotar-tu-propio-hook.html"><span class="nav-num">46</span>Escribir y acotar tu propio hook</a></li>
 <li data-slug="47-ejecutar-claude-sin-ti"><a href="lecciones/47-ejecutar-claude-sin-ti.html"><span class="nav-num">47</span>&quot;Ejecutar Claude sin ti: CI, tareas programadas y pre-commit&quot;</a></li>
 <li data-slug="48-proyecto-integra-claude-en-tu-stack"><a href="lecciones/48-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">48</span>&quot;Proyecto de portafolio: integra Claude en tu stack&quot;</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">7. Subagentes</p><ol>
+<li data-slug="49-que-es-un-subagente"><a href="lecciones/49-que-es-un-subagente.html"><span class="nav-num">49</span>&quot;Qué es un subagente: contexto aislado, devuelve solo resultados&quot;</a></li>
+<li data-slug="50-subagentes-integrados"><a href="lecciones/50-subagentes-integrados.html"><span class="nav-num">50</span>&quot;Subagentes integrados: Explore, Plan y general-purpose&quot;</a></li>
+<li data-slug="51-por-que-ayudan-los-subagentes-en-paralelo"><a href="lecciones/51-por-que-ayudan-los-subagentes-en-paralelo.html"><span class="nav-num">51</span>&quot;Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad&quot;</a></li>
+<li data-slug="52-crear-un-subagente-personalizado"><a href="lecciones/52-crear-un-subagente-personalizado.html"><span class="nav-num">52</span>Crear un subagente personalizado</a></li>
+<li data-slug="53-permisos-de-herramientas-y-mcp-para-subagentes"><a href="lecciones/53-permisos-de-herramientas-y-mcp-para-subagentes.html"><span class="nav-num">53</span>Permisos de herramientas y MCP para subagentes</a></li>
+<li data-slug="54-orquestar-varios-subagentes-en-paralelo"><a href="lecciones/54-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">54</span>Orquestar varios subagentes en paralelo</a></li>
 </ol></div></nav>
   <main class="contenido ancho">
     <section class="hero">
       <h1>Claude Code, de cero a flujos multiagente</h1>
-      <p>48 lecciones prácticas en español: instalación, permisos, CLAUDE.md, modo plan, modelos, Git, MCP, skills, comandos, hooks, subagentes y plugins. Cada lección trae comandos, ejemplos de configuración y ejercicios.</p>
+      <p>54 lecciones prácticas en español: instalación, permisos, CLAUDE.md, modo plan, modelos, Git, MCP, skills, comandos, hooks, subagentes y plugins. Cada lección trae comandos, ejemplos de configuración y ejercicios.</p>
       <div class="progreso"><div class="barra"><span id="barra-progreso"></span></div><p id="texto-progreso"></p></div>
       <input id="buscar" type="search" placeholder="Buscar en el curso (p. ej. «hooks», «--permission-mode», «.mcp.json»)" autocomplete="off">
       <ul id="resultados"></ul>
@@ -141,6 +149,14 @@
 <a class="tarjeta" data-slug="46-escribir-y-acotar-tu-propio-hook" href="lecciones/46-escribir-y-acotar-tu-propio-hook.html"><span class="num">46</span><strong>Escribir y acotar tu propio hook</strong><p>Diseñar un hook desde cero - elegir evento y matcher, leer la entrada, decidir la salida (código o JSON), acotar su alcance (usuario, proyecto, local, skill, subagente), hooks de tipo prompt, hooks asíncronos, timeouts, rendimiento, seguridad y depuración con --debug-file.</p></a>
 <a class="tarjeta" data-slug="47-ejecutar-claude-sin-ti" href="lecciones/47-ejecutar-claude-sin-ti.html"><span class="num">47</span><strong>&quot;Ejecutar Claude sin ti: CI, tareas programadas y pre-commit&quot;</strong><p>Automatizar Claude Code fuera de la sesión interactiva - GitHub Actions (menciones @claude, revisión de PRs, skills y cron), GitLab CI, scripts con claude -p, hooks de pre-commit de Git, /loop y tareas programadas, routines en la nube, y buenas prácticas de seguridad y coste.</p></a>
 <a class="tarjeta" data-slug="48-proyecto-integra-claude-en-tu-stack" href="lecciones/48-proyecto-integra-claude-en-tu-stack.html"><span class="num">48</span><strong>&quot;Proyecto de portafolio: integra Claude en tu stack&quot;</strong><p>Proyecto práctico de las secciones 5 y 6 - conectar un servicio por MCP o CLI, crear skills y comandos del equipo, añadir hooks de calidad y seguridad, y automatizar una tarea en CI, todo documentado y versionado en el repositorio.</p></a>
+</div></section>
+<section class="bloque"><h2><span>Sección 7</span>Subagentes</h2><div class="tarjetas">
+<a class="tarjeta" data-slug="49-que-es-un-subagente" href="lecciones/49-que-es-un-subagente.html"><span class="num">49</span><strong>&quot;Qué es un subagente: contexto aislado, devuelve solo resultados&quot;</strong><p>El concepto de subagente - un asistente con su propia ventana de contexto, prompt de sistema, herramientas y permisos, que recibe una tarea y devuelve un resumen. Qué carga al empezar, ventajas, costes, cuándo usarlo frente a la conversación principal, forks y /btw.</p></a>
+<a class="tarjeta" data-slug="50-subagentes-integrados" href="lecciones/50-subagentes-integrados.html"><span class="num">50</span><strong>&quot;Subagentes integrados: Explore, Plan y general-purpose&quot;</strong><p>Los subagentes que trae Claude Code - Explore (búsqueda de solo lectura con niveles de exhaustividad), Plan (investigación en modo plan) y general-purpose (tareas complejas con edición) - más los auxiliares, cómo elegirlos, sobrescribirlos y desactivarlos.</p></a>
+<a class="tarjeta" data-slug="51-por-que-ayudan-los-subagentes-en-paralelo" href="lecciones/51-por-que-ayudan-los-subagentes-en-paralelo.html"><span class="num">51</span><strong>&quot;Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad&quot;</strong><p>Las dos ganancias de paralelizar con subagentes - contexto limpio y menor tiempo total - cuándo las tareas son paralelizables, cómo pedir investigación en paralelo, límites de concurrencia y profundidad, coste real en tokens y errores comunes.</p></a>
+<a class="tarjeta" data-slug="52-crear-un-subagente-personalizado" href="lecciones/52-crear-un-subagente-personalizado.html"><span class="num">52</span><strong>Crear un subagente personalizado</strong><p>Definir tus propios subagentes en .claude/agents o ~/.claude/agents - formato del archivo, frontmatter (name, description, tools, model, skills, memory, maxTurns, isolation…), escribir un buen prompt de sistema, invocarlos con @ y --agent, definirlos por CLI con --agents y ejemplos listos para usar.</p></a>
+<a class="tarjeta" data-slug="53-permisos-de-herramientas-y-mcp-para-subagentes" href="lecciones/53-permisos-de-herramientas-y-mcp-para-subagentes.html"><span class="num">53</span><strong>Permisos de herramientas y MCP para subagentes</strong><p>Controlar qué puede hacer cada subagente - tools y disallowedTools, patrones de MCP por servidor, servidores MCP exclusivos de un subagente (mcpServers), permissionMode y su interacción con el modo de la sesión, reglas de permisos que también aplican a subagentes, hooks por subagente y restringir qué subagentes se pueden lanzar.</p></a>
+<a class="tarjeta" data-slug="54-orquestar-varios-subagentes-en-paralelo" href="lecciones/54-orquestar-varios-subagentes-en-paralelo.html"><span class="num">54</span><strong>Orquestar varios subagentes en paralelo</strong><p>Patrones de orquestación - fan-out/fan-in, cadena (pipeline), especialistas con revisión cruzada, coordinador con --agent, aislamiento con worktrees, anidación, gestión con /tasks, y cuándo pasar a equipos de agentes o workflows dinámicos.</p></a>
 </div></section>
     <footer class="pie">
       <p>Material de estudio original, escrito a partir de la documentación oficial de Claude Code (<a href="https://code.claude.com/docs">code.claude.com/docs</a>). Claude Code evoluciona rápido: si un comando o flag no coincide con tu versión, revisa <code>claude --help</code> y la documentación oficial.</p>

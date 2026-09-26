@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>20. Aprobar, editar e iterar sobre un plan · Curso Claude Code</title>
-<meta name="description" content="Las opciones al terminar un plan (auto mode, aprobar ediciones manualmente, seguir planificando), editar el plan con Ctrl+G, iterar con feedback, limpiar el contexto al aprobar y volver a planificar a mitad de la implementación.">
+<title>53. Permisos de herramientas y MCP para subagentes · Curso Claude Code</title>
+<meta name="description" content="Controlar qué puede hacer cada subagente - tools y disallowedTools, patrones de MCP por servidor, servidores MCP exclusivos de un subagente (mcpServers), permissionMode y su interacción con el modo de la sesión, reglas de permisos que también aplican a subagentes, hooks por subagente y restringir qué subagentes se pueden lanzar.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="20-aprobar-editar-e-iterar-un-plan">
+<body data-slug="53-permisos-de-herramientas-y-mcp-para-subagentes">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -84,189 +84,253 @@
 <li data-slug="54-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/54-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">54</span>Orquestar varios subagentes en paralelo</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 3 · Planificar y elegir modelo</p>
-    <h1><span class="num-grande">20</span>Aprobar, editar e iterar sobre un plan</h1>
-    <p class="resumen">Las opciones al terminar un plan (auto mode, aprobar ediciones manualmente, seguir planificando), editar el plan con Ctrl+G, iterar con feedback, limpiar el contexto al aprobar y volver a planificar a mitad de la implementación.</p>
+    <p class="migas">Sección 7 · Subagentes</p>
+    <h1><span class="num-grande">53</span>Permisos de herramientas y MCP para subagentes</h1>
+    <p class="resumen">Controlar qué puede hacer cada subagente - tools y disallowedTools, patrones de MCP por servidor, servidores MCP exclusivos de un subagente (mcpServers), permissionMode y su interacción con el modo de la sesión, reglas de permisos que también aplican a subagentes, hooks por subagente y restringir qué subagentes se pueden lanzar.</p>
     <article class="leccion">
 <h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
 <ul>
-<li>Conocer las opciones del diálogo de aprobación y qué modo activa cada una.</li>
-<li>Editar el plan directamente con <code>Ctrl+G</code>.</li>
-<li>Iterar sobre el plan con feedback preciso.</li>
-<li>Volver a planificar si la implementación se tuerce.</li>
+<li>Aplicar <strong>mínimo privilegio</strong> a cada subagente.</li>
+<li>Restringir herramientas integradas y MCP con <code>tools</code> y <code>disallowedTools</code>.</li>
+<li>Dar a un subagente servidores MCP que la conversación principal no carga.</li>
+<li>Entender cómo se combinan <code>permissionMode</code>, las reglas de <code>settings.json</code> y los hooks.</li>
 </ul>
-<h2 id="el-dialogo-de-aprobacion">El diálogo de aprobación<a class="headerlink" href="#el-dialogo-de-aprobacion" title="Permanent link">#</a></h2>
-<p>Cuando Claude termina el plan, te lo muestra y pregunta cómo seguir. Las opciones habituales son:</p>
+<h2 id="por-que-importa">Por qué importa<a class="headerlink" href="#por-que-importa" title="Permanent link">#</a></h2>
+<p>Un subagente trabaja con cierta autonomía, a menudo en segundo plano y leyendo contenido que tú no has revisado (webs, logs, issues). Limitar lo que puede hacer reduce el impacto de errores y de <em>prompt injection</em>. Además, menos herramientas = decisiones más enfocadas.</p>
+<h2 id="capa-1-que-herramientas-tiene">Capa 1: qué herramientas tiene<a class="headerlink" href="#capa-1-que-herramientas-tiene" title="Permanent link">#</a></h2>
+<h3 id="por-defecto">Por defecto<a class="headerlink" href="#por-defecto" title="Permanent link">#</a></h3>
+<p>Un subagente hereda las herramientas integradas y MCP de la conversación principal, menos algunas que nunca tienen los subagentes (por ejemplo preguntar al usuario con <code>AskUserQuestion</code> o entrar/salir del modo plan). Los subagentes en <strong>segundo plano</strong> tienen un conjunto algo más reducido.</p>
+<h3 id="lista-blanca-tools">Lista blanca: <code>tools</code><a class="headerlink" href="#lista-blanca-tools" title="Permanent link">#</a></h3>
+<pre><code class="language-markdown">---
+name: investigador
+description: Investiga código sin modificar nada.
+tools: Read, Grep, Glob
+---
+</code></pre>
+<p>Solo puede leer y buscar. Ni editar, ni ejecutar comandos, ni usar MCP.</p>
+<h3 id="lista-negra-disallowedtools">Lista negra: <code>disallowedTools</code><a class="headerlink" href="#lista-negra-disallowedtools" title="Permanent link">#</a></h3>
+<pre><code class="language-markdown">---
+name: implementador-sin-red
+description: Implementa cambios sin acceso a la web ni a GitHub.
+disallowedTools: WebFetch, WebSearch, mcp__github
+---
+</code></pre>
+<p>Hereda todo excepto lo indicado. Si usas ambos campos, primero se aplica <code>disallowedTools</code> y luego <code>tools</code> sobre lo que queda.</p>
+<h3 id="patrones-de-mcp">Patrones de MCP<a class="headerlink" href="#patrones-de-mcp" title="Permanent link">#</a></h3>
 <table>
 <thead>
 <tr>
-<th>Opción</th>
-<th>Qué pasa</th>
+<th>Entrada</th>
+<th>Efecto</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Yes, and use auto mode</strong></td>
-<td>Aprueba y continúa en <strong>modo auto</strong> (el clasificador revisa las acciones). Si auto no está disponible, aparece como <em>Yes, auto-accept edits</em> (modo <code>acceptEdits</code>)</td>
+<td><code>mcp__github</code> o <code>mcp__github__*</code></td>
+<td>Todas las herramientas del servidor <code>github</code></td>
 </tr>
 <tr>
-<td><strong>Yes, manually approve edits</strong></td>
-<td>Aprueba y vuelve a <strong>Manual</strong>: revisarás cada edición</td>
+<td><code>mcp__github__get_issue</code></td>
+<td>Solo esa herramienta</td>
 </tr>
 <tr>
-<td><strong>No, keep planning</strong></td>
-<td>Sigue en modo plan; escribe qué quieres cambiar</td>
+<td><code>mcp__*</code> (en <code>disallowedTools</code>)</td>
+<td>Quita todas las herramientas MCP</td>
 </tr>
 </tbody>
 </table>
-<p>Al aprobar, <strong>sales del modo plan</strong> y Claude empieza a editar según el modo elegido. Además, la sesión recibe un título automático basado en el plan (si no la habías nombrado).</p>
-<div class="admonition tip">
-<p class="admonition-title">¿Qué opción elijo?</p>
-<ul>
-<li>Plan claro, cambio en una rama, confías en el enfoque → <strong>auto mode</strong> (o auto-accept edits).</li>
-<li>Código delicado o que conoces poco → <strong>manually approve edits</strong>.</li>
-<li>Tienes dudas → <strong>keep planning</strong>. Es gratis comparado con deshacer.</li>
-</ul>
+<pre><code class="language-markdown">---
+name: triador-issues
+description: Clasifica y etiqueta issues de GitHub.
+tools: mcp__github__list_issues, mcp__github__get_issue, mcp__github__add_labels, Read
+model: haiku
+---
+</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">tools/disallowedTools trabajan con herramientas completas</p>
+<p>Poner <code>Bash</code> concede Bash entero; y <code>Bash(git push *)</code> en <code>disallowedTools</code> elimina <strong>todo</strong> Bash. Para permitir Bash pero bloquear ciertos comandos, usa reglas <code>deny</code> en <code>settings.json</code> (capa 3).</p>
 </div>
-<h3 id="aprobar-y-limpiar-el-contexto">Aprobar y limpiar el contexto<a class="headerlink" href="#aprobar-y-limpiar-el-contexto" title="Permanent link">#</a></h3>
-<p>La exploración previa al plan puede haber llenado el contexto con archivos leídos. Si activas el ajuste <code>showClearContextOnPlanAccept</code>, aparece una opción adicional que <strong>aprueba el plan y limpia el contexto de planificación</strong>: Claude arranca la implementación con el plan y poco más, lo que ahorra tokens en tareas largas.</p>
-<pre><code class="language-json">{
-  &quot;showClearContextOnPlanAccept&quot;: true
-}
+<h2 id="capa-2-servidores-mcp-exclusivos-del-subagente">Capa 2: servidores MCP exclusivos del subagente<a class="headerlink" href="#capa-2-servidores-mcp-exclusivos-del-subagente" title="Permanent link">#</a></h2>
+<p>Con <code>mcpServers</code> puedes dar a un subagente servidores que <strong>no están</strong> en la conversación principal. Ventaja doble: la sesión principal no carga sus herramientas (menos contexto) y solo ese subagente puede usarlas.</p>
+<pre><code class="language-markdown">---
+name: probador-navegador
+description: Prueba flujos de la aplicación en un navegador real y hace capturas.
+mcpServers:
+  - playwright:
+      type: stdio
+      command: npx
+      args: [&quot;-y&quot;, &quot;@playwright/mcp@latest&quot;]
+  - github
+tools: Read, mcp__playwright, mcp__github__create_issue
+---
+Navega por la app en http://localhost:3000, ejecuta el flujo indicado,
+haz capturas de cada paso y, si algo falla, crea un issue con los detalles.
 </code></pre>
-<h2 id="editar-el-plan-directamente-ctrlg">Editar el plan directamente: <code>Ctrl+G</code><a class="headerlink" href="#editar-el-plan-directamente-ctrlg" title="Permanent link">#</a></h2>
-<p>Cuando el plan está casi bien pero quieres retocar detalles, pulsa <strong><code>Ctrl+G</code></strong> en el diálogo: el plan se abre en tu editor de texto (el definido en <code>$EDITOR</code>). Cambia lo que quieras, guarda y cierra; Claude continuará con tu versión.</p>
-<p>Útil para:</p>
 <ul>
-<li>Reordenar pasos.</li>
-<li>Borrar un paso que sobra ("no hace falta tocar el README").</li>
-<li>Añadir un requisito que se te olvidó.</li>
-<li>Precisar un nombre de función o una ruta.</li>
+<li>Las entradas pueden ser <strong>definiciones en línea</strong> (mismo formato que <code>.mcp.json</code>) o el <strong>nombre</strong> de un servidor ya configurado.</li>
+<li>Los servidores en línea de un agente del proyecto solo se cargan cuando has <strong>confiado</strong> en la carpeta.</li>
+<li>Las restricciones de la organización y <code>--strict-mcp-config</code>/<code>--bare</code> también aplican.</li>
 </ul>
-<pre><code class="language-bash"># Si no tienes editor configurado:
-export EDITOR=&quot;code --wait&quot;   # VS Code
-export EDITOR=&quot;nano&quot;          # nano
-</code></pre>
-<h2 id="iterar-con-feedback">Iterar con feedback<a class="headerlink" href="#iterar-con-feedback" title="Permanent link">#</a></h2>
-<p>Si eliges <strong>No, keep planning</strong>, escribe feedback <strong>concreto</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Feedback flojo</th>
-<th>Feedback útil</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>"No me convence"</td>
-<td>"No añadas una dependencia nueva; usa <code>csv-stringify</code>, que ya está en package.json"</td>
-</tr>
-<tr>
-<td>"Hazlo más simple"</td>
-<td>"Elimina el job en segundo plano: el límite de 10.000 filas permite generar el CSV en la propia petición con streaming"</td>
-</tr>
-<tr>
-<td>"Falta algo"</td>
-<td>"Falta el caso de usuarios sin permisos de exportación: devuelve 403 y añade un test"</td>
-</tr>
-</tbody>
-</table>
-<p>Tras cada ronda, vuelve a revisar el plan completo (no solo el cambio que pediste): a veces un ajuste afecta a otros pasos.</p>
-<h3 id="patron-dos-alternativas">Patrón: dos alternativas<a class="headerlink" href="#patron-dos-alternativas" title="Permanent link">#</a></h3>
-<p>Cuando no tienes claro el enfoque, pide que compare:</p>
-<pre><code class="language-text">&gt; Antes de cerrar el plan, dame dos alternativas (A: job + S3, B: streaming
-  directo) con pros, contras y esfuerzo estimado. Luego recomiéndame una.
-</code></pre>
-<h2 id="durante-la-implementacion">Durante la implementación<a class="headerlink" href="#durante-la-implementacion" title="Permanent link">#</a></h2>
-<p>El plan no es un contrato inmutable. Mientras Claude implementa:</p>
-<ul>
-<li><strong>Vigila la lista de tareas</strong> (<code>Ctrl+T</code>): debería reflejar los pasos del plan.</li>
-<li><strong>Interrumpe con <code>Esc</code></strong> si ves que se desvía, y corrige.</li>
-<li>Si descubres algo que invalida el plan (una dependencia inesperada, un requisito nuevo), <strong>vuelve a planificar</strong>:</li>
-</ul>
-<pre><code class="language-text">/plan Hemos descubierto que el servicio de pedidos no expone los filtros por
-fecha. Replanifica los pasos 3–5 teniendo esto en cuenta.
-</code></pre>
-<p>O pulsa <code>Shift+Tab</code> hasta volver a <code>plan mode on</code>.</p>
-<h2 id="recuperarse-de-un-mal-plan">Recuperarse de un mal plan<a class="headerlink" href="#recuperarse-de-un-mal-plan" title="Permanent link">#</a></h2>
-<p>Si aprobaste y el resultado no es lo que querías:</p>
-<ol>
-<li><code>Esc</code> para detener.</li>
-<li><code>/rewind</code> (o <code>Esc Esc</code>) → vuelve al mensaje anterior a la aprobación → <em>Restore code and conversation</em>.</li>
-<li>Vuelve a planificar con lo aprendido.</li>
-</ol>
-<p>Recuerda: <code>/rewind</code> no deshace cambios hechos con comandos Bash; si hubo migraciones o instalaciones, revisa con <code>git status</code>.</p>
-<h2 id="hacer-que-el-proyecto-planifique-por-defecto">Hacer que el proyecto planifique por defecto<a class="headerlink" href="#hacer-que-el-proyecto-planifique-por-defecto" title="Permanent link">#</a></h2>
-<p>Para repos delicados, puedes hacer que las sesiones arranquen en plan:</p>
+<div class="admonition note">
+<p class="admonition-title">Plugins</p>
+<p>Por seguridad, los subagentes que vienen en <strong>plugins</strong> ignoran <code>hooks</code>, <code>mcpServers</code> y <code>permissionMode</code>. Si los necesitas, copia el agente a <code>.claude/agents/</code>.</p>
+</div>
+<h2 id="capa-3-reglas-de-permisos-settingsjson">Capa 3: reglas de permisos (settings.json)<a class="headerlink" href="#capa-3-reglas-de-permisos-settingsjson" title="Permanent link">#</a></h2>
+<p>Las reglas <code>allow</code>/<code>ask</code>/<code>deny</code> de tus <code>settings.json</code> se aplican <strong>también a los subagentes</strong>. Es la forma correcta de afinar comandos:</p>
 <pre><code class="language-json">{
   &quot;permissions&quot;: {
-    &quot;defaultMode&quot;: &quot;plan&quot;
+    &quot;allow&quot;: [&quot;Bash(npm test *)&quot;, &quot;Bash(git diff *)&quot;],
+    &quot;deny&quot;: [&quot;Bash(git push *)&quot;, &quot;Bash(rm -rf *)&quot;, &quot;Read(./.env*)&quot;]
   }
 }
 </code></pre>
-<p>(en <code>.claude/settings.json</code>). En VS Code, usa el ajuste <code>claudeCode.initialPermissionMode: "plan"</code>.</p>
-<h2 id="flujo-completo-de-ejemplo">Flujo completo de ejemplo<a class="headerlink" href="#flujo-completo-de-ejemplo" title="Permanent link">#</a></h2>
-<pre><code class="language-text">$ claude -n export-csv --permission-mode plan
-
-&gt; Quiero exportar pedidos a CSV desde el panel respetando los filtros. Hazme
-  primero las preguntas que necesites.
-  (Claude pregunta por volumen, formato de fechas, permisos…)
-
-&gt; Máx. 10.000 filas, fechas ISO, solo rol &quot;manager&quot;. Propón el plan.
-  (Claude presenta el plan)
-
-&gt; [No, keep planning] Usa streaming en la propia petición en vez de un job.
-  (plan actualizado)
-
-&gt; [Ctrl+G] (quitas un paso sobre el README y guardas)
-
-&gt; [Yes, and use auto mode]
-  (Claude implementa, ejecuta tests, resume)
-
-&gt; /diff
-&gt; Crea un commit con un mensaje convencional.
+<p>Y para controlar <strong>qué subagentes</strong> se pueden usar:</p>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;deny&quot;: [&quot;Agent(general-purpose)&quot;, &quot;Agent(experimentador)&quot;],
+    &quot;ask&quot;: [&quot;Agent(model:opus)&quot;]
+  }
+}
 </code></pre>
+<h2 id="capa-4-modo-de-permisos-del-subagente">Capa 4: modo de permisos del subagente<a class="headerlink" href="#capa-4-modo-de-permisos-del-subagente" title="Permanent link">#</a></h2>
+<p><code>permissionMode</code> fija el modo en que trabaja el subagente (<code>default</code>, <code>acceptEdits</code>, <code>auto</code>, <code>dontAsk</code>, <code>plan</code>, <code>bypassPermissions</code>). Cómo se combina con la sesión:</p>
+<table>
+<thead>
+<tr>
+<th>Modo de la conversación principal</th>
+<th>Qué modo usa el subagente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bypassPermissions</code>, <code>acceptEdits</code> o <code>auto</code></td>
+<td><strong>El de la sesión</strong> (se ignora el del subagente)</td>
+</tr>
+<tr>
+<td><code>default</code> (Manual), <code>dontAsk</code> o <code>plan</code></td>
+<td>El que declare el subagente (excepto <code>bypassPermissions</code>, que no se concede)</td>
+</tr>
+</tbody>
+</table>
+<p>Ejemplo útil: un subagente de solo lectura en <code>plan</code>, o uno de CI en <code>dontAsk</code> que solo usa lo preaprobado.</p>
+<pre><code class="language-markdown">---
+name: auditor
+description: Audita el repositorio sin cambiar nada.
+permissionMode: plan
+tools: Read, Grep, Glob, Bash
+---
+</code></pre>
+<p>Los subagentes en segundo plano muestran sus peticiones de permiso en tu sesión principal.</p>
+<h2 id="capa-5-hooks-por-subagente">Capa 5: hooks por subagente<a class="headerlink" href="#capa-5-hooks-por-subagente" title="Permanent link">#</a></h2>
+<p>Los hooks del <em>frontmatter</em> de un subagente solo están activos <strong>mientras ese subagente trabaja</strong>:</p>
+<pre><code class="language-markdown">---
+name: operador-bd
+description: Ejecuta consultas de mantenimiento en la BD de desarrollo.
+tools: Bash, Read
+hooks:
+  PreToolUse:
+    - matcher: &quot;Bash&quot;
+      hooks:
+        - type: command
+          command: &quot;\&quot;$CLAUDE_PROJECT_DIR\&quot;/.claude/hooks/solo-bd-dev.sh&quot;
+---
+</code></pre>
+<p>Además, los hooks definidos en tus <code>settings.json</code> se ejecutan también dentro de los subagentes, y existen los eventos <code>SubagentStart</code> y <code>SubagentStop</code> para reaccionar a su ciclo de vida (por ejemplo, registrar qué subagentes se lanzan o validar su resultado).</p>
+<h2 id="capa-6-quien-puede-lanzar-a-quien">Capa 6: quién puede lanzar a quién<a class="headerlink" href="#capa-6-quien-puede-lanzar-a-quien" title="Permanent link">#</a></h2>
+<p>Cuando ejecutas una sesión entera como un agente (<code>claude --agent coordinador</code>), puedes limitar qué subagentes puede lanzar con la sintaxis <code>Agent(tipo)</code> en <code>tools</code>:</p>
+<pre><code class="language-markdown">---
+name: coordinador
+description: Coordina trabajo entre agentes especializados.
+tools: Agent(investigador, ejecutor-tests), Read, Bash
+---
+</code></pre>
+<p>Solo podrá delegar en <code>investigador</code> y <code>ejecutor-tests</code>. Sin <code>Agent</code> en la lista, no puede delegar en nadie.</p>
+<h2 id="plantilla-de-minimo-privilegio">Plantilla de mínimo privilegio<a class="headerlink" href="#plantilla-de-minimo-privilegio" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tipo de subagente</th>
+<th>tools</th>
+<th>Modelo</th>
+<th>Otros</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Investigador</td>
+<td><code>Read, Grep, Glob</code></td>
+<td>haiku/sonnet</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Revisor</td>
+<td><code>Read, Grep, Glob, Bash</code> + deny de escritura en settings</td>
+<td>opus</td>
+<td><code>permissionMode: plan</code></td>
+</tr>
+<tr>
+<td>Ejecutor de tests</td>
+<td><code>Bash, Read</code></td>
+<td>haiku</td>
+<td>allow <code>Bash(npm test *)</code></td>
+</tr>
+<tr>
+<td>Implementador</td>
+<td>Hereda, <code>disallowedTools: WebFetch, mcp__*</code></td>
+<td>sonnet</td>
+<td><code>isolation: worktree</code> opcional</td>
+</tr>
+<tr>
+<td>Integración externa</td>
+<td>Solo las herramientas MCP necesarias</td>
+<td>haiku/sonnet</td>
+<td><code>mcpServers</code> en línea</td>
+</tr>
+</tbody>
+</table>
 <h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
 <ul>
-<li>Al aprobar eliges el modo: auto/acceptEdits o Manual; o sigues planificando.</li>
-<li><code>Ctrl+G</code> abre el plan en tu editor para retocarlo.</li>
-<li>Feedback concreto y verificable produce mejores iteraciones.</li>
-<li>Puedes volver a planificar en cualquier momento con <code>/plan</code> o <code>Shift+Tab</code>.</li>
+<li><code>tools</code>/<code>disallowedTools</code> deciden qué herramientas (y servidores MCP) tiene cada subagente.</li>
+<li><code>mcpServers</code> da servidores exclusivos sin cargarlos en la sesión principal.</li>
+<li>Las reglas de <code>settings.json</code> y los hooks se aplican también a subagentes; úsalos para filtrar comandos.</li>
+<li><code>permissionMode</code> del subagente solo manda si la sesión está en Manual, dontAsk o plan.</li>
 </ul>
 <h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
 <ol>
-<li>Genera un plan y rechaza la primera versión con un feedback concreto. Compara ambas versiones.</li>
-<li>Usa <code>Ctrl+G</code> para eliminar un paso y añadir un requisito.</li>
-<li>Aprueba con <em>manually approve edits</em> y rechaza una edición concreta explicando por qué.</li>
-<li>Activa <code>showClearContextOnPlanAccept</code> y compara <code>/context</code> tras aprobar con y sin limpiar.</li>
+<li>Convierte uno de tus subagentes en "solo lectura" con <code>tools</code> y comprueba que no puede editar.</li>
+<li>Crea un subagente con un servidor MCP en línea (p. ej. Playwright) y verifica con <code>/context</code> que la sesión principal no carga sus herramientas.</li>
+<li>Añade una regla <code>deny</code> de Bash y comprueba que también bloquea al subagente.</li>
+<li>Añade un hook <code>SubagentStop</code> que registre en un log el nombre de cada subagente que termina.</li>
 </ol>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/permission-modes#review-and-approve-a-plan">Revisar y aprobar un plan</a></li>
-<li><a href="https://code.claude.com/docs/en/checkpointing">Checkpointing</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents#control-subagent-capabilities">Subagentes: controlar capacidades</a></li>
+<li><a href="https://code.claude.com/docs/en/permissions">Permisos</a></li>
+<li><a href="https://code.claude.com/docs/en/hooks">Hooks: SubagentStart/SubagentStop</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="19-entrar-y-leer-un-plan-en-modo-plan.html"><small>← Anterior</small>19. Entrar en modo plan y leer un plan</a><a class="next" href="21-compromisos-entre-modelos-opus-sonnet-haiku.html"><small>Siguiente →</small>21. &quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></nav>
+    <nav class="paginacion"><a class="prev" href="52-crear-un-subagente-personalizado.html"><small>← Anterior</small>52. Crear un subagente personalizado</a><a class="next" href="54-orquestar-varios-subagentes-en-paralelo.html"><small>Siguiente →</small>54. Orquestar varios subagentes en paralelo</a></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#el-dialogo-de-aprobacion">El diálogo de aprobación</a><ul>
-<li><a href="#aprobar-y-limpiar-el-contexto">Aprobar y limpiar el contexto</a></li>
+<li><a href="#por-que-importa">Por qué importa</a></li>
+<li><a href="#capa-1-que-herramientas-tiene">Capa 1: qué herramientas tiene</a><ul>
+<li><a href="#por-defecto">Por defecto</a></li>
+<li><a href="#lista-blanca-tools">Lista blanca: tools</a></li>
+<li><a href="#lista-negra-disallowedtools">Lista negra: disallowedTools</a></li>
+<li><a href="#patrones-de-mcp">Patrones de MCP</a></li>
 </ul>
 </li>
-<li><a href="#editar-el-plan-directamente-ctrlg">Editar el plan directamente: Ctrl+G</a></li>
-<li><a href="#iterar-con-feedback">Iterar con feedback</a><ul>
-<li><a href="#patron-dos-alternativas">Patrón: dos alternativas</a></li>
-</ul>
-</li>
-<li><a href="#durante-la-implementacion">Durante la implementación</a></li>
-<li><a href="#recuperarse-de-un-mal-plan">Recuperarse de un mal plan</a></li>
-<li><a href="#hacer-que-el-proyecto-planifique-por-defecto">Hacer que el proyecto planifique por defecto</a></li>
-<li><a href="#flujo-completo-de-ejemplo">Flujo completo de ejemplo</a></li>
+<li><a href="#capa-2-servidores-mcp-exclusivos-del-subagente">Capa 2: servidores MCP exclusivos del subagente</a></li>
+<li><a href="#capa-3-reglas-de-permisos-settingsjson">Capa 3: reglas de permisos (settings.json)</a></li>
+<li><a href="#capa-4-modo-de-permisos-del-subagente">Capa 4: modo de permisos del subagente</a></li>
+<li><a href="#capa-5-hooks-por-subagente">Capa 5: hooks por subagente</a></li>
+<li><a href="#capa-6-quien-puede-lanzar-a-quien">Capa 6: quién puede lanzar a quién</a></li>
+<li><a href="#plantilla-de-minimo-privilegio">Plantilla de mínimo privilegio</a></li>
 <li><a href="#resumen">Resumen</a></li>
 <li><a href="#ejercicios">Ejercicios</a></li>
 <li><a href="#referencias">Referencias</a></li>

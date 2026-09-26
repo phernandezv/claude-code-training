@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>20. Aprobar, editar e iterar sobre un plan · Curso Claude Code</title>
-<meta name="description" content="Las opciones al terminar un plan (auto mode, aprobar ediciones manualmente, seguir planificando), editar el plan con Ctrl+G, iterar con feedback, limpiar el contexto al aprobar y volver a planificar a mitad de la implementación.">
+<title>51. &quot;Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad&quot; · Curso Claude Code</title>
+<meta name="description" content="Las dos ganancias de paralelizar con subagentes - contexto limpio y menor tiempo total - cuándo las tareas son paralelizables, cómo pedir investigación en paralelo, límites de concurrencia y profundidad, coste real en tokens y errores comunes.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="20-aprobar-editar-e-iterar-un-plan">
+<body data-slug="51-por-que-ayudan-los-subagentes-en-paralelo">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -84,189 +84,191 @@
 <li data-slug="54-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/54-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">54</span>Orquestar varios subagentes en paralelo</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 3 · Planificar y elegir modelo</p>
-    <h1><span class="num-grande">20</span>Aprobar, editar e iterar sobre un plan</h1>
-    <p class="resumen">Las opciones al terminar un plan (auto mode, aprobar ediciones manualmente, seguir planificando), editar el plan con Ctrl+G, iterar con feedback, limpiar el contexto al aprobar y volver a planificar a mitad de la implementación.</p>
+    <p class="migas">Sección 7 · Subagentes</p>
+    <h1><span class="num-grande">51</span>&quot;Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad&quot;</h1>
+    <p class="resumen">Las dos ganancias de paralelizar con subagentes - contexto limpio y menor tiempo total - cuándo las tareas son paralelizables, cómo pedir investigación en paralelo, límites de concurrencia y profundidad, coste real en tokens y errores comunes.</p>
     <article class="leccion">
 <h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
 <ul>
-<li>Conocer las opciones del diálogo de aprobación y qué modo activa cada una.</li>
-<li>Editar el plan directamente con <code>Ctrl+G</code>.</li>
-<li>Iterar sobre el plan con feedback preciso.</li>
-<li>Volver a planificar si la implementación se tuerce.</li>
+<li>Entender las dos ventajas del paralelismo: <strong>contexto</strong> y <strong>tiempo</strong>.</li>
+<li>Reconocer tareas que se pueden paralelizar (y las que no).</li>
+<li>Pedir investigación en paralelo de forma eficaz.</li>
+<li>Conocer los límites y el coste real.</li>
 </ul>
-<h2 id="el-dialogo-de-aprobacion">El diálogo de aprobación<a class="headerlink" href="#el-dialogo-de-aprobacion" title="Permanent link">#</a></h2>
-<p>Cuando Claude termina el plan, te lo muestra y pregunta cómo seguir. Las opciones habituales son:</p>
+<h2 id="ventaja-1-higiene-del-contexto">Ventaja 1: higiene del contexto<a class="headerlink" href="#ventaja-1-higiene-del-contexto" title="Permanent link">#</a></h2>
+<p>Imagina que necesitas entender tres módulos (autenticación, facturación y notificaciones) antes de un cambio transversal.</p>
+<p><strong>Secuencial en la conversación principal</strong>: Claude lee ~30 archivos de cada módulo. Tu contexto acaba con cientos de miles de tokens de código leído, la mayoría irrelevante para la decisión final.</p>
+<p><strong>Con tres subagentes</strong>: cada uno lee su módulo en su propio contexto y devuelve un resumen de ~1 página. Tu contexto solo recibe <strong>tres resúmenes</strong>.</p>
+<pre><code class="language-text">Principal ──┬─► Subagente A (auth)          ─┐
+            ├─► Subagente B (facturación)   ─┼─► 3 resúmenes ─► Síntesis
+            └─► Subagente C (notificaciones)─┘
+</code></pre>
+<p>Resultado: la conversación principal sigue ágil, barata por mensaje y centrada en decidir.</p>
+<h2 id="ventaja-2-velocidad">Ventaja 2: velocidad<a class="headerlink" href="#ventaja-2-velocidad" title="Permanent link">#</a></h2>
+<p>Los subagentes en paralelo trabajan <strong>a la vez</strong>. Si cada investigación tarda 3 minutos, tres en paralelo tardan ~3 minutos en total en lugar de ~9. Además, mientras corren en segundo plano, tú puedes seguir trabajando.</p>
+<h2 id="que-tareas-se-pueden-paralelizar">¿Qué tareas se pueden paralelizar?<a class="headerlink" href="#que-tareas-se-pueden-paralelizar" title="Permanent link">#</a></h2>
+<p>Una tarea es buena candidata si sus partes son <strong>independientes</strong>: ninguna necesita el resultado de otra y no editan los mismos archivos.</p>
 <table>
 <thead>
 <tr>
-<th>Opción</th>
-<th>Qué pasa</th>
+<th>Paralelizable ✅</th>
+<th>No paralelizable ❌</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Yes, and use auto mode</strong></td>
-<td>Aprueba y continúa en <strong>modo auto</strong> (el clasificador revisa las acciones). Si auto no está disponible, aparece como <em>Yes, auto-accept edits</em> (modo <code>acceptEdits</code>)</td>
+<td>Investigar módulos distintos</td>
+<td>Paso B necesita el resultado de A</td>
 </tr>
 <tr>
-<td><strong>Yes, manually approve edits</strong></td>
-<td>Aprueba y vuelve a <strong>Manual</strong>: revisarás cada edición</td>
+<td>Revisar un PR desde varios ángulos (seguridad, rendimiento, tests)</td>
+<td>Varios agentes editando el mismo archivo</td>
 </tr>
 <tr>
-<td><strong>No, keep planning</strong></td>
-<td>Sigue en modo plan; escribe qué quieres cambiar</td>
+<td>Buscar usos de una API en distintos paquetes de un monorepo</td>
+<td>Diseño que requiere una visión única y coherente</td>
+</tr>
+<tr>
+<td>Migrar archivos independientes con el mismo patrón</td>
+<td>Cambios con dependencias fuertes entre sí</td>
+</tr>
+<tr>
+<td>Comparar librerías alternativas</td>
+<td>Depurar un bug con una sola hipótesis activa</td>
 </tr>
 </tbody>
 </table>
-<p>Al aprobar, <strong>sales del modo plan</strong> y Claude empieza a editar según el modo elegido. Además, la sesión recibe un título automático basado en el plan (si no la habías nombrado).</p>
+<h2 id="como-pedirlo">Cómo pedirlo<a class="headerlink" href="#como-pedirlo" title="Permanent link">#</a></h2>
+<p>Sé explícito sobre <strong>qué</strong> va a cada subagente y <strong>qué formato</strong> quieres de vuelta:</p>
+<pre><code class="language-text">&gt; Investiga en paralelo, con un subagente por área, cómo se gestionan hoy los
+  errores en: (1) src/http, (2) src/services, (3) src/jobs.
+  Cada uno debe devolver: patrón usado, ejemplos con archivo:línea, e
+  inconsistencias. Máximo 20 líneas por área. Después sintetiza una propuesta
+  de patrón único.
+</code></pre>
+<pre><code class="language-text">&gt; Revisa este PR con tres subagentes en paralelo: uno de seguridad, uno de
+  rendimiento y uno de cobertura de tests. Luego une los hallazgos,
+  elimina duplicados y ordénalos por severidad.
+</code></pre>
 <div class="admonition tip">
-<p class="admonition-title">¿Qué opción elijo?</p>
-<ul>
-<li>Plan claro, cambio en una rama, confías en el enfoque → <strong>auto mode</strong> (o auto-accept edits).</li>
-<li>Código delicado o que conoces poco → <strong>manually approve edits</strong>.</li>
-<li>Tienes dudas → <strong>keep planning</strong>. Es gratis comparado con deshacer.</li>
-</ul>
+<p class="admonition-title">Pide resúmenes, no volcados</p>
+<p>Los resultados de los subagentes <strong>sí</strong> vuelven a tu contexto. Si cada uno devuelve 3.000 líneas, pierdes la ventaja. Limita la extensión y pide solo lo que necesitas para decidir.</p>
 </div>
-<h3 id="aprobar-y-limpiar-el-contexto">Aprobar y limpiar el contexto<a class="headerlink" href="#aprobar-y-limpiar-el-contexto" title="Permanent link">#</a></h3>
-<p>La exploración previa al plan puede haber llenado el contexto con archivos leídos. Si activas el ajuste <code>showClearContextOnPlanAccept</code>, aparece una opción adicional que <strong>aprueba el plan y limpia el contexto de planificación</strong>: Claude arranca la implementación con el plan y poco más, lo que ahorra tokens en tareas largas.</p>
-<pre><code class="language-json">{
-  &quot;showClearContextOnPlanAccept&quot;: true
-}
-</code></pre>
-<h2 id="editar-el-plan-directamente-ctrlg">Editar el plan directamente: <code>Ctrl+G</code><a class="headerlink" href="#editar-el-plan-directamente-ctrlg" title="Permanent link">#</a></h2>
-<p>Cuando el plan está casi bien pero quieres retocar detalles, pulsa <strong><code>Ctrl+G</code></strong> en el diálogo: el plan se abre en tu editor de texto (el definido en <code>$EDITOR</code>). Cambia lo que quieras, guarda y cierra; Claude continuará con tu versión.</p>
-<p>Útil para:</p>
-<ul>
-<li>Reordenar pasos.</li>
-<li>Borrar un paso que sobra ("no hace falta tocar el README").</li>
-<li>Añadir un requisito que se te olvidó.</li>
-<li>Precisar un nombre de función o una ruta.</li>
-</ul>
-<pre><code class="language-bash"># Si no tienes editor configurado:
-export EDITOR=&quot;code --wait&quot;   # VS Code
-export EDITOR=&quot;nano&quot;          # nano
-</code></pre>
-<h2 id="iterar-con-feedback">Iterar con feedback<a class="headerlink" href="#iterar-con-feedback" title="Permanent link">#</a></h2>
-<p>Si eliges <strong>No, keep planning</strong>, escribe feedback <strong>concreto</strong>:</p>
+<h2 id="limites">Límites<a class="headerlink" href="#limites" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Feedback flojo</th>
-<th>Feedback útil</th>
+<th>Límite</th>
+<th>Por defecto</th>
+<th>Ajuste</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>"No me convence"</td>
-<td>"No añadas una dependencia nueva; usa <code>csv-stringify</code>, que ya está en package.json"</td>
+<td>Subagentes simultáneos en una sesión</td>
+<td>20</td>
+<td>Variable de entorno correspondiente (ver docs)</td>
 </tr>
 <tr>
-<td>"Hazlo más simple"</td>
-<td>"Elimina el job en segundo plano: el límite de 10.000 filas permite generar el CSV en la propia petición con streaming"</td>
-</tr>
-<tr>
-<td>"Falta algo"</td>
-<td>"Falta el caso de usuarios sin permisos de exportación: devuelve 403 y añade un test"</td>
+<td>Profundidad de anidación (subagentes que lanzan subagentes)</td>
+<td>3 niveles bajo la conversación principal</td>
+<td><code>CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code> (<code>1</code> desactiva la anidación)</td>
 </tr>
 </tbody>
 </table>
-<p>Tras cada ronda, vuelve a revisar el plan completo (no solo el cambio que pediste): a veces un ajuste afecta a otros pasos.</p>
-<h3 id="patron-dos-alternativas">Patrón: dos alternativas<a class="headerlink" href="#patron-dos-alternativas" title="Permanent link">#</a></h3>
-<p>Cuando no tienes claro el enfoque, pide que compare:</p>
-<pre><code class="language-text">&gt; Antes de cerrar el plan, dame dos alternativas (A: job + S3, B: streaming
-  directo) con pros, contras y esfuerzo estimado. Luego recomiéndame una.
-</code></pre>
-<h2 id="durante-la-implementacion">Durante la implementación<a class="headerlink" href="#durante-la-implementacion" title="Permanent link">#</a></h2>
-<p>El plan no es un contrato inmutable. Mientras Claude implementa:</p>
+<p>Si se alcanza el límite de concurrencia, lanzar otro subagente falla y Claude debe esperar a que terminen los activos.</p>
+<h2 id="el-coste-real">El coste real<a class="headerlink" href="#el-coste-real" title="Permanent link">#</a></h2>
+<p>Paralelizar <strong>no ahorra tokens totales</strong>; a menudo gasta más:</p>
 <ul>
-<li><strong>Vigila la lista de tareas</strong> (<code>Ctrl+T</code>): debería reflejar los pasos del plan.</li>
-<li><strong>Interrumpe con <code>Esc</code></strong> si ves que se desvía, y corrige.</li>
-<li>Si descubres algo que invalida el plan (una dependencia inesperada, un requisito nuevo), <strong>vuelve a planificar</strong>:</li>
+<li>Cada subagente hace sus propias peticiones y lee sus propios archivos.</li>
+<li>Un subagente que empieza de cero puede releer cosas que la conversación principal ya conocía.</li>
 </ul>
-<pre><code class="language-text">/plan Hemos descubierto que el servicio de pedidos no expone los filtros por
-fecha. Replanifica los pasos 3–5 teniendo esto en cuenta.
-</code></pre>
-<p>O pulsa <code>Shift+Tab</code> hasta volver a <code>plan mode on</code>.</p>
-<h2 id="recuperarse-de-un-mal-plan">Recuperarse de un mal plan<a class="headerlink" href="#recuperarse-de-un-mal-plan" title="Permanent link">#</a></h2>
-<p>Si aprobaste y el resultado no es lo que querías:</p>
-<ol>
-<li><code>Esc</code> para detener.</li>
-<li><code>/rewind</code> (o <code>Esc Esc</code>) → vuelve al mensaje anterior a la aprobación → <em>Restore code and conversation</em>.</li>
-<li>Vuelve a planificar con lo aprendido.</li>
-</ol>
-<p>Recuerda: <code>/rewind</code> no deshace cambios hechos con comandos Bash; si hubo migraciones o instalaciones, revisa con <code>git status</code>.</p>
-<h2 id="hacer-que-el-proyecto-planifique-por-defecto">Hacer que el proyecto planifique por defecto<a class="headerlink" href="#hacer-que-el-proyecto-planifique-por-defecto" title="Permanent link">#</a></h2>
-<p>Para repos delicados, puedes hacer que las sesiones arranquen en plan:</p>
-<pre><code class="language-json">{
-  &quot;permissions&quot;: {
-    &quot;defaultMode&quot;: &quot;plan&quot;
-  }
-}
-</code></pre>
-<p>(en <code>.claude/settings.json</code>). En VS Code, usa el ajuste <code>claudeCode.initialPermissionMode: "plan"</code>.</p>
-<h2 id="flujo-completo-de-ejemplo">Flujo completo de ejemplo<a class="headerlink" href="#flujo-completo-de-ejemplo" title="Permanent link">#</a></h2>
-<pre><code class="language-text">$ claude -n export-csv --permission-mode plan
-
-&gt; Quiero exportar pedidos a CSV desde el panel respetando los filtros. Hazme
-  primero las preguntas que necesites.
-  (Claude pregunta por volumen, formato de fechas, permisos…)
-
-&gt; Máx. 10.000 filas, fechas ISO, solo rol &quot;manager&quot;. Propón el plan.
-  (Claude presenta el plan)
-
-&gt; [No, keep planning] Usa streaming en la propia petición en vez de un job.
-  (plan actualizado)
-
-&gt; [Ctrl+G] (quitas un paso sobre el README y guardas)
-
-&gt; [Yes, and use auto mode]
-  (Claude implementa, ejecuta tests, resume)
-
-&gt; /diff
-&gt; Crea un commit con un mensaje convencional.
-</code></pre>
+<p>Lo que ahorras es <strong>contexto en la conversación principal</strong> (mensajes siguientes más baratos y enfocados) y <strong>tiempo</strong>. Merece la pena cuando:</p>
+<ul>
+<li>La investigación es voluminosa.</li>
+<li>Las partes son realmente independientes.</li>
+<li>El tiempo importa.</li>
+</ul>
+<p>Para reducir coste: usa modelos más baratos en subagentes de búsqueda (lección 52) y acota bien cada encargo.</p>
+<h2 id="errores-comunes">Errores comunes<a class="headerlink" href="#errores-comunes" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Consecuencia</th>
+<th>Solución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Encargos vagos ("mira el backend")</td>
+<td>Subagentes que leen todo</td>
+<td>Áreas y preguntas concretas</td>
+</tr>
+<tr>
+<td>Sin formato de respuesta</td>
+<td>Resúmenes largos e inconsistentes</td>
+<td>Especifica estructura y longitud</td>
+</tr>
+<tr>
+<td>Paralelizar tareas dependientes</td>
+<td>Resultados contradictorios o rehacer trabajo</td>
+<td>Encadena en secuencia</td>
+</tr>
+<tr>
+<td>Varios subagentes editando lo mismo</td>
+<td>Conflictos y cambios pisados</td>
+<td>Reparte archivos o usa worktrees aislados (lección 54)</td>
+</tr>
+<tr>
+<td>Paralelizar lo trivial</td>
+<td>Más coste y latencia</td>
+<td>Hazlo directamente</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mas-alla-de-los-subagentes">Más allá de los subagentes<a class="headerlink" href="#mas-alla-de-los-subagentes" title="Permanent link">#</a></h2>
+<p>Si el trabajo en paralelo es muy grande o largo:</p>
+<ul>
+<li><strong>Sesiones en paralelo</strong> con worktrees (<code>claude -w</code>, lección 27).</li>
+<li><strong>Sesiones en segundo plano</strong> (<code>/background</code>, <code>claude agents</code>).</li>
+<li><strong>Equipos de agentes</strong> y <strong>workflows dinámicos</strong>, que coordinan muchos agentes (lección 54).</li>
+</ul>
 <h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
 <ul>
-<li>Al aprobar eliges el modo: auto/acceptEdits o Manual; o sigues planificando.</li>
-<li><code>Ctrl+G</code> abre el plan en tu editor para retocarlo.</li>
-<li>Feedback concreto y verificable produce mejores iteraciones.</li>
-<li>Puedes volver a planificar en cualquier momento con <code>/plan</code> o <code>Shift+Tab</code>.</li>
+<li>Paralelo = contexto principal limpio + menos tiempo total.</li>
+<li>Solo para partes independientes; pide resúmenes acotados.</li>
+<li>No ahorra tokens totales; acota encargos y usa modelos adecuados.</li>
+<li>Límites de concurrencia (20) y profundidad (3 por defecto).</li>
 </ul>
 <h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
 <ol>
-<li>Genera un plan y rechaza la primera versión con un feedback concreto. Compara ambas versiones.</li>
-<li>Usa <code>Ctrl+G</code> para eliminar un paso y añadir un requisito.</li>
-<li>Aprueba con <em>manually approve edits</em> y rechaza una edición concreta explicando por qué.</li>
-<li>Activa <code>showClearContextOnPlanAccept</code> y compara <code>/context</code> tras aprobar con y sin limpiar.</li>
+<li>Pide una investigación de tres áreas de tu repo en paralelo con formato de respuesta fijo. Mide el tiempo y revisa <code>/context</code>.</li>
+<li>Repite la misma investigación en la conversación principal sin subagentes y compara.</li>
+<li>Identifica en tu backlog una tarea paralelizable y otra que no lo sea, y justifica por qué.</li>
 </ol>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/permission-modes#review-and-approve-a-plan">Revisar y aprobar un plan</a></li>
-<li><a href="https://code.claude.com/docs/en/checkpointing">Checkpointing</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents#common-patterns">Subagentes: patrones comunes</a></li>
+<li><a href="https://code.claude.com/docs/en/costs">Gestionar costes</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="19-entrar-y-leer-un-plan-en-modo-plan.html"><small>← Anterior</small>19. Entrar en modo plan y leer un plan</a><a class="next" href="21-compromisos-entre-modelos-opus-sonnet-haiku.html"><small>Siguiente →</small>21. &quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></nav>
+    <nav class="paginacion"><a class="prev" href="50-subagentes-integrados.html"><small>← Anterior</small>50. &quot;Subagentes integrados: Explore, Plan y general-purpose&quot;</a><a class="next" href="52-crear-un-subagente-personalizado.html"><small>Siguiente →</small>52. Crear un subagente personalizado</a></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#el-dialogo-de-aprobacion">El diálogo de aprobación</a><ul>
-<li><a href="#aprobar-y-limpiar-el-contexto">Aprobar y limpiar el contexto</a></li>
-</ul>
-</li>
-<li><a href="#editar-el-plan-directamente-ctrlg">Editar el plan directamente: Ctrl+G</a></li>
-<li><a href="#iterar-con-feedback">Iterar con feedback</a><ul>
-<li><a href="#patron-dos-alternativas">Patrón: dos alternativas</a></li>
-</ul>
-</li>
-<li><a href="#durante-la-implementacion">Durante la implementación</a></li>
-<li><a href="#recuperarse-de-un-mal-plan">Recuperarse de un mal plan</a></li>
-<li><a href="#hacer-que-el-proyecto-planifique-por-defecto">Hacer que el proyecto planifique por defecto</a></li>
-<li><a href="#flujo-completo-de-ejemplo">Flujo completo de ejemplo</a></li>
+<li><a href="#ventaja-1-higiene-del-contexto">Ventaja 1: higiene del contexto</a></li>
+<li><a href="#ventaja-2-velocidad">Ventaja 2: velocidad</a></li>
+<li><a href="#que-tareas-se-pueden-paralelizar">¿Qué tareas se pueden paralelizar?</a></li>
+<li><a href="#como-pedirlo">Cómo pedirlo</a></li>
+<li><a href="#limites">Límites</a></li>
+<li><a href="#el-coste-real">El coste real</a></li>
+<li><a href="#errores-comunes">Errores comunes</a></li>
+<li><a href="#mas-alla-de-los-subagentes">Más allá de los subagentes</a></li>
 <li><a href="#resumen">Resumen</a></li>
 <li><a href="#ejercicios">Ejercicios</a></li>
 <li><a href="#referencias">Referencias</a></li>
