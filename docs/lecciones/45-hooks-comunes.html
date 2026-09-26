@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>45. Hooks comunes: formatear tras editar, bloquear un comando peligroso, ejecutar una comprobación · Curso Claude Code</title>
+<meta name="description" content="Recetario de hooks listos para usar - autoformateo con PostToolUse, proteger archivos y bloquear comandos con PreToolUse, lint con feedback, tests obligatorios con Stop, notificaciones de escritorio, reinyectar contexto tras compactar y registro de auditoría.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="45-hooks-comunes">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>Modos de permisos: mantener el control</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>Modo headless: respuestas rápidas sin el chat</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>Alcance: proyecto vs. usuario vs. archivos anidados</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>Estilos de salida: elegir cómo te responde Claude</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>Proyecto de portafolio: configura Claude en un proyecto real</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="18-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/18-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">18</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="19-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/19-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">19</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="20-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/20-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">20</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/21-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">21</span>Compromisos entre modelos: Opus vs. Sonnet vs. Haiku</a></li>
+<li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="23-el-hibrido-opusplan"><a href="../lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
+<li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="25-como-trabaja-claude-con-tu-repo"><a href="../lecciones/25-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">25</span>Cómo trabaja Claude con tu repo: estado, diffs e historial</a></li>
+<li data-slug="26-hacer-buenos-commits"><a href="../lecciones/26-hacer-buenos-commits.html"><span class="nav-num">26</span>Hacer buenos commits: staging y mensajes de commit</a></li>
+<li data-slug="27-ramas-y-pull-requests"><a href="../lecciones/27-ramas-y-pull-requests.html"><span class="nav-num">27</span>Ramas y pull requests</a></li>
+<li data-slug="28-revisar-codigo-y-prs-con-claude"><a href="../lecciones/28-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">28</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="29-resolver-conflictos-de-merge"><a href="../lecciones/29-resolver-conflictos-de-merge.html"><span class="nav-num">29</span>Resolver conflictos de merge</a></li>
+<li data-slug="30-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="../lecciones/30-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">30</span>Proyecto de portafolio: lleva un cambio de principio a fin</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">5. MCP y herramientas externas</p><ol>
+<li data-slug="31-que-es-mcp"><a href="../lecciones/31-que-es-mcp.html"><span class="nav-num">31</span>Qué es MCP: Claude Code como cliente de herramientas externas</a></li>
+<li data-slug="32-anadir-un-servidor-mcp"><a href="../lecciones/32-anadir-un-servidor-mcp.html"><span class="nav-num">32</span>Añadir un servidor MCP</a></li>
+<li data-slug="33-usar-herramientas-mcp-en-una-sesion"><a href="../lecciones/33-usar-herramientas-mcp-en-una-sesion.html"><span class="nav-num">33</span>Usar herramientas MCP dentro de una sesión</a></li>
+<li data-slug="34-alcance-y-gestion-de-servidores-proyecto-vs-usuario"><a href="../lecciones/34-alcance-y-gestion-de-servidores-proyecto-vs-usuario.html"><span class="nav-num">34</span>Alcance y gestión de servidores: proyecto vs. usuario</a></li>
+<li data-slug="35-mcp-con-seguridad-permisos-secretos-y-confianza"><a href="../lecciones/35-mcp-con-seguridad-permisos-secretos-y-confianza.html"><span class="nav-num">35</span>MCP con seguridad: permisos, secretos y confianza</a></li>
+<li data-slug="36-dejar-que-claude-use-herramientas-cli"><a href="../lecciones/36-dejar-que-claude-use-herramientas-cli.html"><span class="nav-num">36</span>Dejar que Claude use herramientas CLI</a></li>
+<li data-slug="37-cli-vs-mcp-cuando-usar-cada-uno"><a href="../lecciones/37-cli-vs-mcp-cuando-usar-cada-uno.html"><span class="nav-num">37</span>Herramientas CLI vs. servidores MCP: cuándo usar cada uno</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">6. Skills, comandos y hooks</p><ol>
+<li data-slug="38-claude-skills"><a href="../lecciones/38-claude-skills.html"><span class="nav-num">38</span>Skills de Claude</a></li>
+<li data-slug="39-claude-md-vs-skills"><a href="../lecciones/39-claude-md-vs-skills.html"><span class="nav-num">39</span>CLAUDE.md vs. skills</a></li>
+<li data-slug="40-crear-una-skill"><a href="../lecciones/40-crear-una-skill.html"><span class="nav-num">40</span>Crear una skill</a></li>
+<li data-slug="41-organizar-y-reutilizar-skills"><a href="../lecciones/41-organizar-y-reutilizar-skills.html"><span class="nav-num">41</span>Organizar y reutilizar skills</a></li>
+<li data-slug="42-comandos-slash-personalizados"><a href="../lecciones/42-comandos-slash-personalizados.html"><span class="nav-num">42</span>Comandos slash personalizados: un prompt repetido convertido en atajo</a></li>
+<li data-slug="43-pasar-argumentos-a-un-comando"><a href="../lecciones/43-pasar-argumentos-a-un-comando.html"><span class="nav-num">43</span>Pasar argumentos a un comando</a></li>
+<li data-slug="44-que-son-los-hooks"><a href="../lecciones/44-que-son-los-hooks.html"><span class="nav-num">44</span>Qué son los hooks: acciones que se ejecutan solas en momentos clave</a></li>
+<li data-slug="45-hooks-comunes"><a href="../lecciones/45-hooks-comunes.html"><span class="nav-num">45</span>Hooks comunes: formatear tras editar, bloquear un comando peligroso, ejecutar una comprobación</a></li>
+<li data-slug="46-escribir-y-acotar-tu-propio-hook"><a href="../lecciones/46-escribir-y-acotar-tu-propio-hook.html"><span class="nav-num">46</span>Escribir y acotar tu propio hook</a></li>
+<li data-slug="47-ejecutar-claude-sin-ti"><a href="../lecciones/47-ejecutar-claude-sin-ti.html"><span class="nav-num">47</span>Ejecutar Claude sin ti: CI, tareas programadas y pre-commit</a></li>
+<li data-slug="48-proyecto-integra-claude-en-tu-stack"><a href="../lecciones/48-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">48</span>Proyecto de portafolio: integra Claude en tu stack</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">7. Subagentes</p><ol>
+<li data-slug="49-que-es-un-subagente"><a href="../lecciones/49-que-es-un-subagente.html"><span class="nav-num">49</span>Qué es un subagente: contexto aislado, devuelve solo resultados</a></li>
+<li data-slug="50-subagentes-integrados"><a href="../lecciones/50-subagentes-integrados.html"><span class="nav-num">50</span>Subagentes integrados: Explore, Plan y general-purpose</a></li>
+<li data-slug="51-por-que-ayudan-los-subagentes-en-paralelo"><a href="../lecciones/51-por-que-ayudan-los-subagentes-en-paralelo.html"><span class="nav-num">51</span>Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad</a></li>
+<li data-slug="52-crear-un-subagente-personalizado"><a href="../lecciones/52-crear-un-subagente-personalizado.html"><span class="nav-num">52</span>Crear un subagente personalizado</a></li>
+<li data-slug="53-permisos-de-herramientas-y-mcp-para-subagentes"><a href="../lecciones/53-permisos-de-herramientas-y-mcp-para-subagentes.html"><span class="nav-num">53</span>Permisos de herramientas y MCP para subagentes</a></li>
+<li data-slug="54-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/54-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">54</span>Orquestar varios subagentes en paralelo</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">8. Plugins</p><ol>
+<li data-slug="55-que-es-un-plugin"><a href="../lecciones/55-que-es-un-plugin.html"><span class="nav-num">55</span>Qué es un plugin: un paquete de comandos, skills, subagentes, hooks y MCP</a></li>
+<li data-slug="56-instalar-y-activar-plugins"><a href="../lecciones/56-instalar-y-activar-plugins.html"><span class="nav-num">56</span>Instalar y activar plugins con /plugin, y el marketplace</a></li>
+<li data-slug="57-construir-tu-propio-plugin"><a href="../lecciones/57-construir-tu-propio-plugin.html"><span class="nav-num">57</span>Construir tu propio plugin con las piezas que ya has hecho</a></li>
+<li data-slug="58-compartir-un-plugin-con-tu-equipo"><a href="../lecciones/58-compartir-un-plugin-con-tu-equipo.html"><span class="nav-num">58</span>Compartir un plugin con tu equipo</a></li>
+<li data-slug="59-proyecto-construye-un-flujo-multiagente"><a href="../lecciones/59-proyecto-construye-un-flujo-multiagente.html"><span class="nav-num">59</span>Proyecto de portafolio: construye un flujo multiagente</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 6 · Skills, comandos y hooks</p>
+    <h1><span class="num-grande">45</span>Hooks comunes: formatear tras editar, bloquear un comando peligroso, ejecutar una comprobación</h1>
+    <p class="resumen">Recetario de hooks listos para usar - autoformateo con PostToolUse, proteger archivos y bloquear comandos con PreToolUse, lint con feedback, tests obligatorios con Stop, notificaciones de escritorio, reinyectar contexto tras compactar y registro de auditoría.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Implementar los hooks más útiles del día a día.</li>
+<li>Entender qué evento, matcher y salida usa cada uno.</li>
+<li>Adaptarlos a tu stack.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Requisitos</p>
+<p>Los ejemplos usan <code>jq</code> para leer el JSON de entrada (<code>brew install jq</code>, <code>apt install jq</code>). Los scripts deben ser ejecutables: <code>chmod +x .claude/hooks/*.sh</code>. Usa <code>"$CLAUDE_PROJECT_DIR"</code> para referenciarlos desde cualquier directorio.</p>
+</div>
+<h2 id="1-formatear-automaticamente-tras-editar">1. Formatear automáticamente tras editar<a class="headerlink" href="#1-formatear-automaticamente-tras-editar" title="Permanent link">#</a></h2>
+<p><strong>Evento</strong>: <code>PostToolUse</code> · <strong>Matcher</strong>: <code>Edit|Write</code></p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PostToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write&quot;,
+        &quot;hooks&quot;: [
+          { &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;\&quot;$CLAUDE_PROJECT_DIR\&quot;/.claude/hooks/formatear.sh&quot; }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p><code>.claude/hooks/formatear.sh</code>:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# Formatea el archivo recién editado según su extensión.
+archivo=$(jq -r '.tool_input.file_path // empty')
+[ -z &quot;$archivo&quot; ] || [ ! -f &quot;$archivo&quot; ] &amp;&amp; exit 0
+
+case &quot;$archivo&quot; in
+  *.ts|*.tsx|*.js|*.jsx|*.json|*.css|*.md) npx --no-install prettier --write &quot;$archivo&quot; &gt;/dev/null 2&gt;&amp;1 ;;
+  *.py) ruff format &quot;$archivo&quot; &gt;/dev/null 2&gt;&amp;1 ;;
+  *.go) gofmt -w &quot;$archivo&quot; ;;
+  *.rs) rustfmt &quot;$archivo&quot; 2&gt;/dev/null ;;
+esac
+exit 0
+</code></pre>
+<p>Claude no ve nada en la conversación, pero el archivo queda formateado. Ahorra tokens: Claude ya no tiene que preocuparse del formato.</p>
+<h2 id="2-proteger-archivos-sensibles">2. Proteger archivos sensibles<a class="headerlink" href="#2-proteger-archivos-sensibles" title="Permanent link">#</a></h2>
+<p><strong>Evento</strong>: <code>PreToolUse</code> · <strong>Matcher</strong>: <code>Edit|Write</code> · <strong>Salida</strong>: código 2 para bloquear.</p>
+<p><code>.claude/hooks/proteger.sh</code>:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# Bloquea ediciones de archivos protegidos y explica el motivo a Claude.
+ruta=$(jq -r '.tool_input.file_path // empty')
+ruta=&quot;${ruta//\\//}&quot;   # normaliza separadores de Windows
+
+protegidos=(&quot;.env&quot; &quot;secrets/&quot; &quot;package-lock.json&quot; &quot;pnpm-lock.yaml&quot; &quot;db/migrations/applied/&quot;)
+for patron in &quot;${protegidos[@]}&quot;; do
+  if [[ &quot;$ruta&quot; == *&quot;$patron&quot;* ]]; then
+    echo &quot;Bloqueado: '$ruta' está protegido ($patron). Si es necesario cambiarlo, pide al usuario que lo haga o regenera el archivo con la herramienta adecuada.&quot; &gt;&amp;2
+    exit 2
+  fi
+done
+exit 0
+</code></pre>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PreToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write&quot;,
+        &quot;hooks&quot;: [{ &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;\&quot;$CLAUDE_PROJECT_DIR\&quot;/.claude/hooks/proteger.sh&quot; }]
+      }
+    ]
+  }
+}
+</code></pre>
+<p>El mensaje de stderr llega a Claude, que ajusta su enfoque en vez de reintentar a ciegas.</p>
+<h2 id="3-bloquear-comandos-peligrosos">3. Bloquear comandos peligrosos<a class="headerlink" href="#3-bloquear-comandos-peligrosos" title="Permanent link">#</a></h2>
+<p><strong>Evento</strong>: <code>PreToolUse</code> · <strong>Matcher</strong>: <code>Bash</code> · <strong>Salida</strong>: JSON con <code>permissionDecision</code>.</p>
+<p><code>.claude/hooks/bash-seguro.sh</code>:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+cmd=$(jq -r '.tool_input.command // empty')
+
+denegar() {
+  jq -n --arg r &quot;$1&quot; '{hookSpecificOutput:{hookEventName:&quot;PreToolUse&quot;,permissionDecision:&quot;deny&quot;,permissionDecisionReason:$r}}'
+  exit 0
+}
+preguntar() {
+  jq -n --arg r &quot;$1&quot; '{hookSpecificOutput:{hookEventName:&quot;PreToolUse&quot;,permissionDecision:&quot;ask&quot;,permissionDecisionReason:$r}}'
+  exit 0
+}
+
+[[ &quot;$cmd&quot; =~ rm[[:space:]]+-[a-zA-Z]*r[a-zA-Z]*f ]] &amp;&amp; denegar &quot;rm -rf no está permitido. Borra archivos concretos.&quot;
+[[ &quot;$cmd&quot; =~ git[[:space:]]+push.*(--force|-f([[:space:]]|$)) ]] &amp;&amp; denegar &quot;Nada de push forzado.&quot;
+[[ &quot;$cmd&quot; =~ (curl|wget).*\|[[:space:]]*(ba)?sh ]] &amp;&amp; denegar &quot;No se ejecuta código descargado.&quot;
+[[ &quot;$cmd&quot; =~ (DROP|TRUNCATE)[[:space:]]+(TABLE|DATABASE) ]] &amp;&amp; preguntar &quot;Operación destructiva sobre la base de datos: confirma.&quot;
+exit 0
+</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">Los hooks son una capa, no la única</p>
+<p>Detectar comandos con expresiones regulares nunca es perfecto (hay muchas formas de escribir lo mismo). Combina hooks con reglas <code>deny</code>, el modo auto y, para trabajo de riesgo, un sandbox o contenedor.</p>
+</div>
+<h2 id="4-lint-con-feedback-para-claude">4. Lint con feedback para Claude<a class="headerlink" href="#4-lint-con-feedback-para-claude" title="Permanent link">#</a></h2>
+<p><strong>Evento</strong>: <code>PostToolUse</code> · <strong>Matcher</strong>: <code>Edit|Write</code> · <strong>Salida</strong>: código 2 para que Claude vea los errores.</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# .claude/hooks/lint.sh — ejecuta eslint sobre el archivo editado y devuelve errores a Claude
+archivo=$(jq -r '.tool_input.file_path // empty')
+[[ &quot;$archivo&quot; =~ \.(ts|tsx|js|jsx)$ ]] || exit 0
+
+if ! salida=$(npx --no-install eslint --max-warnings=0 &quot;$archivo&quot; 2&gt;&amp;1); then
+  echo &quot;ESLint encontró problemas en $archivo. Corrígelos:&quot; &gt;&amp;2
+  echo &quot;$salida&quot; | head -40 &gt;&amp;2
+  exit 2
+fi
+exit 0
+</code></pre>
+<p>En <code>PostToolUse</code> la herramienta ya se ejecutó, así que el código 2 no la deshace: <strong>envía el texto a Claude</strong> para que corrija en el siguiente paso.</p>
+<h2 id="5-tests-obligatorios-antes-de-terminar">5. Tests obligatorios antes de terminar<a class="headerlink" href="#5-tests-obligatorios-antes-de-terminar" title="Permanent link">#</a></h2>
+<p><strong>Evento</strong>: <code>Stop</code> · <strong>Salida</strong>: <code>decision: "block"</code> para que Claude siga trabajando.</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# .claude/hooks/tests-al-terminar.sh
+entrada=$(cat)
+# Evita bucles infinitos: si ya estamos continuando por este hook, no volver a bloquear.
+[ &quot;$(jq -r '.stop_hook_active' &lt;&lt;&lt;&quot;$entrada&quot;)&quot; = &quot;true&quot; ] &amp;&amp; exit 0
+# Solo si hay cambios en el código
+git diff --quiet HEAD -- src tests 2&gt;/dev/null &amp;&amp; exit 0
+
+if ! salida=$(npm test --silent 2&gt;&amp;1); then
+  jq -n --arg r &quot;Los tests fallan. Corrígelos antes de terminar:
+$(tail -n 40 &lt;&lt;&lt;&quot;$salida&quot;)&quot; '{decision:&quot;block&quot;, reason:$r}'
+fi
+exit 0
+</code></pre>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;Stop&quot;: [
+      { &quot;hooks&quot;: [{ &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;\&quot;$CLAUDE_PROJECT_DIR\&quot;/.claude/hooks/tests-al-terminar.sh&quot;, &quot;timeout&quot;: 300 }] }
+    ]
+  }
+}
+</code></pre>
+<div class="admonition tip">
+<p class="admonition-title">/goal</p>
+<p>Para el caso simple de "sigue hasta que se cumpla X" durante una sesión, el comando <code>/goal</code> crea un hook <code>Stop</code> temporal basado en un prompt, sin configuración.</p>
+</div>
+<h2 id="6-notificacion-cuando-claude-te-necesita">6. Notificación cuando Claude te necesita<a class="headerlink" href="#6-notificacion-cuando-claude-te-necesita" title="Permanent link">#</a></h2>
+<p><strong>Evento</strong>: <code>Notification</code> · <strong>Matcher</strong>: <code>permission_prompt|idle_prompt</code></p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;Notification&quot;: [
+      {
+        &quot;matcher&quot;: &quot;permission_prompt|idle_prompt&quot;,
+        &quot;hooks&quot;: [
+          { &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;osascript -e 'display notification \&quot;Claude Code te necesita\&quot; with title \&quot;Claude Code\&quot;'&quot; }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p>En Linux: <code>notify-send 'Claude Code' 'Te necesita'</code>. En Windows (PowerShell) puedes usar un <em>toast</em> o un simple <code>[console]::beep()</code>. Ideal en <code>~/.claude/settings.json</code>.</p>
+<h2 id="7-reinyectar-contexto-tras-compactar">7. Reinyectar contexto tras compactar<a class="headerlink" href="#7-reinyectar-contexto-tras-compactar" title="Permanent link">#</a></h2>
+<p><strong>Evento</strong>: <code>SessionStart</code> · <strong>Matcher</strong>: <code>compact</code></p>
+<p>Lo que imprime un hook <code>SessionStart</code> se añade al contexto. Útil para recordar el estado tras una compactación:</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;SessionStart&quot;: [
+      {
+        &quot;matcher&quot;: &quot;compact&quot;,
+        &quot;hooks&quot;: [
+          { &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;echo \&quot;Rama: $(git branch --show-current)\&quot;; echo 'Cambios pendientes:'; git status --short | head -20; cat \&quot;$CLAUDE_PROJECT_DIR\&quot;/NOTAS-TAREA.md 2&gt;/dev/null&quot; }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<h2 id="8-registro-de-auditoria">8. Registro de auditoría<a class="headerlink" href="#8-registro-de-auditoria" title="Permanent link">#</a></h2>
+<p><strong>Evento</strong>: <code>PreToolUse</code> · <strong>Matcher</strong>: <code>Bash</code></p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PreToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Bash&quot;,
+        &quot;hooks&quot;: [
+          { &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;jq -c '{t: now | todate, sesion: .session_id, cmd: .tool_input.command}' &gt;&gt; ~/.claude/auditoria-bash.jsonl&quot; }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<h2 id="resumen-de-recetas">Resumen de recetas<a class="headerlink" href="#resumen-de-recetas" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Objetivo</th>
+<th>Evento</th>
+<th>Matcher</th>
+<th>Mecanismo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Formatear</td>
+<td><code>PostToolUse</code></td>
+<td><code>Edit\|Write</code></td>
+<td>Ejecutar formateador, exit 0</td>
+</tr>
+<tr>
+<td>Proteger archivos</td>
+<td><code>PreToolUse</code></td>
+<td><code>Edit\|Write</code></td>
+<td>exit 2 + stderr</td>
+</tr>
+<tr>
+<td>Bloquear comandos</td>
+<td><code>PreToolUse</code></td>
+<td><code>Bash</code></td>
+<td>JSON <code>permissionDecision</code></td>
+</tr>
+<tr>
+<td>Lint con feedback</td>
+<td><code>PostToolUse</code></td>
+<td><code>Edit\|Write</code></td>
+<td>exit 2 + stderr (Claude corrige)</td>
+</tr>
+<tr>
+<td>Tests al terminar</td>
+<td><code>Stop</code></td>
+<td>—</td>
+<td>JSON <code>decision: "block"</code></td>
+</tr>
+<tr>
+<td>Notificar</td>
+<td><code>Notification</code></td>
+<td><code>permission_prompt\|idle_prompt</code></td>
+<td>Comando del sistema</td>
+</tr>
+<tr>
+<td>Contexto tras compactar</td>
+<td><code>SessionStart</code></td>
+<td><code>compact</code></td>
+<td>stdout al contexto</td>
+</tr>
+<tr>
+<td>Auditoría</td>
+<td><code>PreToolUse</code></td>
+<td><code>Bash</code></td>
+<td>Añadir a un log</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Implementa el hook de formateo para tu stack y compruébalo pidiendo una edición mal formateada.</li>
+<li>Implementa el de proteger archivos y pide a Claude que edite <code>.env</code>.</li>
+<li>Añade la notificación de escritorio en tu configuración de usuario.</li>
+<li>Implementa el hook <code>Stop</code> de tests y rompe un test a propósito para ver cómo Claude lo arregla.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/hooks-guide">Guía de hooks (ejemplos)</a></li>
+<li><a href="https://code.claude.com/docs/en/hooks">Referencia de hooks: eventos y decisiones</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="44-que-son-los-hooks.html"><small>← Anterior</small>44. Qué son los hooks: acciones que se ejecutan solas en momentos clave</a><a class="next" href="46-escribir-y-acotar-tu-propio-hook.html"><small>Siguiente →</small>46. Escribir y acotar tu propio hook</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#1-formatear-automaticamente-tras-editar">1. Formatear automáticamente tras editar</a></li>
+<li><a href="#2-proteger-archivos-sensibles">2. Proteger archivos sensibles</a></li>
+<li><a href="#3-bloquear-comandos-peligrosos">3. Bloquear comandos peligrosos</a></li>
+<li><a href="#4-lint-con-feedback-para-claude">4. Lint con feedback para Claude</a></li>
+<li><a href="#5-tests-obligatorios-antes-de-terminar">5. Tests obligatorios antes de terminar</a></li>
+<li><a href="#6-notificacion-cuando-claude-te-necesita">6. Notificación cuando Claude te necesita</a></li>
+<li><a href="#7-reinyectar-contexto-tras-compactar">7. Reinyectar contexto tras compactar</a></li>
+<li><a href="#8-registro-de-auditoria">8. Registro de auditoría</a></li>
+<li><a href="#resumen-de-recetas">Resumen de recetas</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

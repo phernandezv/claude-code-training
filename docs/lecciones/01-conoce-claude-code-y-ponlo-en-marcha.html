@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1. Conoce Claude Code y ponlo en marcha · Curso Claude Code</title>
+<meta name="description" content="Qué es Claude Code, en qué se diferencia de un chat, dónde puedes usarlo y cómo instalarlo, autenticarte y verificar que todo funciona.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="01-conoce-claude-code-y-ponlo-en-marcha">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>Modos de permisos: mantener el control</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>Modo headless: respuestas rápidas sin el chat</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>Alcance: proyecto vs. usuario vs. archivos anidados</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>Estilos de salida: elegir cómo te responde Claude</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>Proyecto de portafolio: configura Claude en un proyecto real</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="18-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/18-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">18</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="19-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/19-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">19</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="20-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/20-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">20</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/21-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">21</span>Compromisos entre modelos: Opus vs. Sonnet vs. Haiku</a></li>
+<li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="23-el-hibrido-opusplan"><a href="../lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
+<li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="25-como-trabaja-claude-con-tu-repo"><a href="../lecciones/25-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">25</span>Cómo trabaja Claude con tu repo: estado, diffs e historial</a></li>
+<li data-slug="26-hacer-buenos-commits"><a href="../lecciones/26-hacer-buenos-commits.html"><span class="nav-num">26</span>Hacer buenos commits: staging y mensajes de commit</a></li>
+<li data-slug="27-ramas-y-pull-requests"><a href="../lecciones/27-ramas-y-pull-requests.html"><span class="nav-num">27</span>Ramas y pull requests</a></li>
+<li data-slug="28-revisar-codigo-y-prs-con-claude"><a href="../lecciones/28-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">28</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="29-resolver-conflictos-de-merge"><a href="../lecciones/29-resolver-conflictos-de-merge.html"><span class="nav-num">29</span>Resolver conflictos de merge</a></li>
+<li data-slug="30-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="../lecciones/30-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">30</span>Proyecto de portafolio: lleva un cambio de principio a fin</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">5. MCP y herramientas externas</p><ol>
+<li data-slug="31-que-es-mcp"><a href="../lecciones/31-que-es-mcp.html"><span class="nav-num">31</span>Qué es MCP: Claude Code como cliente de herramientas externas</a></li>
+<li data-slug="32-anadir-un-servidor-mcp"><a href="../lecciones/32-anadir-un-servidor-mcp.html"><span class="nav-num">32</span>Añadir un servidor MCP</a></li>
+<li data-slug="33-usar-herramientas-mcp-en-una-sesion"><a href="../lecciones/33-usar-herramientas-mcp-en-una-sesion.html"><span class="nav-num">33</span>Usar herramientas MCP dentro de una sesión</a></li>
+<li data-slug="34-alcance-y-gestion-de-servidores-proyecto-vs-usuario"><a href="../lecciones/34-alcance-y-gestion-de-servidores-proyecto-vs-usuario.html"><span class="nav-num">34</span>Alcance y gestión de servidores: proyecto vs. usuario</a></li>
+<li data-slug="35-mcp-con-seguridad-permisos-secretos-y-confianza"><a href="../lecciones/35-mcp-con-seguridad-permisos-secretos-y-confianza.html"><span class="nav-num">35</span>MCP con seguridad: permisos, secretos y confianza</a></li>
+<li data-slug="36-dejar-que-claude-use-herramientas-cli"><a href="../lecciones/36-dejar-que-claude-use-herramientas-cli.html"><span class="nav-num">36</span>Dejar que Claude use herramientas CLI</a></li>
+<li data-slug="37-cli-vs-mcp-cuando-usar-cada-uno"><a href="../lecciones/37-cli-vs-mcp-cuando-usar-cada-uno.html"><span class="nav-num">37</span>Herramientas CLI vs. servidores MCP: cuándo usar cada uno</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">6. Skills, comandos y hooks</p><ol>
+<li data-slug="38-claude-skills"><a href="../lecciones/38-claude-skills.html"><span class="nav-num">38</span>Skills de Claude</a></li>
+<li data-slug="39-claude-md-vs-skills"><a href="../lecciones/39-claude-md-vs-skills.html"><span class="nav-num">39</span>CLAUDE.md vs. skills</a></li>
+<li data-slug="40-crear-una-skill"><a href="../lecciones/40-crear-una-skill.html"><span class="nav-num">40</span>Crear una skill</a></li>
+<li data-slug="41-organizar-y-reutilizar-skills"><a href="../lecciones/41-organizar-y-reutilizar-skills.html"><span class="nav-num">41</span>Organizar y reutilizar skills</a></li>
+<li data-slug="42-comandos-slash-personalizados"><a href="../lecciones/42-comandos-slash-personalizados.html"><span class="nav-num">42</span>Comandos slash personalizados: un prompt repetido convertido en atajo</a></li>
+<li data-slug="43-pasar-argumentos-a-un-comando"><a href="../lecciones/43-pasar-argumentos-a-un-comando.html"><span class="nav-num">43</span>Pasar argumentos a un comando</a></li>
+<li data-slug="44-que-son-los-hooks"><a href="../lecciones/44-que-son-los-hooks.html"><span class="nav-num">44</span>Qué son los hooks: acciones que se ejecutan solas en momentos clave</a></li>
+<li data-slug="45-hooks-comunes"><a href="../lecciones/45-hooks-comunes.html"><span class="nav-num">45</span>Hooks comunes: formatear tras editar, bloquear un comando peligroso, ejecutar una comprobación</a></li>
+<li data-slug="46-escribir-y-acotar-tu-propio-hook"><a href="../lecciones/46-escribir-y-acotar-tu-propio-hook.html"><span class="nav-num">46</span>Escribir y acotar tu propio hook</a></li>
+<li data-slug="47-ejecutar-claude-sin-ti"><a href="../lecciones/47-ejecutar-claude-sin-ti.html"><span class="nav-num">47</span>Ejecutar Claude sin ti: CI, tareas programadas y pre-commit</a></li>
+<li data-slug="48-proyecto-integra-claude-en-tu-stack"><a href="../lecciones/48-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">48</span>Proyecto de portafolio: integra Claude en tu stack</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">7. Subagentes</p><ol>
+<li data-slug="49-que-es-un-subagente"><a href="../lecciones/49-que-es-un-subagente.html"><span class="nav-num">49</span>Qué es un subagente: contexto aislado, devuelve solo resultados</a></li>
+<li data-slug="50-subagentes-integrados"><a href="../lecciones/50-subagentes-integrados.html"><span class="nav-num">50</span>Subagentes integrados: Explore, Plan y general-purpose</a></li>
+<li data-slug="51-por-que-ayudan-los-subagentes-en-paralelo"><a href="../lecciones/51-por-que-ayudan-los-subagentes-en-paralelo.html"><span class="nav-num">51</span>Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad</a></li>
+<li data-slug="52-crear-un-subagente-personalizado"><a href="../lecciones/52-crear-un-subagente-personalizado.html"><span class="nav-num">52</span>Crear un subagente personalizado</a></li>
+<li data-slug="53-permisos-de-herramientas-y-mcp-para-subagentes"><a href="../lecciones/53-permisos-de-herramientas-y-mcp-para-subagentes.html"><span class="nav-num">53</span>Permisos de herramientas y MCP para subagentes</a></li>
+<li data-slug="54-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/54-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">54</span>Orquestar varios subagentes en paralelo</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">8. Plugins</p><ol>
+<li data-slug="55-que-es-un-plugin"><a href="../lecciones/55-que-es-un-plugin.html"><span class="nav-num">55</span>Qué es un plugin: un paquete de comandos, skills, subagentes, hooks y MCP</a></li>
+<li data-slug="56-instalar-y-activar-plugins"><a href="../lecciones/56-instalar-y-activar-plugins.html"><span class="nav-num">56</span>Instalar y activar plugins con /plugin, y el marketplace</a></li>
+<li data-slug="57-construir-tu-propio-plugin"><a href="../lecciones/57-construir-tu-propio-plugin.html"><span class="nav-num">57</span>Construir tu propio plugin con las piezas que ya has hecho</a></li>
+<li data-slug="58-compartir-un-plugin-con-tu-equipo"><a href="../lecciones/58-compartir-un-plugin-con-tu-equipo.html"><span class="nav-num">58</span>Compartir un plugin con tu equipo</a></li>
+<li data-slug="59-proyecto-construye-un-flujo-multiagente"><a href="../lecciones/59-proyecto-construye-un-flujo-multiagente.html"><span class="nav-num">59</span>Proyecto de portafolio: construye un flujo multiagente</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 1 · Primeros pasos</p>
+    <h1><span class="num-grande">1</span>Conoce Claude Code y ponlo en marcha</h1>
+    <p class="resumen">Qué es Claude Code, en qué se diferencia de un chat, dónde puedes usarlo y cómo instalarlo, autenticarte y verificar que todo funciona.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<p>Al terminar podrás:</p>
+<ul>
+<li>Explicar qué es Claude Code y por qué se le llama <strong>agente</strong> y no simplemente "chat con IA".</li>
+<li>Instalarlo en macOS, Linux, WSL o Windows con el método recomendado.</li>
+<li>Iniciar sesión con tu cuenta (o con una API key) y comprobar la instalación con <code>claude --version</code> y <code>claude doctor</code>.</li>
+<li>Conocer las distintas "superficies" donde vive Claude Code (terminal, IDE, escritorio, web).</li>
+</ul>
+<h2 id="que-es-claude-code">¿Qué es Claude Code?<a class="headerlink" href="#que-es-claude-code" title="Permanent link">#</a></h2>
+<p>Claude Code es una herramienta de programación <strong>agéntica</strong> de Anthropic. En lugar de copiar y pegar fragmentos de código entre un chat y tu editor, Claude Code trabaja <strong>directamente dentro de tu proyecto</strong>: lee archivos, busca en el código, edita, ejecuta comandos en la terminal (tests, linters, <code>git</code>…) y verifica el resultado.</p>
+<p>La diferencia clave con un asistente de chat tradicional:</p>
+<table>
+<thead>
+<tr>
+<th>Chat tradicional</th>
+<th>Claude Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tú copias el código relevante al chat</td>
+<td>Claude busca y lee los archivos que necesita</td>
+</tr>
+<tr>
+<td>Te devuelve un bloque de código para pegar</td>
+<td>Edita los archivos en tu disco (con tu permiso)</td>
+</tr>
+<tr>
+<td>No sabe si su propuesta funciona</td>
+<td>Ejecuta tests/compilación y corrige si algo falla</td>
+</tr>
+<tr>
+<td>Una respuesta por pregunta</td>
+<td>Un <strong>bucle</strong> de varios pasos hasta cumplir la tarea</td>
+</tr>
+</tbody>
+</table>
+<p>A ese bucle se le llama <strong>bucle agéntico</strong>: <em>reunir contexto → actuar → verificar</em>, repetido tantas veces como haga falta. Lo veremos con detalle en la lección 3.</p>
+<h3 id="dos-piezas-el-modelo-y-el-arnes">Dos piezas: el modelo y el "arnés"<a class="headerlink" href="#dos-piezas-el-modelo-y-el-arnes" title="Permanent link">#</a></h3>
+<ul>
+<li><strong>El modelo</strong> (Claude Opus, Sonnet o Haiku) es el que razona: entiende tu petición, decide qué hacer y escribe código.</li>
+<li><strong>Claude Code</strong> es la capa que rodea al modelo (el <em>agentic harness</em>): le da <strong>herramientas</strong> (leer, editar, ejecutar Bash, buscar en la web…), gestiona el <strong>contexto</strong> que el modelo ve y aplica los <strong>permisos</strong> que tú configuras.</li>
+</ul>
+<p>Sin herramientas, un modelo solo puede responder con texto. Con herramientas, puede <em>actuar</em>.</p>
+<h2 id="donde-puedes-usar-claude-code">Dónde puedes usar Claude Code<a class="headerlink" href="#donde-puedes-usar-claude-code" title="Permanent link">#</a></h2>
+<p>Claude Code es el mismo motor en varias interfaces:</p>
+<table>
+<thead>
+<tr>
+<th>Superficie</th>
+<th>Para qué es ideal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CLI (terminal)</strong></td>
+<td>La experiencia completa; todo el curso se basa en ella</td>
+</tr>
+<tr>
+<td><strong>Extensión de VS Code / Cursor</strong></td>
+<td>Ver diffs en el editor, compartir selección de código</td>
+</tr>
+<tr>
+<td><strong>Plugin de JetBrains</strong></td>
+<td>IntelliJ, PyCharm, WebStorm, etc. (ejecuta la CLI en la terminal del IDE)</td>
+</tr>
+<tr>
+<td><strong>App de escritorio</strong></td>
+<td>Interfaz gráfica sin terminal</td>
+</tr>
+<tr>
+<td><strong>Web (claude.ai/code) y móvil</strong></td>
+<td>Sesiones en la nube sobre repos de GitHub, sin instalar nada</td>
+</tr>
+<tr>
+<td><strong>GitHub Actions / GitLab CI</strong></td>
+<td>Automatización en tu pipeline (lección 47)</td>
+</tr>
+</tbody>
+</table>
+<p>Todas comparten la misma configuración (<code>CLAUDE.md</code>, <code>settings.json</code>, skills, MCP…), así que lo que aprendas en la terminal se traslada al resto.</p>
+<h2 id="requisitos">Requisitos<a class="headerlink" href="#requisitos" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Sistema operativo</strong>: macOS 13+, Windows 10 1809+ (o Server 2019+), Ubuntu 20.04+, Debian 10+, Alpine 3.19+.</li>
+<li><strong>Hardware</strong>: 4 GB de RAM o más, procesador x64 o ARM64.</li>
+<li><strong>Conexión a internet</strong> (el modelo corre en la nube).</li>
+<li><strong>Shell</strong>: Bash, Zsh, PowerShell o CMD.</li>
+<li><strong>Cuenta</strong>: un plan <strong>Pro, Max, Team o Enterprise</strong> de Claude, o una cuenta de <strong>Claude Console</strong> (API). El plan gratuito de claude.ai no incluye Claude Code. También puedes usar proveedores como Amazon Bedrock, Google Cloud o Microsoft Foundry.</li>
+</ul>
+<h2 id="instalacion">Instalación<a class="headerlink" href="#instalacion" title="Permanent link">#</a></h2>
+<h3 id="instalador-nativo-recomendado">Instalador nativo (recomendado)<a class="headerlink" href="#instalador-nativo-recomendado" title="Permanent link">#</a></h3>
+<p><strong>macOS, Linux y WSL:</strong></p>
+<pre><code class="language-bash">curl -fsSL https://claude.ai/install.sh | bash
+</code></pre>
+<p><strong>Windows (PowerShell):</strong></p>
+<pre><code class="language-powershell">irm https://claude.ai/install.ps1 | iex
+</code></pre>
+<p><strong>Windows (CMD):</strong></p>
+<pre><code class="language-bat">curl -fsSL https://claude.ai/install.cmd -o install.cmd &amp;&amp; install.cmd &amp;&amp; del install.cmd
+</code></pre>
+<div class="admonition tip">
+<p class="admonition-title">¿PowerShell o CMD?</p>
+<p>Si ves <code>PS C:\...&gt;</code> en el prompt estás en PowerShell. Si aparece el error <em>"The token '&amp;&amp;' is not a valid statement separator"</em>, estás usando el comando de CMD dentro de PowerShell (y al revés: <em>"'irm' is not recognized"</em> significa que estás en CMD).</p>
+</div>
+<p>La instalación nativa <strong>se actualiza sola</strong> en segundo plano.</p>
+<h3 id="alternativas-con-gestor-de-paquetes">Alternativas con gestor de paquetes<a class="headerlink" href="#alternativas-con-gestor-de-paquetes" title="Permanent link">#</a></h3>
+<pre><code class="language-bash"># Homebrew (macOS / Linux) – canal estable
+brew install --cask claude-code
+# o el canal &quot;latest&quot;, que recibe versiones en cuanto salen
+brew install --cask claude-code@latest
+
+# WinGet (Windows)
+winget install Anthropic.ClaudeCode
+</code></pre>
+<p>Estas instalaciones <strong>no se actualizan solas</strong>: usa <code>brew upgrade claude-code</code> o <code>winget upgrade Anthropic.ClaudeCode</code> periódicamente.</p>
+<h3 id="notas-para-windows">Notas para Windows<a class="headerlink" href="#notas-para-windows" title="Permanent link">#</a></h3>
+<p>Puedes ejecutar Claude Code de forma nativa o dentro de <strong>WSL</strong>:</p>
+<ul>
+<li><strong>Nativo</strong>: no necesitas permisos de administrador. Si instalas <a href="https://git-scm.com/downloads/win">Git for Windows</a>, Claude usará Git Bash para su herramienta Bash; si no, usará PowerShell.</li>
+<li><strong>WSL 2</strong>: recomendable si trabajas con herramientas Linux o quieres usar el <em>sandbox</em> de comandos. Instala y ejecuta <code>claude</code> <strong>dentro</strong> de la terminal de WSL.</li>
+</ul>
+<h2 id="verificar-la-instalacion">Verificar la instalación<a class="headerlink" href="#verificar-la-instalacion" title="Permanent link">#</a></h2>
+<p>Abre <strong>una terminal nueva</strong> (para que se recargue el <code>PATH</code>) y ejecuta:</p>
+<pre><code class="language-bash">claude --version
+# Ejemplo de salida: 2.1.xxx (Claude Code)
+</code></pre>
+<p>Para un diagnóstico más completo, sin abrir sesión:</p>
+<pre><code class="language-bash">claude doctor
+</code></pre>
+<p><code>claude doctor</code> revisa la salud de la instalación, detecta errores en tus archivos de configuración y sugiere correcciones.</p>
+<div class="admonition warning">
+<p class="admonition-title">command not found: claude</p>
+<p>Si la terminal no encuentra <code>claude</code>, el directorio de instalación (normalmente <code>~/.local/bin</code>) no está en tu <code>PATH</code>. Añádelo en tu <code>~/.bashrc</code> o <code>~/.zshrc</code>:</p>
+<p><code>bash
+export PATH="$HOME/.local/bin:$PATH"</code></p>
+</div>
+<h2 id="autenticacion">Autenticación<a class="headerlink" href="#autenticacion" title="Permanent link">#</a></h2>
+<p>La primera vez que ejecutes <code>claude</code> se abrirá el navegador para iniciar sesión:</p>
+<pre><code class="language-bash">cd ~/proyectos/mi-app
+claude
+</code></pre>
+<p>Opciones de autenticación:</p>
+<ol>
+<li><strong>Suscripción de Claude (Pro/Max/Team/Enterprise)</strong>: inicias sesión con tu cuenta de claude.ai.</li>
+<li><strong>Claude Console (API)</strong>: pagas por uso con créditos de la API.</li>
+<li><strong>Variable <code>ANTHROPIC_API_KEY</code></strong>: si está definida, Claude Code te pedirá una sola vez que apruebes esa clave en lugar de abrir el navegador.</li>
+<li><strong>Proveedores cloud</strong>: Bedrock, Vertex/Agent Platform o Foundry, configurados con variables de entorno.</li>
+</ol>
+<p>Dentro de una sesión puedes cambiar de cuenta con <code>/login</code> y cerrar sesión con <code>/logout</code>. Con <code>/status</code> ves la versión, el modelo, la cuenta activa y el estado de conexión.</p>
+<h2 id="canal-de-actualizaciones">Canal de actualizaciones<a class="headerlink" href="#canal-de-actualizaciones" title="Permanent link">#</a></h2>
+<p>Por defecto recibes cada versión en cuanto sale (canal <code>latest</code>). Si prefieres algo más conservador, usa el canal <code>stable</code> (aprox. una semana de retraso, saltándose versiones con regresiones graves). Puedes cambiarlo en <code>/config</code> o en <code>~/.claude/settings.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;autoUpdatesChannel&quot;: &quot;stable&quot;
+}
+</code></pre>
+<p>Para actualizar manualmente en cualquier momento:</p>
+<pre><code class="language-bash">claude update
+</code></pre>
+<h2 id="tu-primer-arranque">Tu primer arranque<a class="headerlink" href="#tu-primer-arranque" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">cd ruta/a/tu/proyecto
+claude
+</code></pre>
+<p>Verás una pantalla de bienvenida y un cuadro de entrada. La primera vez que abras Claude en una carpeta te preguntará si <strong>confías</strong> en ella (porque el proyecto podría contener configuración que ejecuta comandos). Acepta solo en proyectos que conozcas.</p>
+<p>Prueba algo sencillo:</p>
+<pre><code class="language-text">&gt; ¿Qué hace este proyecto? Dame un resumen de la estructura de carpetas.
+</code></pre>
+<p>Claude leerá archivos por su cuenta (verás las herramientas que usa: <code>Read</code>, <code>Glob</code>, <code>Grep</code>…) y te responderá. Para salir: <code>Ctrl+D</code> o escribe <code>/exit</code>.</p>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Claude Code = modelo Claude + herramientas + gestión de contexto + permisos.</li>
+<li>Se instala con un comando (<code>curl … | bash</code> o <code>irm … | iex</code>) y se actualiza solo.</li>
+<li><code>claude --version</code> y <code>claude doctor</code> confirman que todo está bien.</li>
+<li>Necesitas un plan de pago de Claude o una cuenta de Console/API.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Instala Claude Code con el método nativo y ejecuta <code>claude --version</code>.</li>
+<li>Ejecuta <code>claude doctor</code> y lee cada línea del informe. ¿Hay algún aviso?</li>
+<li>Abre <code>claude</code> dentro de un proyecto tuyo y pide: <em>"Explícame la arquitectura de este repositorio en 5 puntos"</em>. Observa qué herramientas usa.</li>
+<li>Ejecuta <code>/status</code> dentro de la sesión e identifica tu modelo y tu tipo de cuenta.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/quickstart">Quickstart oficial</a></li>
+<li><a href="https://code.claude.com/docs/en/setup">Instalación avanzada y requisitos</a></li>
+<li><a href="https://code.claude.com/docs/en/authentication">Autenticación</a></li>
+<li><a href="https://code.claude.com/docs/en/troubleshoot-install">Solución de problemas de instalación</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><span></span><a class="next" href="02-tu-primera-sesion-con-claude.html"><small>Siguiente →</small>2. Tu primera sesión con Claude</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#que-es-claude-code">¿Qué es Claude Code?</a><ul>
+<li><a href="#dos-piezas-el-modelo-y-el-arnes">Dos piezas: el modelo y el "arnés"</a></li>
+</ul>
+</li>
+<li><a href="#donde-puedes-usar-claude-code">Dónde puedes usar Claude Code</a></li>
+<li><a href="#requisitos">Requisitos</a></li>
+<li><a href="#instalacion">Instalación</a><ul>
+<li><a href="#instalador-nativo-recomendado">Instalador nativo (recomendado)</a></li>
+<li><a href="#alternativas-con-gestor-de-paquetes">Alternativas con gestor de paquetes</a></li>
+<li><a href="#notas-para-windows">Notas para Windows</a></li>
+</ul>
+</li>
+<li><a href="#verificar-la-instalacion">Verificar la instalación</a></li>
+<li><a href="#autenticacion">Autenticación</a></li>
+<li><a href="#canal-de-actualizaciones">Canal de actualizaciones</a></li>
+<li><a href="#tu-primer-arranque">Tu primer arranque</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

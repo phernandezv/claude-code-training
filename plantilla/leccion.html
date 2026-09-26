@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{NUM}}. {{TITULO}} · Curso Claude Code</title>
+<meta name="description" content="{{RESUMEN}}">
+<link rel="stylesheet" href="{{PREFIJO}}assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="{{SLUG}}">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="{{PREFIJO}}index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar">{{NAV}}</nav>
+  <main class="contenido">
+    <p class="migas">{{SECCION}}</p>
+    <h1><span class="num-grande">{{NUM}}</span>{{TITULO}}</h1>
+    <p class="resumen">{{RESUMEN}}</p>
+    <article class="leccion">
+{{CUERPO}}
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion">{{ANTERIOR}}{{SIGUIENTE}}</nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p>{{TOC}}</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="{{PREFIJO}}assets/app.js"></script>
+</body>
+</html>

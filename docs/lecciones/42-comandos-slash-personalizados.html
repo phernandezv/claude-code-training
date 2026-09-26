@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>42. Comandos slash personalizados: un prompt repetido convertido en atajo · Curso Claude Code</title>
+<meta name="description" content="Crear tus propios comandos /nombre con .claude/commands o skills, organizarlos en subcarpetas con espacios de nombres, añadir descripción y herramientas permitidas, inyectar contexto, y una colección de comandos útiles listos para copiar.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="42-comandos-slash-personalizados">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>Modos de permisos: mantener el control</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>Modo headless: respuestas rápidas sin el chat</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>Alcance: proyecto vs. usuario vs. archivos anidados</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>Estilos de salida: elegir cómo te responde Claude</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>Proyecto de portafolio: configura Claude en un proyecto real</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="18-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/18-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">18</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="19-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/19-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">19</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="20-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/20-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">20</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/21-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">21</span>Compromisos entre modelos: Opus vs. Sonnet vs. Haiku</a></li>
+<li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="23-el-hibrido-opusplan"><a href="../lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
+<li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="25-como-trabaja-claude-con-tu-repo"><a href="../lecciones/25-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">25</span>Cómo trabaja Claude con tu repo: estado, diffs e historial</a></li>
+<li data-slug="26-hacer-buenos-commits"><a href="../lecciones/26-hacer-buenos-commits.html"><span class="nav-num">26</span>Hacer buenos commits: staging y mensajes de commit</a></li>
+<li data-slug="27-ramas-y-pull-requests"><a href="../lecciones/27-ramas-y-pull-requests.html"><span class="nav-num">27</span>Ramas y pull requests</a></li>
+<li data-slug="28-revisar-codigo-y-prs-con-claude"><a href="../lecciones/28-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">28</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="29-resolver-conflictos-de-merge"><a href="../lecciones/29-resolver-conflictos-de-merge.html"><span class="nav-num">29</span>Resolver conflictos de merge</a></li>
+<li data-slug="30-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="../lecciones/30-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">30</span>Proyecto de portafolio: lleva un cambio de principio a fin</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">5. MCP y herramientas externas</p><ol>
+<li data-slug="31-que-es-mcp"><a href="../lecciones/31-que-es-mcp.html"><span class="nav-num">31</span>Qué es MCP: Claude Code como cliente de herramientas externas</a></li>
+<li data-slug="32-anadir-un-servidor-mcp"><a href="../lecciones/32-anadir-un-servidor-mcp.html"><span class="nav-num">32</span>Añadir un servidor MCP</a></li>
+<li data-slug="33-usar-herramientas-mcp-en-una-sesion"><a href="../lecciones/33-usar-herramientas-mcp-en-una-sesion.html"><span class="nav-num">33</span>Usar herramientas MCP dentro de una sesión</a></li>
+<li data-slug="34-alcance-y-gestion-de-servidores-proyecto-vs-usuario"><a href="../lecciones/34-alcance-y-gestion-de-servidores-proyecto-vs-usuario.html"><span class="nav-num">34</span>Alcance y gestión de servidores: proyecto vs. usuario</a></li>
+<li data-slug="35-mcp-con-seguridad-permisos-secretos-y-confianza"><a href="../lecciones/35-mcp-con-seguridad-permisos-secretos-y-confianza.html"><span class="nav-num">35</span>MCP con seguridad: permisos, secretos y confianza</a></li>
+<li data-slug="36-dejar-que-claude-use-herramientas-cli"><a href="../lecciones/36-dejar-que-claude-use-herramientas-cli.html"><span class="nav-num">36</span>Dejar que Claude use herramientas CLI</a></li>
+<li data-slug="37-cli-vs-mcp-cuando-usar-cada-uno"><a href="../lecciones/37-cli-vs-mcp-cuando-usar-cada-uno.html"><span class="nav-num">37</span>Herramientas CLI vs. servidores MCP: cuándo usar cada uno</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">6. Skills, comandos y hooks</p><ol>
+<li data-slug="38-claude-skills"><a href="../lecciones/38-claude-skills.html"><span class="nav-num">38</span>Skills de Claude</a></li>
+<li data-slug="39-claude-md-vs-skills"><a href="../lecciones/39-claude-md-vs-skills.html"><span class="nav-num">39</span>CLAUDE.md vs. skills</a></li>
+<li data-slug="40-crear-una-skill"><a href="../lecciones/40-crear-una-skill.html"><span class="nav-num">40</span>Crear una skill</a></li>
+<li data-slug="41-organizar-y-reutilizar-skills"><a href="../lecciones/41-organizar-y-reutilizar-skills.html"><span class="nav-num">41</span>Organizar y reutilizar skills</a></li>
+<li data-slug="42-comandos-slash-personalizados"><a href="../lecciones/42-comandos-slash-personalizados.html"><span class="nav-num">42</span>Comandos slash personalizados: un prompt repetido convertido en atajo</a></li>
+<li data-slug="43-pasar-argumentos-a-un-comando"><a href="../lecciones/43-pasar-argumentos-a-un-comando.html"><span class="nav-num">43</span>Pasar argumentos a un comando</a></li>
+<li data-slug="44-que-son-los-hooks"><a href="../lecciones/44-que-son-los-hooks.html"><span class="nav-num">44</span>Qué son los hooks: acciones que se ejecutan solas en momentos clave</a></li>
+<li data-slug="45-hooks-comunes"><a href="../lecciones/45-hooks-comunes.html"><span class="nav-num">45</span>Hooks comunes: formatear tras editar, bloquear un comando peligroso, ejecutar una comprobación</a></li>
+<li data-slug="46-escribir-y-acotar-tu-propio-hook"><a href="../lecciones/46-escribir-y-acotar-tu-propio-hook.html"><span class="nav-num">46</span>Escribir y acotar tu propio hook</a></li>
+<li data-slug="47-ejecutar-claude-sin-ti"><a href="../lecciones/47-ejecutar-claude-sin-ti.html"><span class="nav-num">47</span>Ejecutar Claude sin ti: CI, tareas programadas y pre-commit</a></li>
+<li data-slug="48-proyecto-integra-claude-en-tu-stack"><a href="../lecciones/48-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">48</span>Proyecto de portafolio: integra Claude en tu stack</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">7. Subagentes</p><ol>
+<li data-slug="49-que-es-un-subagente"><a href="../lecciones/49-que-es-un-subagente.html"><span class="nav-num">49</span>Qué es un subagente: contexto aislado, devuelve solo resultados</a></li>
+<li data-slug="50-subagentes-integrados"><a href="../lecciones/50-subagentes-integrados.html"><span class="nav-num">50</span>Subagentes integrados: Explore, Plan y general-purpose</a></li>
+<li data-slug="51-por-que-ayudan-los-subagentes-en-paralelo"><a href="../lecciones/51-por-que-ayudan-los-subagentes-en-paralelo.html"><span class="nav-num">51</span>Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad</a></li>
+<li data-slug="52-crear-un-subagente-personalizado"><a href="../lecciones/52-crear-un-subagente-personalizado.html"><span class="nav-num">52</span>Crear un subagente personalizado</a></li>
+<li data-slug="53-permisos-de-herramientas-y-mcp-para-subagentes"><a href="../lecciones/53-permisos-de-herramientas-y-mcp-para-subagentes.html"><span class="nav-num">53</span>Permisos de herramientas y MCP para subagentes</a></li>
+<li data-slug="54-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/54-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">54</span>Orquestar varios subagentes en paralelo</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">8. Plugins</p><ol>
+<li data-slug="55-que-es-un-plugin"><a href="../lecciones/55-que-es-un-plugin.html"><span class="nav-num">55</span>Qué es un plugin: un paquete de comandos, skills, subagentes, hooks y MCP</a></li>
+<li data-slug="56-instalar-y-activar-plugins"><a href="../lecciones/56-instalar-y-activar-plugins.html"><span class="nav-num">56</span>Instalar y activar plugins con /plugin, y el marketplace</a></li>
+<li data-slug="57-construir-tu-propio-plugin"><a href="../lecciones/57-construir-tu-propio-plugin.html"><span class="nav-num">57</span>Construir tu propio plugin con las piezas que ya has hecho</a></li>
+<li data-slug="58-compartir-un-plugin-con-tu-equipo"><a href="../lecciones/58-compartir-un-plugin-con-tu-equipo.html"><span class="nav-num">58</span>Compartir un plugin con tu equipo</a></li>
+<li data-slug="59-proyecto-construye-un-flujo-multiagente"><a href="../lecciones/59-proyecto-construye-un-flujo-multiagente.html"><span class="nav-num">59</span>Proyecto de portafolio: construye un flujo multiagente</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 6 · Skills, comandos y hooks</p>
+    <h1><span class="num-grande">42</span>Comandos slash personalizados: un prompt repetido convertido en atajo</h1>
+    <p class="resumen">Crear tus propios comandos /nombre con .claude/commands o skills, organizarlos en subcarpetas con espacios de nombres, añadir descripción y herramientas permitidas, inyectar contexto, y una colección de comandos útiles listos para copiar.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Convertir un prompt que repites en un comando <code>/nombre</code>.</li>
+<li>Conocer los dos formatos: archivo en <code>.claude/commands/</code> y skill en <code>.claude/skills/</code>.</li>
+<li>Organizar comandos con subcarpetas y espacios de nombres.</li>
+<li>Crear una colección de comandos útiles para tu día a día.</li>
+</ul>
+<h2 id="la-idea">La idea<a class="headerlink" href="#la-idea" title="Permanent link">#</a></h2>
+<p>¿Cuántas veces escribes cosas como <em>"revisa mis cambios, busca bugs y problemas de seguridad, y dame una lista priorizada"</em>? Un comando personalizado guarda ese prompt en un archivo y lo ejecutas con una palabra:</p>
+<pre><code class="language-text">/revisar
+</code></pre>
+<h2 id="dos-formatos-equivalentes">Dos formatos equivalentes<a class="headerlink" href="#dos-formatos-equivalentes" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Formato</th>
+<th>Ruta</th>
+<th>Comando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Archivo de comando (clásico)</td>
+<td><code>.claude/commands/revisar.md</code></td>
+<td><code>/revisar</code></td>
+</tr>
+<tr>
+<td>Skill</td>
+<td><code>.claude/skills/revisar/SKILL.md</code></td>
+<td><code>/revisar</code></td>
+</tr>
+</tbody>
+</table>
+<p>Ambos funcionan igual y admiten el mismo <em>frontmatter</em> (salvo <code>name</code> y <code>paths</code>, que son solo de skills). Usa:</p>
+<ul>
+<li><strong>Un archivo en <code>commands/</code></strong> para prompts sencillos de un solo archivo.</li>
+<li><strong>Una skill</strong> si necesitas archivos de apoyo, scripts o quieres que Claude también pueda activarla por su descripción.</li>
+</ul>
+<p>Ubicaciones:</p>
+<table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Comandos</th>
+<th>Skills</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Proyecto</td>
+<td><code>.claude/commands/</code></td>
+<td><code>.claude/skills/</code></td>
+</tr>
+<tr>
+<td>Personal</td>
+<td><code>~/.claude/commands/</code></td>
+<td><code>~/.claude/skills/</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="tu-primer-comando">Tu primer comando<a class="headerlink" href="#tu-primer-comando" title="Permanent link">#</a></h2>
+<p><code>.claude/commands/revisar.md</code>:</p>
+<pre><code class="language-markdown">---
+description: Revisa los cambios sin commitear buscando bugs y riesgos
+---
+Revisa los cambios actuales del repositorio (`git diff` y `git diff --cached`).
+
+Busca, por este orden:
+1. Bugs de lógica y casos límite no cubiertos.
+2. Problemas de seguridad (inyección, secretos, validación de entrada).
+3. Tests que faltan o que deberían actualizarse.
+4. Inconsistencias con las convenciones de CLAUDE.md.
+
+Devuelve una lista priorizada (alta/media/baja) con archivo:línea y una
+propuesta concreta. No edites nada.
+</code></pre>
+<p>Úsalo:</p>
+<pre><code class="language-text">/revisar
+</code></pre>
+<h2 id="organizar-con-subcarpetas">Organizar con subcarpetas<a class="headerlink" href="#organizar-con-subcarpetas" title="Permanent link">#</a></h2>
+<p>Las subcarpetas de <code>commands/</code> crean <strong>espacios de nombres</strong> con <code>:</code>:</p>
+<pre><code class="language-text">.claude/commands/
+├── git/
+│   ├── pr.md          → /git:pr
+│   └── changelog.md   → /git:changelog
+├── db/
+│   └── consulta.md    → /db:consulta
+└── revisar.md         → /revisar
+</code></pre>
+<h2 id="frontmatter-util-en-comandos">Frontmatter útil en comandos<a class="headerlink" href="#frontmatter-util-en-comandos" title="Permanent link">#</a></h2>
+<pre><code class="language-markdown">---
+description: Crea un commit convencional con los cambios preparados
+argument-hint: &quot;[mensaje opcional]&quot;
+allowed-tools: Bash(git status *) Bash(git diff *) Bash(git commit *)
+model: haiku
+disable-model-invocation: true
+---
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>description</code></td>
+<td>Texto en el menú <code>/</code> (y lo que usa Claude para decidir si lo invoca)</td>
+</tr>
+<tr>
+<td><code>argument-hint</code></td>
+<td>Pista de argumentos en el autocompletado</td>
+</tr>
+<tr>
+<td><code>allowed-tools</code></td>
+<td>Herramientas sin permiso durante ese turno</td>
+</tr>
+<tr>
+<td><code>model</code> / <code>effort</code></td>
+<td>Modelo o esfuerzo para ese turno (p. ej. <code>haiku</code> para tareas simples)</td>
+</tr>
+<tr>
+<td><code>disable-model-invocation</code></td>
+<td>Solo tú puedes ejecutarlo</td>
+</tr>
+</tbody>
+</table>
+<h2 id="inyectar-contexto">Inyectar contexto<a class="headerlink" href="#inyectar-contexto" title="Permanent link">#</a></h2>
+<p>Igual que en las skills, <code>!`comando`</code> ejecuta algo antes de enviar el prompt y <code>@archivo</code> incluye un archivo:</p>
+<pre><code class="language-markdown">---
+description: Genera la descripción del PR de la rama actual
+allowed-tools: Bash(git log *) Bash(git diff *)
+---
+## Commits de la rama
+!`git log --oneline main..HEAD`
+
+## Archivos cambiados
+!`git diff --stat main...HEAD`
+
+## Plantilla
+@.github/pull_request_template.md
+
+Redacta la descripción del PR siguiendo la plantilla, con: qué, por qué,
+cómo probarlo y riesgos. Devuélvela en Markdown, sin crear el PR.
+</code></pre>
+<h2 id="coleccion-de-comandos-listos-para-usar">Colección de comandos listos para usar<a class="headerlink" href="#coleccion-de-comandos-listos-para-usar" title="Permanent link">#</a></h2>
+<h3 id="explicar"><code>/explicar</code><a class="headerlink" href="#explicar" title="Permanent link">#</a></h3>
+<pre><code class="language-markdown">---
+description: Explica un archivo o función para alguien nuevo en el proyecto
+argument-hint: &quot;[ruta o símbolo]&quot;
+---
+Explica $ARGUMENTS a alguien que acaba de llegar al proyecto:
+qué hace, por qué existe, con qué partes se relaciona y qué trampas tiene.
+Incluye un pequeño diagrama si ayuda. No edites nada.
+</code></pre>
+<h3 id="tests-faltantes"><code>/tests-faltantes</code><a class="headerlink" href="#tests-faltantes" title="Permanent link">#</a></h3>
+<pre><code class="language-markdown">---
+description: Detecta código sin tests en los cambios actuales y los escribe
+---
+Mira `git diff main...HEAD`. Identifica funciones y ramas nuevas o modificadas
+sin cobertura de tests. Propón los casos (incluidos casos límite), espera mi
+confirmación y luego escríbelos y ejecútalos.
+</code></pre>
+<h3 id="standup"><code>/standup</code><a class="headerlink" href="#standup" title="Permanent link">#</a></h3>
+<pre><code class="language-markdown">---
+description: Resumen de mi trabajo de ayer para la daily
+allowed-tools: Bash(git log *)
+---
+!`git log --since=&quot;yesterday 00:00&quot; --author=&quot;$(git config user.email)&quot; --oneline --all`
+
+Resume lo anterior en 3–5 viñetas para la daily: qué hice, qué queda y bloqueos
+(si los deduces). Tono breve.
+</code></pre>
+<h3 id="limpiar-rama"><code>/limpiar-rama</code><a class="headerlink" href="#limpiar-rama" title="Permanent link">#</a></h3>
+<pre><code class="language-markdown">---
+description: Prepara la rama para revisión
+disable-model-invocation: true
+---
+1. Ejecuta lint con autofix y los tests.
+2. Elimina console.log/print de depuración y código comentado que hayas añadido.
+3. Revisa que no haya TODOs nuevos sin ticket.
+4. Resume el estado y dime si está lista para abrir el PR.
+</code></pre>
+<h2 id="comandos-de-mcp-y-de-plugins">Comandos de MCP y de plugins<a class="headerlink" href="#comandos-de-mcp-y-de-plugins" title="Permanent link">#</a></h2>
+<ul>
+<li>Los <strong>prompts de servidores MCP</strong> aparecen como <code>/mcp__servidor__prompt</code>.</li>
+<li>Los comandos de <strong>plugins</strong> aparecen como <code>/plugin:comando</code>.</li>
+</ul>
+<h2 id="buenas-practicas">Buenas prácticas<a class="headerlink" href="#buenas-practicas" title="Permanent link">#</a></h2>
+<ul>
+<li>Un comando = una intención clara.</li>
+<li>Añade siempre <code>description</code>: es lo que ves en el menú.</li>
+<li>Usa <code>disable-model-invocation: true</code> en comandos con efectos (commits, despliegues, mensajes).</li>
+<li>Versiona los de proyecto en Git y revísalos como código.</li>
+<li>Si un comando crece mucho, conviértelo en skill con archivos de apoyo.</li>
+</ul>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li><code>.claude/commands/&lt;nombre&gt;.md</code> o <code>.claude/skills/&lt;nombre&gt;/SKILL.md</code> → <code>/nombre</code>.</li>
+<li>Subcarpetas → espacios de nombres (<code>/git:pr</code>).</li>
+<li>Frontmatter para descripción, argumentos, herramientas y modelo; <code>!`cmd`</code> y <code>@archivo</code> para contexto.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Crea <code>/revisar</code> y <code>/explicar</code> en tu proyecto y úsalos.</li>
+<li>Organiza tres comandos en subcarpetas con espacio de nombres.</li>
+<li>Crea <code>/standup</code> en tu carpeta personal y pruébalo en dos repos distintos.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/skills">Skills y comandos personalizados</a></li>
+<li><a href="https://code.claude.com/docs/en/commands">Comandos integrados</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="41-organizar-y-reutilizar-skills.html"><small>← Anterior</small>41. Organizar y reutilizar skills</a><a class="next" href="43-pasar-argumentos-a-un-comando.html"><small>Siguiente →</small>43. Pasar argumentos a un comando</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#la-idea">La idea</a></li>
+<li><a href="#dos-formatos-equivalentes">Dos formatos equivalentes</a></li>
+<li><a href="#tu-primer-comando">Tu primer comando</a></li>
+<li><a href="#organizar-con-subcarpetas">Organizar con subcarpetas</a></li>
+<li><a href="#frontmatter-util-en-comandos">Frontmatter útil en comandos</a></li>
+<li><a href="#inyectar-contexto">Inyectar contexto</a></li>
+<li><a href="#coleccion-de-comandos-listos-para-usar">Colección de comandos listos para usar</a><ul>
+<li><a href="#explicar">/explicar</a></li>
+<li><a href="#tests-faltantes">/tests-faltantes</a></li>
+<li><a href="#standup">/standup</a></li>
+<li><a href="#limpiar-rama">/limpiar-rama</a></li>
+</ul>
+</li>
+<li><a href="#comandos-de-mcp-y-de-plugins">Comandos de MCP y de plugins</a></li>
+<li><a href="#buenas-practicas">Buenas prácticas</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>
