@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>19. Entrar en modo plan y leer un plan · Curso Claude Code</title>
-<meta name="description" content="Las formas de activar el modo plan (Shift+Tab, /plan, --permission-mode plan, defaultMode), qué puede y qué no puede hacer Claude mientras planifica, y cómo leer un plan de forma crítica.">
+<title>37. &quot;Herramientas CLI vs. servidores MCP: cuándo usar cada uno&quot; · Curso Claude Code</title>
+<meta name="description" content="Criterios para elegir entre una CLI y un servidor MCP - disponibilidad, coste de contexto, autenticación, control de permisos, portabilidad a la web y CI, y cómo combinarlos con skills que enseñan a usarlos.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="19-entrar-y-leer-un-plan-en-modo-plan">
+<body data-slug="37-cli-vs-mcp-cuando-usar-cada-uno">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -63,196 +63,203 @@
 <li data-slug="37-cli-vs-mcp-cuando-usar-cada-uno"><a href="../lecciones/37-cli-vs-mcp-cuando-usar-cada-uno.html"><span class="nav-num">37</span>&quot;Herramientas CLI vs. servidores MCP: cuándo usar cada uno&quot;</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 3 · Planificar y elegir modelo</p>
-    <h1><span class="num-grande">19</span>Entrar en modo plan y leer un plan</h1>
-    <p class="resumen">Las formas de activar el modo plan (Shift+Tab, /plan, --permission-mode plan, defaultMode), qué puede y qué no puede hacer Claude mientras planifica, y cómo leer un plan de forma crítica.</p>
+    <p class="migas">Sección 5 · MCP y herramientas externas</p>
+    <h1><span class="num-grande">37</span>&quot;Herramientas CLI vs. servidores MCP: cuándo usar cada uno&quot;</h1>
+    <p class="resumen">Criterios para elegir entre una CLI y un servidor MCP - disponibilidad, coste de contexto, autenticación, control de permisos, portabilidad a la web y CI, y cómo combinarlos con skills que enseñan a usarlos.</p>
     <article class="leccion">
 <h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
 <ul>
-<li>Activar el modo plan de todas las formas posibles.</li>
-<li>Saber qué se permite y qué se bloquea durante la planificación.</li>
-<li>Leer un plan con ojo crítico: detectar huecos, supuestos y riesgos.</li>
+<li>Comparar CLI y MCP con criterios concretos.</li>
+<li>Decidir qué usar para cada integración de tu equipo.</li>
+<li>Combinar CLI/MCP con skills para enseñar a Claude a usarlos bien.</li>
 </ul>
-<h2 id="entrar-en-modo-plan">Entrar en modo plan<a class="headerlink" href="#entrar-en-modo-plan" title="Permanent link">#</a></h2>
+<h2 id="dos-caminos-al-mismo-sitio">Dos caminos al mismo sitio<a class="headerlink" href="#dos-caminos-al-mismo-sitio" title="Permanent link">#</a></h2>
+<p>Para que Claude interactúe con GitHub puedes:</p>
+<ul>
+<li><strong>CLI</strong>: instalar <code>gh</code>, autenticarte, y Claude ejecuta <code>gh pr list</code> con Bash.</li>
+<li><strong>MCP</strong>: conectar el servidor MCP de GitHub y Claude llama a <code>mcp__github__list_pull_requests</code>.</li>
+</ul>
+<p>Ambos funcionan. ¿Cuál conviene?</p>
+<h2 id="comparacion">Comparación<a class="headerlink" href="#comparacion" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Forma</th>
-<th>Cuándo usarla</th>
+<th>Criterio</th>
+<th>CLI</th>
+<th>MCP</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>Shift+Tab</code> hasta ver <code>⏸ plan mode on</code></td>
-<td>En mitad de una sesión</td>
+<td><strong>Coste de contexto</strong></td>
+<td>Nulo hasta usarla</td>
+<td>Bajo (nombres cargados; esquemas bajo demanda)</td>
 </tr>
 <tr>
-<td><code>/plan &lt;descripción&gt;</code></td>
-<td>Entrar y empezar a planificar una tarea en un paso</td>
+<td><strong>Conocimiento previo de Claude</strong></td>
+<td>Alto para CLIs populares</td>
+<td>Descubre las herramientas por sus descripciones</td>
 </tr>
 <tr>
-<td><code>claude --permission-mode plan</code></td>
-<td>Arrancar la sesión ya planificando</td>
+<td><strong>Autenticación</strong></td>
+<td>La de tu terminal (<code>gh auth</code>, perfiles…)</td>
+<td>Gestionada por el servidor (OAuth, tokens), integrada con <code>/mcp</code></td>
 </tr>
 <tr>
-<td><code>"defaultMode": "plan"</code> en <code>.claude/settings.json</code></td>
-<td>Que el proyecto arranque siempre en plan</td>
+<td><strong>Salida</strong></td>
+<td>Texto libre; hay que filtrar (<code>jq</code>, <code>grep</code>)</td>
+<td>Estructurada y a menudo más concisa</td>
 </tr>
 <tr>
-<td>VS Code: indicador de modo → <em>Plan</em></td>
-<td>En la extensión</td>
+<td><strong>Permisos</strong></td>
+<td>Reglas <code>Bash(...)</code> por patrón de comando; cuidado con variantes</td>
+<td>Reglas por herramienta (<code>mcp__srv__tool</code>), más fáciles de acotar</td>
+</tr>
+<tr>
+<td><strong>Datos como recursos</strong> (<code>@</code>)</td>
+<td>No</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td><strong>Sin instalación local</strong> (web, móvil, entornos gestionados)</td>
+<td>Requiere que la CLI esté instalada</td>
+<td>Los servidores remotos funcionan sin instalar nada</td>
+</tr>
+<tr>
+<td><strong>Servicios sin CLI</strong> (Notion, Figma, Linear…)</td>
+<td>A veces no existe</td>
+<td>Suele existir un servidor oficial</td>
+</tr>
+<tr>
+<td><strong>Composición con la shell</strong></td>
+<td>Excelente (pipes, scripts)</td>
+<td>Limitada a lo que exponga el servidor</td>
+</tr>
+<tr>
+<td><strong>Riesgo de "comando creativo"</strong></td>
+<td>Claude puede combinar flags inesperados</td>
+<td>Solo puede hacer lo que el servidor ofrece</td>
 </tr>
 </tbody>
 </table>
-<p>Ejemplos:</p>
-<pre><code class="language-bash">claude --permission-mode plan
-</code></pre>
-<pre><code class="language-text">/plan migrar la autenticación de JWT en localStorage a cookies httpOnly
-</code></pre>
-<p>Para salir sin aprobar ningún plan, vuelve a pulsar <code>Shift+Tab</code>.</p>
-<h2 id="que-hace-claude-en-modo-plan">Qué hace Claude en modo plan<a class="headerlink" href="#que-hace-claude-en-modo-plan" title="Permanent link">#</a></h2>
+<h2 id="reglas-practicas">Reglas prácticas<a class="headerlink" href="#reglas-practicas" title="Permanent link">#</a></h2>
+<p><strong>Prefiere la CLI cuando:</strong></p>
 <ul>
-<li><strong>Lee</strong> archivos y busca en el código libremente.</li>
-<li><strong>Ejecuta comandos de exploración</strong>: los de solo lectura siempre; otros, según tu configuración (con el clasificador del modo auto si está disponible, o pidiendo permiso).</li>
-<li><strong>Hace preguntas</strong> si algo es ambiguo.</li>
-<li><strong>Escribe el plan</strong> en un archivo de plan.</li>
-<li><strong>No edita tu código fuente</strong> hasta que apruebes.</li>
+<li>Existe una CLI madura y Claude la conoce bien (<code>gh</code>, <code>git</code>, <code>docker</code>, <code>kubectl</code>, <code>aws</code>).</li>
+<li>Necesitas componer con otras herramientas o scripts.</li>
+<li>Ya tienes autenticación configurada en tu terminal.</li>
+<li>Quieres el mínimo impacto en contexto.</li>
 </ul>
-<p>El plan se guarda como archivo (por defecto en <code>~/.claude/plans</code>; configurable con <code>plansDirectory</code>, p. ej. <code>"plansDirectory": "./plans"</code> para versionarlos en el repo). Además, el plan <strong>sobrevive a la compactación</strong>: se vuelve a inyectar desde disco.</p>
-<h2 id="como-pedir-un-buen-plan">Cómo pedir un buen plan<a class="headerlink" href="#como-pedir-un-buen-plan" title="Permanent link">#</a></h2>
-<pre><code class="language-text">/plan Queremos permitir que los usuarios exporten sus pedidos a CSV desde
-el panel. Requisitos: máx. 10.000 filas, respetar los filtros activos, no
-bloquear la petición HTTP. Incluye archivos afectados, pasos, riesgos,
-cómo lo probamos y qué queda fuera de alcance.
-</code></pre>
-<p>Cuanto más claros sean los <strong>requisitos</strong> y <strong>restricciones</strong>, mejor será el plan.</p>
-<h2 id="anatomia-de-un-plan">Anatomía de un plan<a class="headerlink" href="#anatomia-de-un-plan" title="Permanent link">#</a></h2>
-<p>Un plan típico tiene esta forma:</p>
-<pre><code class="language-markdown">## Plan: Exportación de pedidos a CSV
-
-### Contexto
-- Los filtros del panel se serializan en `useOrderFilters()` (web/src/hooks).
-- La API ya tiene `GET /orders` con los mismos filtros (api/src/orders/routes.ts).
-- Hay una cola BullMQ en api/src/jobs para tareas largas.
-
-### Enfoque
-Generar el CSV en un job en segundo plano y notificar con un enlace de descarga.
-
-### Pasos
-1. api: nuevo endpoint `POST /orders/export` que encola un job con los filtros.
-2. api: job `exportOrders` que pagina de 1.000 en 1.000 y escribe en S3.
-3. api: endpoint `GET /exports/:id` para consultar estado y URL firmada.
-4. web: botón &quot;Exportar CSV&quot; + sondeo de estado + descarga.
-5. Tests: unitarios del job, integración de los endpoints, e2e del botón.
-
-### Riesgos
-- Exportaciones enormes → límite de 10.000 filas y aviso al usuario.
-- Datos personales en S3 → URL firmada con caducidad de 15 min.
-
-### Verificación
-- `pnpm --filter api test`, `pnpm --filter web test`, e2e `export.spec.ts`.
-
-### Fuera de alcance
-- Exportación a Excel; programación de exportaciones periódicas.
-</code></pre>
-<h2 id="leer-un-plan-con-ojo-critico">Leer un plan con ojo crítico<a class="headerlink" href="#leer-un-plan-con-ojo-critico" title="Permanent link">#</a></h2>
-<p>No apruebes por inercia. Repasa esta lista:</p>
+<p><strong>Prefiere MCP cuando:</strong></p>
+<ul>
+<li>No hay CLI (o es incómoda) para ese servicio.</li>
+<li>Quieres <strong>permisos precisos por operación</strong> (leer sí, borrar no) sin pelearte con patrones de comandos.</li>
+<li>Trabajas en <strong>entornos sin tu terminal</strong>: Claude Code en la web, sesiones en la nube, compañeros sin la CLI instalada.</li>
+<li>Necesitas <strong>recursos</strong> referenciables con <code>@</code> o <strong>prompts</strong> predefinidos.</li>
+<li>El servicio requiere OAuth y no quieres gestionar tokens a mano.</li>
+</ul>
+<p><strong>Usa ambos cuando:</strong> cada uno cubra algo distinto. Por ejemplo, <code>gh</code> para el día a día de PRs y el servidor MCP de GitHub en sesiones en la nube.</p>
+<h2 id="tabla-de-decision-rapida">Tabla de decisión rápida<a class="headerlink" href="#tabla-de-decision-rapida" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Pregunta</th>
-<th>Qué buscar</th>
+<th>Integración</th>
+<th>Recomendación típica</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>¿Ha entendido el problema?</td>
-<td>¿El objetivo coincide con lo que querías?</td>
+<td>GitHub/GitLab</td>
+<td>CLI (<code>gh</code>/<code>glab</code>); MCP en web/nube</td>
 </tr>
 <tr>
-<td>¿Se basa en el código real?</td>
-<td>¿Cita archivos y funciones concretos que existen, o es genérico?</td>
+<td>Docker, Kubernetes</td>
+<td>CLI</td>
 </tr>
 <tr>
-<td>¿Reutiliza lo que hay?</td>
-<td>¿Propone una librería nueva cuando ya existe una en el proyecto?</td>
+<td>AWS/GCP/Azure</td>
+<td>CLI con perfiles de mínimo privilegio</td>
 </tr>
 <tr>
-<td>¿El alcance es el justo?</td>
-<td>¿Toca más archivos de los necesarios? ¿Falta alguno obvio?</td>
+<td>Base de datos</td>
+<td>MCP de solo lectura (permisos más claros) o <code>psql</code> con usuario lector</td>
 </tr>
 <tr>
-<td>¿Qué supone?</td>
-<td>Supuestos implícitos ("asumo que siempre hay un usuario logueado")</td>
+<td>Sentry, Datadog</td>
+<td>MCP (búsquedas estructuradas) o CLI si ya la usas</td>
 </tr>
 <tr>
-<td>¿Cómo se verifica?</td>
-<td>¿Hay tests concretos o solo "probar que funciona"?</td>
+<td>Notion, Confluence, Figma, Linear, Jira</td>
+<td>MCP</td>
 </tr>
 <tr>
-<td>¿Qué puede salir mal?</td>
-<td>Migraciones, compatibilidad, rendimiento, seguridad</td>
+<td>Slack, correo</td>
+<td>MCP con <code>ask</code> para enviar</td>
 </tr>
 <tr>
-<td>¿Qué queda fuera?</td>
-<td>¿Coincide con tus expectativas?</td>
+<td>Navegador (pruebas e2e, capturas)</td>
+<td>MCP de Playwright / Claude in Chrome</td>
+</tr>
+<tr>
+<td>Herramientas internas</td>
+<td>Script/CLI propio documentado; MCP propio si se usa desde muchos sitios</td>
 </tr>
 </tbody>
 </table>
-<div class="admonition tip">
-<p class="admonition-title">Pregunta antes de aprobar</p>
-<p>Puedes seguir conversando en modo plan: <em>"¿por qué un job y no streaming directo?"</em>, <em>"¿qué pasa si el usuario cierra la pestaña?"</em>. Claude ajustará el plan sin tocar código.</p>
-</div>
-<h2 id="senales-de-un-plan-flojo">Señales de un plan flojo<a class="headerlink" href="#senales-de-un-plan-flojo" title="Permanent link">#</a></h2>
-<ul>
-<li>Vago: "actualizar los componentes necesarios".</li>
-<li>Sin rutas de archivo reales.</li>
-<li>Sin verificación o con "probar manualmente".</li>
-<li>Mezcla la tarea con refactors no pedidos.</li>
-<li>No menciona riesgos en un cambio que claramente los tiene.</li>
-</ul>
-<p>Si ves esto, <strong>pide más exploración</strong> antes de aprobar: <em>"Lee primero X e Y y rehaz el plan con rutas concretas"</em>.</p>
-<h2 id="modo-plan-como-herramienta-de-aprendizaje">Modo plan como herramienta de aprendizaje<a class="headerlink" href="#modo-plan-como-herramienta-de-aprendizaje" title="Permanent link">#</a></h2>
-<p>El modo plan también sirve para <strong>entender</strong> código sin riesgo:</p>
-<pre><code class="language-text">(plan mode)
-&gt; Explícame el ciclo de vida de una petición en este backend, desde que entra
-  por el router hasta que se escribe en la base de datos. Cita archivos y líneas.
+<h2 id="el-tercer-ingrediente-skills">El tercer ingrediente: skills<a class="headerlink" href="#el-tercer-ingrediente-skills" title="Permanent link">#</a></h2>
+<p>Tanto la CLI como MCP dan <strong>capacidad</strong>; una <strong>skill</strong> da <strong>conocimiento de cómo usarla bien</strong> en tu contexto (lecciones 38–41):</p>
+<pre><code class="language-markdown">---
+name: consultas-bd
+description: Cómo consultar la base de datos de pedidos. Úsala cuando necesites datos de pedidos, pagos o usuarios.
+---
+# Consultas a la base de datos
+- Usa el servidor MCP `db` (solo lectura). Nunca `psql` directo.
+- Tablas clave: orders(id, user_id, status, total_cents, created_at), payments(...)
+- Los importes están en céntimos.
+- Limita siempre con `LIMIT 100` salvo que se pida un agregado.
+- Para &quot;pedidos atascados&quot;: status = 'pending' AND created_at &lt; now() - interval '1 hour'.
 </code></pre>
-<p>Perfecto para <em>onboarding</em> en un repo nuevo.</p>
+<p>Así, Claude no tiene que explorar el esquema cada vez y aplica tus convenciones.</p>
+<h2 id="coste-en-perspectiva">Coste en perspectiva<a class="headerlink" href="#coste-en-perspectiva" title="Permanent link">#</a></h2>
+<ul>
+<li>Una CLI sin usar: <strong>0 tokens</strong>.</li>
+<li>Un servidor MCP con <em>tool search</em>: unos pocos tokens por nombre de herramienta hasta que se usa.</li>
+<li>Un servidor MCP sin <em>tool search</em> (algunos entornos/proxies): <strong>todas</strong> las definiciones al inicio, lo que puede ser mucho.</li>
+</ul>
+<p>Revisa <code>/context</code> si tienes muchos servidores conectados.</p>
 <h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
 <ul>
-<li><code>Shift+Tab</code>, <code>/plan</code>, <code>--permission-mode plan</code> o <code>defaultMode: "plan"</code>.</li>
-<li>En plan, Claude lee y explora pero no edita tu código hasta que apruebas.</li>
-<li>Los planes se guardan en archivos y sobreviven a la compactación.</li>
-<li>Lee el plan como revisarías un diseño: código real, alcance, supuestos, verificación, riesgos.</li>
+<li>CLI: eficiente, componible, usa tu autenticación; ideal para herramientas populares.</li>
+<li>MCP: permisos finos, funciona sin instalación local, cubre servicios sin CLI, añade recursos y prompts.</li>
+<li>Skills: el conocimiento de cómo usar ambas en tu equipo.</li>
 </ul>
 <h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
 <ol>
-<li>Arranca <code>claude --permission-mode plan</code> en un repo que conozcas poco y pide una explicación de su arquitectura.</li>
-<li>Usa <code>/plan</code> para una funcionalidad mediana e identifica al menos un supuesto implícito en el plan.</li>
-<li>Configura <code>"plansDirectory": "./plans"</code> y comprueba que el plan aparece en tu proyecto.</li>
+<li>Haz la tabla de decisión para las 5 integraciones que más usa tu equipo.</li>
+<li>Realiza la misma tarea (p. ej. listar PRs con su estado de CI) con <code>gh</code> y con el MCP de GitHub. Compara contexto y resultado.</li>
+<li>Escribe una skill que enseñe a Claude a usar una de tus integraciones según vuestras convenciones.</li>
 </ol>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode">Modo plan</a></li>
-<li><a href="https://code.claude.com/docs/en/settings-reference">Referencia de settings: plansDirectory</a></li>
+<li><a href="https://code.claude.com/docs/en/features-overview">Extender Claude Code (comparativas)</a></li>
+<li><a href="https://code.claude.com/docs/en/best-practices">Buenas prácticas: CLI y MCP</a></li>
+<li><a href="https://code.claude.com/docs/en/mcp">MCP</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="18-la-mentalidad-planificar-y-luego-ejecutar.html"><small>← Anterior</small>18. La mentalidad de planificar y luego ejecutar</a><a class="next" href="20-aprobar-editar-e-iterar-un-plan.html"><small>Siguiente →</small>20. Aprobar, editar e iterar sobre un plan</a></nav>
+    <nav class="paginacion"><a class="prev" href="36-dejar-que-claude-use-herramientas-cli.html"><small>← Anterior</small>36. Dejar que Claude use herramientas CLI</a><span></span></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#entrar-en-modo-plan">Entrar en modo plan</a></li>
-<li><a href="#que-hace-claude-en-modo-plan">Qué hace Claude en modo plan</a></li>
-<li><a href="#como-pedir-un-buen-plan">Cómo pedir un buen plan</a></li>
-<li><a href="#anatomia-de-un-plan">Anatomía de un plan</a></li>
-<li><a href="#leer-un-plan-con-ojo-critico">Leer un plan con ojo crítico</a></li>
-<li><a href="#senales-de-un-plan-flojo">Señales de un plan flojo</a></li>
-<li><a href="#modo-plan-como-herramienta-de-aprendizaje">Modo plan como herramienta de aprendizaje</a></li>
+<li><a href="#dos-caminos-al-mismo-sitio">Dos caminos al mismo sitio</a></li>
+<li><a href="#comparacion">Comparación</a></li>
+<li><a href="#reglas-practicas">Reglas prácticas</a></li>
+<li><a href="#tabla-de-decision-rapida">Tabla de decisión rápida</a></li>
+<li><a href="#el-tercer-ingrediente-skills">El tercer ingrediente: skills</a></li>
+<li><a href="#coste-en-perspectiva">Coste en perspectiva</a></li>
 <li><a href="#resumen">Resumen</a></li>
 <li><a href="#ejercicios">Ejercicios</a></li>
 <li><a href="#referencias">Referencias</a></li>

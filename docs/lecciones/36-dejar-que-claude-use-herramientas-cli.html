@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>36. Dejar que Claude use herramientas CLI · Curso Claude Code</title>
+<meta name="description" content="Aprovechar las CLIs que ya tienes (gh, aws, gcloud, kubectl, docker, jq, sentry-cli…) - instalación y autenticación, enseñar a Claude una CLI desconocida con --help, documentarlas en CLAUDE.md, permisos seguros y scripts propios como herramientas.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="36-dejar-que-claude-use-herramientas-cli">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="18-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/18-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">18</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="19-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/19-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">19</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="20-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/20-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">20</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/21-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">21</span>&quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></li>
+<li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="23-el-hibrido-opusplan"><a href="../lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
+<li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="25-como-trabaja-claude-con-tu-repo"><a href="../lecciones/25-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">25</span>&quot;Cómo trabaja Claude con tu repo: estado, diffs e historial&quot;</a></li>
+<li data-slug="26-hacer-buenos-commits"><a href="../lecciones/26-hacer-buenos-commits.html"><span class="nav-num">26</span>&quot;Hacer buenos commits: staging y mensajes de commit&quot;</a></li>
+<li data-slug="27-ramas-y-pull-requests"><a href="../lecciones/27-ramas-y-pull-requests.html"><span class="nav-num">27</span>Ramas y pull requests</a></li>
+<li data-slug="28-revisar-codigo-y-prs-con-claude"><a href="../lecciones/28-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">28</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="29-resolver-conflictos-de-merge"><a href="../lecciones/29-resolver-conflictos-de-merge.html"><span class="nav-num">29</span>Resolver conflictos de merge</a></li>
+<li data-slug="30-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="../lecciones/30-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">30</span>&quot;Proyecto de portafolio: lleva un cambio de principio a fin&quot;</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">5. MCP y herramientas externas</p><ol>
+<li data-slug="31-que-es-mcp"><a href="../lecciones/31-que-es-mcp.html"><span class="nav-num">31</span>&quot;Qué es MCP: Claude Code como cliente de herramientas externas&quot;</a></li>
+<li data-slug="32-anadir-un-servidor-mcp"><a href="../lecciones/32-anadir-un-servidor-mcp.html"><span class="nav-num">32</span>Añadir un servidor MCP</a></li>
+<li data-slug="33-usar-herramientas-mcp-en-una-sesion"><a href="../lecciones/33-usar-herramientas-mcp-en-una-sesion.html"><span class="nav-num">33</span>Usar herramientas MCP dentro de una sesión</a></li>
+<li data-slug="34-alcance-y-gestion-de-servidores-proyecto-vs-usuario"><a href="../lecciones/34-alcance-y-gestion-de-servidores-proyecto-vs-usuario.html"><span class="nav-num">34</span>&quot;Alcance y gestión de servidores: proyecto vs. usuario&quot;</a></li>
+<li data-slug="35-mcp-con-seguridad-permisos-secretos-y-confianza"><a href="../lecciones/35-mcp-con-seguridad-permisos-secretos-y-confianza.html"><span class="nav-num">35</span>&quot;MCP con seguridad: permisos, secretos y confianza&quot;</a></li>
+<li data-slug="36-dejar-que-claude-use-herramientas-cli"><a href="../lecciones/36-dejar-que-claude-use-herramientas-cli.html"><span class="nav-num">36</span>Dejar que Claude use herramientas CLI</a></li>
+<li data-slug="37-cli-vs-mcp-cuando-usar-cada-uno"><a href="../lecciones/37-cli-vs-mcp-cuando-usar-cada-uno.html"><span class="nav-num">37</span>&quot;Herramientas CLI vs. servidores MCP: cuándo usar cada uno&quot;</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 5 · MCP y herramientas externas</p>
+    <h1><span class="num-grande">36</span>Dejar que Claude use herramientas CLI</h1>
+    <p class="resumen">Aprovechar las CLIs que ya tienes (gh, aws, gcloud, kubectl, docker, jq, sentry-cli…) - instalación y autenticación, enseñar a Claude una CLI desconocida con --help, documentarlas en CLAUDE.md, permisos seguros y scripts propios como herramientas.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Entender por qué las CLIs son una forma muy eficiente de conectar Claude con servicios.</li>
+<li>Preparar CLIs habituales para que Claude las use.</li>
+<li>Enseñarle a usar herramientas que no conoce.</li>
+<li>Configurar permisos adecuados para cada CLI.</li>
+</ul>
+<h2 id="por-que-las-clis-funcionan-tan-bien">Por qué las CLIs funcionan tan bien<a class="headerlink" href="#por-que-las-clis-funcionan-tan-bien" title="Permanent link">#</a></h2>
+<p>Claude ya tiene una herramienta universal: <strong>Bash</strong>. Cualquier programa de línea de comandos instalado en tu máquina es, en la práctica, una herramienta más:</p>
+<ul>
+<li><strong>No ocupan contexto</strong> hasta que se usan (no hay definiciones de herramientas cargadas).</li>
+<li>Claude <strong>ya conoce</strong> muchas CLIs populares (<code>git</code>, <code>gh</code>, <code>docker</code>, <code>kubectl</code>, <code>aws</code>, <code>npm</code>…) por su entrenamiento.</li>
+<li>Heredan <strong>tu autenticación</strong> existente (<code>gh auth login</code>, perfiles de AWS…).</li>
+<li>Se combinan con pipes (<code>| jq</code>, <code>| grep</code>) para filtrar la salida antes de que llegue al contexto.</li>
+</ul>
+<h2 id="clis-que-conviene-tener">CLIs que conviene tener<a class="headerlink" href="#clis-que-conviene-tener" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>CLI</th>
+<th>Para qué la usa Claude</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gh</code> (GitHub) / <code>glab</code> (GitLab)</td>
+<td>Issues, PRs, comentarios, CI, releases</td>
+</tr>
+<tr>
+<td><code>jq</code> / <code>yq</code></td>
+<td>Filtrar JSON/YAML</td>
+</tr>
+<tr>
+<td><code>rg</code> (ripgrep)</td>
+<td>Búsqueda rápida (Claude Code ya lo incluye)</td>
+</tr>
+<tr>
+<td><code>docker</code> / <code>docker compose</code></td>
+<td>Servicios locales, logs de contenedores</td>
+</tr>
+<tr>
+<td><code>kubectl</code>, <code>helm</code></td>
+<td>Estado de clústeres, logs de pods</td>
+</tr>
+<tr>
+<td><code>aws</code>, <code>gcloud</code>, <code>az</code></td>
+<td>Recursos cloud</td>
+</tr>
+<tr>
+<td><code>sentry-cli</code>, <code>datadog-ci</code></td>
+<td>Errores y observabilidad</td>
+</tr>
+<tr>
+<td><code>psql</code>, <code>mysql</code>, <code>sqlite3</code></td>
+<td>Consultas a bases de datos</td>
+</tr>
+<tr>
+<td><code>curl</code> / <code>httpie</code></td>
+<td>Probar APIs locales</td>
+</tr>
+<tr>
+<td><code>terraform</code></td>
+<td>Planes de infraestructura (¡con cuidado!)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="preparacion-instalar-y-autenticar">Preparación: instalar y autenticar<a class="headerlink" href="#preparacion-instalar-y-autenticar" title="Permanent link">#</a></h2>
+<p>Claude usará las CLIs <strong>con tu sesión y credenciales</strong>, así que primero autentícate tú:</p>
+<pre><code class="language-bash">gh auth login
+aws sso login --profile dev
+gcloud auth login
+kubectl config use-context dev-cluster
+</code></pre>
+<p>Después, en la sesión:</p>
+<pre><code class="language-text">&gt; Con gh, lista los issues abiertos con la etiqueta &quot;bug&quot; y prioridad alta,
+  y agrúpalos por componente.
+</code></pre>
+<pre><code class="language-bash">gh issue list --label bug --label &quot;prio:high&quot; --json number,title,labels --limit 50
+</code></pre>
+<h2 id="ensenar-una-cli-desconocida">Enseñar una CLI desconocida<a class="headerlink" href="#ensenar-una-cli-desconocida" title="Permanent link">#</a></h2>
+<p>Si la herramienta es interna o poco común, Claude puede aprender a usarla leyendo su ayuda:</p>
+<pre><code class="language-text">&gt; Usa `deployctl --help` y `deployctl status --help` para aprender la herramienta,
+  y luego dime el estado de los despliegues de hoy del servicio &quot;checkout&quot;.
+</code></pre>
+<p>Para no repetirlo cada sesión, documenta lo esencial en <code>CLAUDE.md</code> (o en una skill, si es largo):</p>
+<pre><code class="language-markdown">## Herramientas
+- `deployctl status &lt;servicio&gt;`: estado de despliegues. Nunca uses `deployctl rollout`.
+- `featflags get &lt;flag&gt; --env staging`: consultar feature flags (solo lectura).
+- Logs de staging: `kubectl -n staging logs deploy/&lt;servicio&gt; --since=1h`.
+</code></pre>
+<h2 id="tus-propios-scripts-como-herramientas">Tus propios scripts como herramientas<a class="headerlink" href="#tus-propios-scripts-como-herramientas" title="Permanent link">#</a></h2>
+<p>Un script en el repo es una herramienta perfecta: encapsula la complejidad y deja una interfaz simple.</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# scripts/db-snapshot.sh — resumen del estado de la BD local para depurar
+set -euo pipefail
+psql &quot;$DATABASE_URL&quot; -At -c &quot;select 'pedidos', count(*) from orders
+  union all select 'pendientes', count(*) from orders where status='pending'
+  union all select 'usuarios', count(*) from users;&quot;
+</code></pre>
+<pre><code class="language-markdown">## Scripts útiles (CLAUDE.md)
+- `scripts/db-snapshot.sh`: conteos rápidos de la BD local.
+- `scripts/seed.sh`: datos de ejemplo (borra la BD local).
+</code></pre>
+<h2 id="filtrar-la-salida">Filtrar la salida<a class="headerlink" href="#filtrar-la-salida" title="Permanent link">#</a></h2>
+<p>Las salidas grandes llenan el contexto. Anima a Claude a filtrar:</p>
+<pre><code class="language-text">&gt; Mira los pods con errores en staging. Filtra con jq y dame solo nombre,
+  estado y número de reinicios.
+</code></pre>
+<pre><code class="language-bash">kubectl -n staging get pods -o json \
+  | jq -r '.items[] | select(.status.containerStatuses[]?.restartCount &gt; 0)
+           | [.metadata.name, .status.phase, (.status.containerStatuses[0].restartCount)] | @tsv'
+</code></pre>
+<h2 id="permisos-para-clis">Permisos para CLIs<a class="headerlink" href="#permisos-para-clis" title="Permanent link">#</a></h2>
+<p>Aplica el mismo criterio que con MCP: lectura libre, escritura con confirmación, destrucción prohibida.</p>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;Bash(gh issue list *)&quot;,
+      &quot;Bash(gh issue view *)&quot;,
+      &quot;Bash(gh pr view *)&quot;,
+      &quot;Bash(gh pr diff *)&quot;,
+      &quot;Bash(gh pr checks *)&quot;,
+      &quot;Bash(gh run view *)&quot;,
+      &quot;Bash(kubectl get *)&quot;,
+      &quot;Bash(kubectl describe *)&quot;,
+      &quot;Bash(kubectl logs *)&quot;,
+      &quot;Bash(docker compose ps)&quot;,
+      &quot;Bash(docker compose logs *)&quot;,
+      &quot;Bash(jq *)&quot;
+    ],
+    &quot;ask&quot;: [
+      &quot;Bash(gh pr create *)&quot;,
+      &quot;Bash(gh issue create *)&quot;,
+      &quot;Bash(docker compose up *)&quot;
+    ],
+    &quot;deny&quot;: [
+      &quot;Bash(kubectl delete *)&quot;,
+      &quot;Bash(kubectl apply *)&quot;,
+      &quot;Bash(terraform apply *)&quot;,
+      &quot;Bash(terraform destroy *)&quot;,
+      &quot;Bash(aws * delete-*)&quot;,
+      &quot;Bash(gh repo delete *)&quot;
+    ]
+  }
+}
+</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">Contexto de la credencial</p>
+<p>Si tu terminal tiene activas credenciales de <strong>producción</strong> (un perfil de AWS, un contexto de kubectl), Claude las usará. Trabaja con perfiles de desarrollo por defecto, o arranca Claude con variables que apunten a entornos seguros:</p>
+<p><code>bash
+AWS_PROFILE=dev KUBECONFIG=~/.kube/dev claude</code></p>
+<p>También puedes fijarlas en el <code>env</code> de <code>.claude/settings.local.json</code>.</p>
+</div>
+<h2 id="en-windows">En Windows<a class="headerlink" href="#en-windows" title="Permanent link">#</a></h2>
+<p>Sin Git for Windows, Claude usa <strong>PowerShell</strong> como shell; con Git for Windows, usa Git Bash. Asegúrate de que las CLIs estén en el <code>PATH</code> del shell que usa Claude.</p>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Toda CLI instalada es una herramienta para Claude vía Bash, sin coste de contexto previo.</li>
+<li>Autentícate tú primero; Claude usa tus credenciales.</li>
+<li>Para CLIs desconocidas: <code>--help</code> + documentar en <code>CLAUDE.md</code>/skill.</li>
+<li>Filtra salidas con <code>jq</code>/<code>grep</code>; permisos por subcomando; cuidado con credenciales de producción.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Instala y autentica <code>gh</code>. Pide a Claude un resumen de los PRs abiertos del repo con su estado de CI.</li>
+<li>Elige una CLI interna o poco común y haz que Claude aprenda a usarla con <code>--help</code>. Documenta 3 comandos en <code>CLAUDE.md</code>.</li>
+<li>Escribe reglas allow/ask/deny para una CLI que uses a diario.</li>
+<li>Crea un script en <code>scripts/</code> que resuma algo útil y documenta su uso.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/best-practices">Buenas prácticas: usar herramientas CLI</a></li>
+<li><a href="https://code.claude.com/docs/en/permissions">Permisos de Bash</a></li>
+<li><a href="https://cli.github.com/manual/">GitHub CLI</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="35-mcp-con-seguridad-permisos-secretos-y-confianza.html"><small>← Anterior</small>35. &quot;MCP con seguridad: permisos, secretos y confianza&quot;</a><a class="next" href="37-cli-vs-mcp-cuando-usar-cada-uno.html"><small>Siguiente →</small>37. &quot;Herramientas CLI vs. servidores MCP: cuándo usar cada uno&quot;</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#por-que-las-clis-funcionan-tan-bien">Por qué las CLIs funcionan tan bien</a></li>
+<li><a href="#clis-que-conviene-tener">CLIs que conviene tener</a></li>
+<li><a href="#preparacion-instalar-y-autenticar">Preparación: instalar y autenticar</a></li>
+<li><a href="#ensenar-una-cli-desconocida">Enseñar una CLI desconocida</a></li>
+<li><a href="#tus-propios-scripts-como-herramientas">Tus propios scripts como herramientas</a></li>
+<li><a href="#filtrar-la-salida">Filtrar la salida</a></li>
+<li><a href="#permisos-para-clis">Permisos para CLIs</a></li>
+<li><a href="#en-windows">En Windows</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>
