@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curso Claude Code en español</title>
+<meta name="description" content="Curso práctico de Claude Code en español: {{TOTAL}} lecciones con comandos, ejemplos y proyectos.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="portada">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout layout-portada">
+  <nav class="sidebar">{{NAV}}</nav>
+  <main class="contenido ancho">
+    <section class="hero">
+      <h1>Claude Code, de cero a flujos multiagente</h1>
+      <p>{{TOTAL}} lecciones prácticas en español: instalación, permisos, CLAUDE.md, modo plan, modelos, Git, MCP, skills, comandos, hooks, subagentes y plugins. Cada lección trae comandos, ejemplos de configuración y ejercicios.</p>
+      <div class="progreso"><div class="barra"><span id="barra-progreso"></span></div><p id="texto-progreso"></p></div>
+      <input id="buscar" type="search" placeholder="Buscar en el curso (p. ej. «hooks», «--permission-mode», «.mcp.json»)" autocomplete="off">
+      <ul id="resultados"></ul>
+    </section>
+    {{TARJETAS}}
+    <footer class="pie">
+      <p>Material de estudio original, escrito a partir de la documentación oficial de Claude Code (<a href="https://code.claude.com/docs">code.claude.com/docs</a>). Claude Code evoluciona rápido: si un comando o flag no coincide con tu versión, revisa <code>claude --help</code> y la documentación oficial.</p>
+    </footer>
+  </main>
+</div>
+<script src="assets/busqueda.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

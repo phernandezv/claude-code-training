@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>9. Ejecutar comandos largos en segundo plano · Curso Claude Code</title>
+<meta name="description" content="Servidores de desarrollo, builds en modo watch y suites de tests largas sin bloquear la sesión - Ctrl+B, run_in_background, /tasks, la herramienta Monitor y sesiones en segundo plano.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="09-comandos-largos-en-segundo-plano">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 1 · Primeros pasos</p>
+    <h1><span class="num-grande">9</span>Ejecutar comandos largos en segundo plano</h1>
+    <p class="resumen">Servidores de desarrollo, builds en modo watch y suites de tests largas sin bloquear la sesión - Ctrl+B, run_in_background, /tasks, la herramienta Monitor y sesiones en segundo plano.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Entender por qué un comando largo bloquea a Claude y cómo evitarlo.</li>
+<li>Mandar comandos a segundo plano con <code>Ctrl+B</code> o pidiéndoselo a Claude.</li>
+<li>Consultar y detener tareas con <code>/tasks</code>.</li>
+<li>Vigilar logs o procesos con la herramienta <strong>Monitor</strong>.</li>
+<li>Conocer las sesiones en segundo plano (<code>/background</code>).</li>
+</ul>
+<h2 id="el-problema">El problema<a class="headerlink" href="#el-problema" title="Permanent link">#</a></h2>
+<p>Por defecto, cuando Claude ejecuta un comando con la herramienta <code>Bash</code>, <strong>espera a que termine</strong> para leer la salida. Con un <code>npm test</code> de 10 segundos no pasa nada, pero con:</p>
+<ul>
+<li>un servidor de desarrollo (<code>npm run dev</code>, <code>rails server</code>, <code>docker compose up</code>),</li>
+<li>un build en modo <em>watch</em> (<code>vite</code>, <code>tsc --watch</code>),</li>
+<li>una suite de tests de 15 minutos,</li>
+</ul>
+<p>la sesión quedaría bloqueada o el comando alcanzaría su tiempo máximo (por defecto 2 minutos).</p>
+<h2 id="como-funciona-el-segundo-plano">Cómo funciona el segundo plano<a class="headerlink" href="#como-funciona-el-segundo-plano" title="Permanent link">#</a></h2>
+<p>Un comando en segundo plano:</p>
+<ul>
+<li>Se ejecuta de forma <strong>asíncrona</strong> y devuelve inmediatamente un <strong>ID de tarea</strong>.</li>
+<li>Escribe su salida en un <strong>archivo</strong> que Claude puede leer cuando quiera.</li>
+<li>Permite que Claude siga trabajando (y que tú sigas escribiendo) mientras corre.</li>
+<li>Se limpia automáticamente al salir de Claude Code.</li>
+</ul>
+<p>Además, si un comando normal <strong>supera su timeout</strong>, Claude Code lo mueve automáticamente a segundo plano en lugar de matarlo (excepto los que empiezan por <code>sleep</code>).</p>
+<h2 id="tres-formas-de-enviar-algo-a-segundo-plano">Tres formas de enviar algo a segundo plano<a class="headerlink" href="#tres-formas-de-enviar-algo-a-segundo-plano" title="Permanent link">#</a></h2>
+<h3 id="1-pedirselo-a-claude">1. Pedírselo a Claude<a class="headerlink" href="#1-pedirselo-a-claude" title="Permanent link">#</a></h3>
+<pre><code class="language-text">&gt; Arranca el servidor de desarrollo en segundo plano y luego comprueba
+  que /api/health responde 200.
+</code></pre>
+<p>Claude usará la opción <code>run_in_background</code> de la herramienta Bash, esperará a que el servidor esté listo leyendo su salida y hará la comprobación.</p>
+<h3 id="2-ctrlb-sobre-un-comando-en-marcha">2. <code>Ctrl+B</code> sobre un comando en marcha<a class="headerlink" href="#2-ctrlb-sobre-un-comando-en-marcha" title="Permanent link">#</a></h3>
+<p>Si Claude lanzó un comando que está tardando, pulsa <strong><code>Ctrl+B</code></strong> para mandarlo a segundo plano sin cancelarlo.</p>
+<div class="admonition note">
+<p class="admonition-title">Usuarios de tmux</p>
+<p>En tmux <code>Ctrl+B</code> es la tecla prefijo, así que tendrás que pulsarlo <strong>dos veces</strong>.</p>
+</div>
+<h3 id="3-tus-propios-comandos-con">3. Tus propios comandos con <code>!</code><a class="headerlink" href="#3-tus-propios-comandos-con" title="Permanent link">#</a></h3>
+<p>El modo shell también admite <code>Ctrl+B</code>:</p>
+<pre><code class="language-text">! npm run dev
+(pulsa Ctrl+B)
+</code></pre>
+<h2 id="ver-y-gestionar-tareas-tasks">Ver y gestionar tareas: <code>/tasks</code><a class="headerlink" href="#ver-y-gestionar-tareas-tasks" title="Permanent link">#</a></h2>
+<pre><code class="language-text">/tasks
+</code></pre>
+<p>Lista las tareas en segundo plano de la sesión (comandos y subagentes), su estado, y te permite ver su salida o <strong>detenerlas</strong>. También está disponible como <code>/bashes</code>.</p>
+<p>Ejemplo de flujo:</p>
+<pre><code class="language-text">&gt; Arranca `npm run dev` en segundo plano.
+  ● Bash(npm run dev) → running in background (id: b1)
+
+&gt; Ahora añade un endpoint /api/version y comprueba que responde.
+  ● Edit(src/server/routes.ts)
+  ● Read(salida de b1) → &quot;server restarted&quot;
+  ● Bash(curl -s localhost:3000/api/version) → {&quot;version&quot;:&quot;1.4.0&quot;}
+
+&gt; /tasks   → detener b1
+</code></pre>
+<h2 id="vigilar-cosas-la-herramienta-monitor">Vigilar cosas: la herramienta Monitor<a class="headerlink" href="#vigilar-cosas-la-herramienta-monitor" title="Permanent link">#</a></h2>
+<p>La herramienta <strong>Monitor</strong> permite a Claude observar algo en segundo plano y <strong>reaccionar cuando cambia</strong>, sin pausar la conversación. Por ejemplo:</p>
+<ul>
+<li>Seguir un archivo de log y avisar cuando aparece un error.</li>
+<li>Consultar el estado de un job de CI o de un PR y avisar cuando cambia.</li>
+<li>Vigilar un directorio.</li>
+<li>Seguir la salida de cualquier script largo.</li>
+</ul>
+<pre><code class="language-text">&gt; Vigila logs/app.log y avísame cada vez que aparezca un ERROR o un stack trace.
+  Mientras tanto, vamos a revisar el módulo de facturación.
+</code></pre>
+<p>Tú sigues trabajando y Claude interviene cuando llega un evento.</p>
+<h2 id="sesiones-enteras-en-segundo-plano">Sesiones enteras en segundo plano<a class="headerlink" href="#sesiones-enteras-en-segundo-plano" title="Permanent link">#</a></h2>
+<p>Además de comandos sueltos, puedes mandar <strong>toda la sesión</strong> a segundo plano para liberar la terminal:</p>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/background [prompt]</code></td>
+<td>Separa la sesión actual y la deja trabajando en segundo plano</td>
+</tr>
+<tr>
+<td><code>/fork [prompt]</code></td>
+<td>Copia la conversación a una nueva sesión en segundo plano y tú sigues aquí</td>
+</tr>
+<tr>
+<td><code>claude agents</code></td>
+<td>Vista para monitorizar tus sesiones en segundo plano</td>
+</tr>
+</tbody>
+</table>
+<p>Esto es útil cuando una tarea larga (una migración, una batería de refactors) no necesita tu atención constante.</p>
+<h2 id="limites-y-detalles-a-tener-en-cuenta">Límites y detalles a tener en cuenta<a class="headerlink" href="#limites-y-detalles-a-tener-en-cuenta" title="Permanent link">#</a></h2>
+<ul>
+<li>En <strong>modo headless</strong> (<code>claude -p</code>), los comandos en segundo plano se terminan unos segundos después de que Claude devuelva su resultado final.</li>
+<li>Las tareas en segundo plano que generan más de 5 GB de salida se terminan automáticamente.</li>
+<li>Un <code>cd</code> dentro de un comando movido a segundo plano <strong>no</strong> cambia el directorio de la sesión.</li>
+<li>Para desactivar por completo esta funcionalidad: variable de entorno <code>CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1</code>.</li>
+</ul>
+<h2 id="candidatos-tipicos-para-segundo-plano">Candidatos típicos para segundo plano<a class="headerlink" href="#candidatos-tipicos-para-segundo-plano" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Ejemplos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Servidores de desarrollo</td>
+<td><code>npm run dev</code>, <code>python manage.py runserver</code>, <code>rails s</code></td>
+</tr>
+<tr>
+<td>Builds en watch</td>
+<td><code>vite</code>, <code>webpack --watch</code>, <code>tsc --watch</code>, <code>cargo watch</code></td>
+</tr>
+<tr>
+<td>Tests largos</td>
+<td><code>pytest</code>, <code>jest --runInBand</code>, tests e2e</td>
+</tr>
+<tr>
+<td>Infraestructura local</td>
+<td><code>docker compose up</code>, <code>terraform plan</code></td>
+</tr>
+<tr>
+<td>Instalaciones pesadas</td>
+<td><code>npm ci</code>, <code>pip install -r requirements.txt</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="buenas-practicas">Buenas prácticas<a class="headerlink" href="#buenas-practicas" title="Permanent link">#</a></h2>
+<ul>
+<li>Di explícitamente <em>"en segundo plano"</em> cuando pidas arrancar servidores.</li>
+<li>Pide a Claude que <strong>espere a una señal</strong> ("espera a ver 'ready on port 3000'") antes de continuar.</li>
+<li>Revisa <code>/tasks</code> antes de cerrar para no dejar procesos huérfanos (aunque se limpian al salir).</li>
+<li>En tareas muy largas, combina segundo plano + Monitor para que Claude te avise.</li>
+</ul>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Los comandos largos bloquean; el segundo plano los hace asíncronos.</li>
+<li><code>Ctrl+B</code> (dos veces en tmux) o pedírselo a Claude; los que exceden el timeout pasan solos a segundo plano.</li>
+<li><code>/tasks</code> lista y detiene; Monitor vigila y reacciona.</li>
+<li><code>/background</code> y <code>/fork</code> llevan sesiones enteras a segundo plano.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Pide a Claude que arranque tu servidor de desarrollo en segundo plano y compruebe un endpoint.</li>
+<li>Ejecuta <code>! npm test</code> (o equivalente) y pulsa <code>Ctrl+B</code>. Consulta después <code>/tasks</code>.</li>
+<li>Pide a Claude que vigile un log mientras hace otra tarea; genera un error a propósito y observa cómo reacciona.</li>
+<li>Detén todas las tareas desde <code>/tasks</code>.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/interactive-mode#background-bash-commands">Comandos Bash en segundo plano</a></li>
+<li><a href="https://code.claude.com/docs/en/tools-reference">Referencia de herramientas (Bash, Monitor)</a></li>
+<li><a href="https://code.claude.com/docs/en/agent-view">Vista de agentes y sesiones en segundo plano</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="08-claude-code-en-tu-editor.html"><small>← Anterior</small>8. Claude Code en tu editor</a><span></span></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#el-problema">El problema</a></li>
+<li><a href="#como-funciona-el-segundo-plano">Cómo funciona el segundo plano</a></li>
+<li><a href="#tres-formas-de-enviar-algo-a-segundo-plano">Tres formas de enviar algo a segundo plano</a><ul>
+<li><a href="#1-pedirselo-a-claude">1. Pedírselo a Claude</a></li>
+<li><a href="#2-ctrlb-sobre-un-comando-en-marcha">2. Ctrl+B sobre un comando en marcha</a></li>
+<li><a href="#3-tus-propios-comandos-con">3. Tus propios comandos con !</a></li>
+</ul>
+</li>
+<li><a href="#ver-y-gestionar-tareas-tasks">Ver y gestionar tareas: /tasks</a></li>
+<li><a href="#vigilar-cosas-la-herramienta-monitor">Vigilar cosas: la herramienta Monitor</a></li>
+<li><a href="#sesiones-enteras-en-segundo-plano">Sesiones enteras en segundo plano</a></li>
+<li><a href="#limites-y-detalles-a-tener-en-cuenta">Límites y detalles a tener en cuenta</a></li>
+<li><a href="#candidatos-tipicos-para-segundo-plano">Candidatos típicos para segundo plano</a></li>
+<li><a href="#buenas-practicas">Buenas prácticas</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

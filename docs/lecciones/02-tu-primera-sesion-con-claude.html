@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2. Tu primera sesión con Claude · Curso Claude Code</title>
+<meta name="description" content="Recorrido guiado por una sesión interactiva - cómo escribir prompts, mencionar archivos con @, ejecutar comandos con !, interrumpir, pegar imágenes y usar los atajos esenciales.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="02-tu-primera-sesion-con-claude">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 1 · Primeros pasos</p>
+    <h1><span class="num-grande">2</span>Tu primera sesión con Claude</h1>
+    <p class="resumen">Recorrido guiado por una sesión interactiva - cómo escribir prompts, mencionar archivos con @, ejecutar comandos con !, interrumpir, pegar imágenes y usar los atajos esenciales.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Moverte con soltura por la interfaz interactiva de la terminal.</li>
+<li>Escribir prompts efectivos y dar contexto con <code>@archivo</code>.</li>
+<li>Ejecutar comandos de shell sin salir de la sesión con <code>!</code>.</li>
+<li>Interrumpir, redirigir y encolar mensajes mientras Claude trabaja.</li>
+<li>Conocer los atajos de teclado que usarás todos los días.</li>
+</ul>
+<h2 id="abrir-una-sesion">Abrir una sesión<a class="headerlink" href="#abrir-una-sesion" title="Permanent link">#</a></h2>
+<p>Una sesión se abre <strong>dentro del directorio del proyecto</strong>. Ese directorio es el <em>directorio de trabajo</em>: Claude puede leer y editar lo que haya dentro (y lo que añadas explícitamente).</p>
+<pre><code class="language-bash">cd ~/proyectos/tienda-online
+claude
+</code></pre>
+<p>También puedes arrancar con una primera instrucción:</p>
+<pre><code class="language-bash">claude &quot;explica cómo se calcula el precio final de un carrito&quot;
+</code></pre>
+<p>O darle un nombre a la sesión para encontrarla después (lección 6):</p>
+<pre><code class="language-bash">claude -n refactor-carrito
+</code></pre>
+<h2 id="anatomia-de-la-pantalla">Anatomía de la pantalla<a class="headerlink" href="#anatomia-de-la-pantalla" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Área de conversación</strong>: tus mensajes, las respuestas de Claude y las llamadas a herramientas (por ejemplo <code>Read(src/cart.ts)</code>, <code>Bash(npm test)</code>), con su resultado resumido.</li>
+<li><strong>Cuadro de entrada</strong> (<code>&gt;</code>): donde escribes.</li>
+<li><strong>Barra de estado</strong>: muestra el modo de permisos activo (p. ej. <code>⏸ plan mode on</code>), avisos y, si la configuras, información como el modelo o el uso de contexto.</li>
+</ul>
+<p>Pulsa <code>?</code> con el cuadro vacío para ver el panel de atajos.</p>
+<h2 id="como-escribir-un-buen-primer-prompt">Cómo escribir un buen primer prompt<a class="headerlink" href="#como-escribir-un-buen-primer-prompt" title="Permanent link">#</a></h2>
+<p>Claude trabaja mejor cuando le das <strong>objetivo + contexto + criterio de éxito</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Prompt flojo</th>
+<th>Prompt sólido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"arregla el login"</td>
+<td>"Los usuarios con email en mayúsculas no pueden iniciar sesión. Revisa <code>@src/auth/login.ts</code>, normaliza el email antes de buscarlo y añade un test que lo cubra. Ejecuta <code>npm test</code> al final."</td>
+</tr>
+<tr>
+<td>"mejora el rendimiento"</td>
+<td>"La página <code>/productos</code> tarda 3 s. Encuentra consultas N+1 en <code>src/repos/</code> y propón cambios; no edites todavía."</td>
+</tr>
+</tbody>
+</table>
+<p>Consejos:</p>
+<ul>
+<li><strong>Describe el síntoma y el resultado esperado</strong>, no solo "arregla X".</li>
+<li><strong>Di cómo verificar</strong> ("ejecuta los tests", "compila con <code>npm run build</code>").</li>
+<li><strong>Acota el alcance</strong> ("solo en este módulo", "no cambies la API pública").</li>
+<li>Si solo quieres entender algo, dilo: "explícame… no edites nada".</li>
+</ul>
+<h2 id="mencionar-archivos-con">Mencionar archivos con <code>@</code><a class="headerlink" href="#mencionar-archivos-con" title="Permanent link">#</a></h2>
+<p>Escribe <code>@</code> y aparecerá un autocompletado de rutas. Al mencionar un archivo, su contenido entra directamente en el contexto:</p>
+<pre><code class="language-text">&gt; Compara @src/api/users.ts con @src/api/orders.ts y dime qué patrón de manejo de errores es más consistente
+</code></pre>
+<p>También puedes mencionar carpetas (<code>@src/components/</code>) para que Claude vea su estructura.</p>
+<h2 id="ejecutar-comandos-de-shell-con">Ejecutar comandos de shell con <code>!</code><a class="headerlink" href="#ejecutar-comandos-de-shell-con" title="Permanent link">#</a></h2>
+<p>Si empiezas el mensaje con <code>!</code>, entras en <strong>modo shell</strong>: el comando se ejecuta directamente (sin que Claude tenga que pedir permiso) y <strong>su salida se añade a la conversación</strong>, de modo que Claude la ve y puede reaccionar.</p>
+<pre><code class="language-text">! npm test
+! git status
+! ls -la src/
+</code></pre>
+<p>Esto es muy útil para "enseñarle" a Claude un error: ejecutas <code>! npm run build</code>, y Claude responde automáticamente analizando la salida. Sales del modo shell con <code>Esc</code> o borrando el <code>!</code>.</p>
+<h2 id="pegar-imagenes-y-texto-largo">Pegar imágenes y texto largo<a class="headerlink" href="#pegar-imagenes-y-texto-largo" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Imágenes</strong>: arrastra un archivo a la terminal o pega desde el portapapeles con <code>Ctrl+V</code> (en iTerm2 <code>Cmd+V</code>, en Windows/WSL <code>Alt+V</code>). Útil para capturas de un error visual o un diseño.</li>
+<li><strong>Texto largo</strong> (logs, trazas): pégalo directamente. Si es enorme, mejor guárdalo en un archivo y menciónalo con <code>@</code>.</li>
+</ul>
+<h2 id="entrada-multilinea">Entrada multilínea<a class="headerlink" href="#entrada-multilinea" title="Permanent link">#</a></h2>
+<p>Para escribir varias líneas sin enviar:</p>
+<table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Atajo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Escape rápido</td>
+<td><code>\</code> + <code>Enter</code> (funciona en cualquier terminal)</td>
+</tr>
+<tr>
+<td>Control</td>
+<td><code>Ctrl+J</code></td>
+</tr>
+<tr>
+<td>Shift+Enter</td>
+<td>Nativo en iTerm2, WezTerm, Ghostty, Kitty, Warp, Windows Terminal…</td>
+</tr>
+<tr>
+<td>Editor externo</td>
+<td><code>Ctrl+G</code> abre tu <code>$EDITOR</code> para redactar el prompt</td>
+</tr>
+</tbody>
+</table>
+<p>Si <code>Shift+Enter</code> no funciona en tu terminal, ejecuta <code>/terminal-setup</code>.</p>
+<h2 id="interrumpir-y-redirigir">Interrumpir y redirigir<a class="headerlink" href="#interrumpir-y-redirigir" title="Permanent link">#</a></h2>
+<p>Claude trabaja de forma autónoma, pero <strong>tú sigues al mando</strong>:</p>
+<ul>
+<li><strong><code>Esc</code></strong>: detiene lo que Claude está haciendo en ese momento. Luego puedes escribir una corrección ("no, usa <code>fetch</code> en vez de <code>axios</code>") y continuará con esa indicación.</li>
+<li><strong>Escribir mientras trabaja</strong>: si escribes un mensaje y pulsas <code>Enter</code> mientras Claude está ocupado, el mensaje se <strong>encola</strong> y lo recibirá en cuanto pueda, sin cortar su trabajo.</li>
+<li><strong><code>Esc</code> <code>Esc</code></strong> (con el cuadro vacío): abre el menú de <em>rewind</em> para volver a un punto anterior de la conversación y/o del código (lección 3).</li>
+<li><strong><code>Ctrl+C</code></strong>: interrumpe o borra lo que has escrito. Pulsado dos veces seguidas, sale.</li>
+</ul>
+<h2 id="atajos-esenciales">Atajos esenciales<a class="headerlink" href="#atajos-esenciales" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Atajo</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Esc</code></td>
+<td>Interrumpir a Claude / cerrar un diálogo</td>
+</tr>
+<tr>
+<td><code>Esc</code> <code>Esc</code></td>
+<td>Borrar borrador o abrir <em>rewind</em></td>
+</tr>
+<tr>
+<td><code>Shift+Tab</code></td>
+<td>Cambiar de modo de permisos (lección 4)</td>
+</tr>
+<tr>
+<td><code>Ctrl+O</code></td>
+<td>Ver la transcripción completa (detalles de cada herramienta)</td>
+</tr>
+<tr>
+<td><code>Ctrl+T</code></td>
+<td>Mostrar/ocultar la lista de tareas de Claude</td>
+</tr>
+<tr>
+<td><code>Ctrl+B</code></td>
+<td>Mandar a segundo plano un comando en ejecución (lección 9)</td>
+</tr>
+<tr>
+<td><code>Ctrl+R</code></td>
+<td>Búsqueda inversa en el historial de prompts</td>
+</tr>
+<tr>
+<td><code>↑</code> / <code>↓</code></td>
+<td>Navegar por prompts anteriores</td>
+</tr>
+<tr>
+<td><code>Ctrl+S</code></td>
+<td>Guardar temporalmente el prompt actual y recuperarlo después</td>
+</tr>
+<tr>
+<td><code>Option+P</code> / <code>Alt+P</code></td>
+<td>Cambiar de modelo</td>
+</tr>
+<tr>
+<td><code>Ctrl+D</code></td>
+<td>Salir</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">macOS y la tecla Option</p>
+<p>Los atajos con <code>Option</code>/<code>Alt</code> requieren que tu terminal trate Option como <em>Meta</em>. En iTerm2: <em>Profiles → Keys → Left Option key: Esc+</em>. En Terminal.app: <em>Settings → Profiles → Keyboard → Use Option as Meta key</em>.</p>
+</div>
+<h2 id="aprobar-permisos">Aprobar permisos<a class="headerlink" href="#aprobar-permisos" title="Permanent link">#</a></h2>
+<p>Cuando Claude quiere hacer algo que requiere tu aprobación (editar un archivo, ejecutar un comando), verás un diálogo como:</p>
+<pre><code class="language-text">Bash command
+  npm install zod
+Do you want to proceed?
+❯ 1. Yes
+  2. Yes, and don't ask again for npm install commands in this project
+  3. No, and tell Claude what to do differently (esc)
+</code></pre>
+<ul>
+<li><strong>Yes</strong>: aprueba solo esta vez.</li>
+<li><strong>Yes, and don't ask again…</strong>: crea una regla de permiso para no volver a preguntar (lección 15).</li>
+<li><strong>No</strong>: rechaza; puedes explicar qué prefieres.</li>
+</ul>
+<p>En la lección 4 veremos cómo los <strong>modos de permisos</strong> cambian cuántas veces se te pregunta.</p>
+<h2 id="preguntas-rapidas-sin-ensuciar-el-contexto-btw">Preguntas rápidas sin ensuciar el contexto: <code>/btw</code><a class="headerlink" href="#preguntas-rapidas-sin-ensuciar-el-contexto-btw" title="Permanent link">#</a></h2>
+<p>Si quieres preguntar algo lateral ("¿qué versión de Node usa este repo?") sin que forme parte del hilo principal, usa:</p>
+<pre><code class="language-text">/btw ¿qué hace la opción strict en tsconfig?
+</code></pre>
+<h2 id="un-ejemplo-de-sesion-completo">Un ejemplo de sesión completo<a class="headerlink" href="#un-ejemplo-de-sesion-completo" title="Permanent link">#</a></h2>
+<pre><code class="language-text">&gt; Quiero entender el flujo de pago. ¿Qué archivos intervienen desde que el
+  usuario pulsa &quot;Pagar&quot; hasta que se guarda el pedido? No edites nada.
+
+  ● Grep(&quot;checkout|pagar|payment&quot;, src/)
+  ● Read(src/pages/checkout.tsx)
+  ● Read(src/services/payment.ts)
+  ● Read(src/repos/orders.ts)
+
+  El flujo es: 1) checkout.tsx llama a createPayment()… 2)… 3)…
+
+&gt; ! npm test -- payment
+  (salida de los tests: 1 fallo en payment.test.ts)
+
+  ● El test falla porque el importe se redondea antes de aplicar el IVA…
+    ¿Quieres que lo corrija?
+
+&gt; Sí, corrígelo y vuelve a ejecutar ese test.
+</code></pre>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Abre <code>claude</code> en la raíz del proyecto; el directorio actual define qué puede tocar.</li>
+<li>Buen prompt = objetivo + contexto (<code>@archivos</code>) + cómo verificar.</li>
+<li><code>!comando</code> ejecuta en tu shell y comparte la salida con Claude.</li>
+<li><code>Esc</code> interrumpe; escribir mientras trabaja encola mensajes; <code>Esc Esc</code> rebobina.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Abre una sesión y pide un resumen del proyecto usando <code>@README.md</code>.</li>
+<li>Ejecuta <code>! git log --oneline -5</code> y pídele a Claude que describa los últimos cambios.</li>
+<li>Pide una tarea pequeña (p. ej. "añade un comentario JSDoc a esta función") e <strong>interrúmpela</strong> con <code>Esc</code> a mitad; luego redirígela.</li>
+<li>Practica la entrada multilínea con <code>\</code> + <code>Enter</code> y con <code>Ctrl+G</code>.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/interactive-mode">Modo interactivo y atajos</a></li>
+<li><a href="https://code.claude.com/docs/en/common-workflows">Flujos de trabajo comunes</a></li>
+<li><a href="https://code.claude.com/docs/en/terminal-config">Configuración de la terminal</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="01-conoce-claude-code-y-ponlo-en-marcha.html"><small>← Anterior</small>1. Conoce Claude Code y ponlo en marcha</a><a class="next" href="03-como-hace-claude-un-cambio.html"><small>Siguiente →</small>3. Cómo hace Claude realmente un cambio</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#abrir-una-sesion">Abrir una sesión</a></li>
+<li><a href="#anatomia-de-la-pantalla">Anatomía de la pantalla</a></li>
+<li><a href="#como-escribir-un-buen-primer-prompt">Cómo escribir un buen primer prompt</a></li>
+<li><a href="#mencionar-archivos-con">Mencionar archivos con @</a></li>
+<li><a href="#ejecutar-comandos-de-shell-con">Ejecutar comandos de shell con !</a></li>
+<li><a href="#pegar-imagenes-y-texto-largo">Pegar imágenes y texto largo</a></li>
+<li><a href="#entrada-multilinea">Entrada multilínea</a></li>
+<li><a href="#interrumpir-y-redirigir">Interrumpir y redirigir</a></li>
+<li><a href="#atajos-esenciales">Atajos esenciales</a></li>
+<li><a href="#aprobar-permisos">Aprobar permisos</a></li>
+<li><a href="#preguntas-rapidas-sin-ensuciar-el-contexto-btw">Preguntas rápidas sin ensuciar el contexto: /btw</a></li>
+<li><a href="#un-ejemplo-de-sesion-completo">Un ejemplo de sesión completo</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

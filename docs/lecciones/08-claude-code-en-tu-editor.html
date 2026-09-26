@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>8. Claude Code en tu editor · Curso Claude Code</title>
+<meta name="description" content="Instalar y usar la extensión de VS Code (y Cursor) y el plugin de JetBrains - panel de chat, diffs en el editor, compartir selección, @-menciones con líneas, modos de permisos y conexión desde terminales externas con /ide.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="08-claude-code-en-tu-editor">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 1 · Primeros pasos</p>
+    <h1><span class="num-grande">8</span>Claude Code en tu editor</h1>
+    <p class="resumen">Instalar y usar la extensión de VS Code (y Cursor) y el plugin de JetBrains - panel de chat, diffs en el editor, compartir selección, @-menciones con líneas, modos de permisos y conexión desde terminales externas con /ide.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Instalar la extensión de <strong>VS Code</strong> (también funciona en Cursor y otros forks) y el plugin de <strong>JetBrains</strong>.</li>
+<li>Trabajar con el panel de Claude: selección, @-menciones con rangos de líneas, diffs.</li>
+<li>Conocer los atajos del editor.</li>
+<li>Conectar una sesión de terminal al IDE con <code>/ide</code>.</li>
+</ul>
+<h2 id="por-que-usar-claude-code-en-el-editor">¿Por qué usar Claude Code en el editor?<a class="headerlink" href="#por-que-usar-claude-code-en-el-editor" title="Permanent link">#</a></h2>
+<p>La CLI es la experiencia completa, pero el IDE añade ventajas:</p>
+<ul>
+<li><strong>Diffs visuales</strong> en el visor de diferencias del editor.</li>
+<li><strong>Contexto automático</strong>: Claude ve el archivo abierto y el texto que tengas seleccionado.</li>
+<li><strong>Diagnósticos</strong>: puede leer los errores y avisos del editor (lint, tipos).</li>
+<li>Todo sin salir de tu entorno.</li>
+</ul>
+<p>Ambos comparten configuración (<code>CLAUDE.md</code>, <code>settings.json</code>, MCP, plugins), así que puedes alternar libremente.</p>
+<h2 id="vs-code">VS Code<a class="headerlink" href="#vs-code" title="Permanent link">#</a></h2>
+<h3 id="instalacion">Instalación<a class="headerlink" href="#instalacion" title="Permanent link">#</a></h3>
+<ol>
+<li>Abre la vista de extensiones (<code>Cmd+Shift+X</code> / <code>Ctrl+Shift+X</code>).</li>
+<li>Busca <strong>"Claude Code"</strong> (editor: Anthropic) e instálala.
+   - En Cursor y otros forks, búscala igual o instálala desde Open VSX.</li>
+<li>Haz clic en el icono de Claude (la chispa ✱) en la barra lateral o en la parte superior del editor.</li>
+<li>Inicia sesión con tu cuenta la primera vez.</li>
+</ol>
+<h3 id="el-panel-de-claude">El panel de Claude<a class="headerlink" href="#el-panel-de-claude" title="Permanent link">#</a></h3>
+<ul>
+<li><strong>Cuadro de entrada</strong> con el selector de modo de permisos (Manual, Edit automatically, Plan, Auto…).</li>
+<li><strong>Historial de conversaciones</strong> para reanudar sesiones anteriores.</li>
+<li><strong>Propuestas de edición</strong> que se abren como diff: puedes aceptar o rechazar cada cambio.</li>
+</ul>
+<h3 id="compartir-codigo">Compartir código<a class="headerlink" href="#compartir-codigo" title="Permanent link">#</a></h3>
+<ul>
+<li><strong>Selección automática</strong>: si seleccionas líneas en el editor, Claude las ve. El pie del cuadro de entrada indica cuántas líneas hay seleccionadas.</li>
+<li><strong>@-mención con rango</strong>: pulsa <code>Option+K</code> (Mac) / <code>Alt+K</code> (Windows/Linux) para insertar una referencia como <code>@app.ts#5-10</code>.</li>
+<li><strong>@archivo</strong>: igual que en la terminal, escribe <code>@</code> y elige.</li>
+</ul>
+<pre><code class="language-text">&gt; @src/cart.ts#40-72 esta función hace demasiadas cosas. Divídela en funciones
+  pequeñas sin cambiar el comportamiento y actualiza los tests.
+</code></pre>
+<h3 id="atajos-de-vs-code">Atajos de VS Code<a class="headerlink" href="#atajos-de-vs-code" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Acción</th>
+<th>Mac</th>
+<th>Windows/Linux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Alternar foco editor ↔ Claude</td>
+<td><code>Cmd+Esc</code></td>
+<td><code>Ctrl+Esc</code></td>
+</tr>
+<tr>
+<td>Abrir conversación en nueva pestaña</td>
+<td><code>Cmd+Shift+Esc</code></td>
+<td><code>Ctrl+Shift+Esc</code></td>
+</tr>
+<tr>
+<td>Insertar @-mención de la selección</td>
+<td><code>Option+K</code></td>
+<td><code>Alt+K</code></td>
+</tr>
+<tr>
+<td>Reabrir sesión cerrada</td>
+<td><code>Cmd+Shift+T</code></td>
+<td><code>Ctrl+Shift+T</code></td>
+</tr>
+<tr>
+<td>Paleta de comandos (buscar "Claude Code")</td>
+<td><code>Cmd+Shift+P</code></td>
+<td><code>Ctrl+Shift+P</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="donde-colocar-el-panel">Dónde colocar el panel<a class="headerlink" href="#donde-colocar-el-panel" title="Permanent link">#</a></h3>
+<p>Puedes abrir Claude en la barra lateral, como pestaña del editor, en una ventana aparte o en <strong>modo terminal</strong> (la CLI dentro de la terminal integrada). Puedes tener <strong>varias conversaciones</strong> abiertas a la vez en pestañas.</p>
+<h3 id="ajustes-utiles-de-la-extension">Ajustes útiles de la extensión<a class="headerlink" href="#ajustes-utiles-de-la-extension" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Ajuste</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claudeCode.initialPermissionMode</code></td>
+<td>Modo con el que empiezan las conversaciones (<code>default</code>, <code>acceptEdits</code>, <code>plan</code>, <code>bypassPermissions</code>)</td>
+</tr>
+<tr>
+<td>"Allow dangerously skip permissions"</td>
+<td>Necesario para que aparezca el modo <em>Bypass permissions</em></td>
+</tr>
+</tbody>
+</table>
+<h3 id="extension-vs-cli">Extensión vs CLI<a class="headerlink" href="#extension-vs-cli" title="Permanent link">#</a></h3>
+<p>La extensión cubre la mayoría del trabajo diario, pero <strong>no todos los comandos slash</strong> de la CLI están disponibles en el panel. Si necesitas algo exclusivo de la CLI, abre la terminal integrada y ejecuta <code>claude</code>: se conectará automáticamente al editor.</p>
+<h2 id="jetbrains-intellij-pycharm-webstorm-goland">JetBrains (IntelliJ, PyCharm, WebStorm, GoLand…)<a class="headerlink" href="#jetbrains-intellij-pycharm-webstorm-goland" title="Permanent link">#</a></h2>
+<h3 id="instalacion_1">Instalación<a class="headerlink" href="#instalacion_1" title="Permanent link">#</a></h3>
+<p>El plugin de JetBrains <strong>ejecuta la CLI en la terminal del IDE</strong> y se conecta a ella; no trae su propia copia:</p>
+<ol>
+<li>Instala la CLI (lección 1) y asegúrate de que <code>claude</code> está en el <code>PATH</code>.</li>
+<li>Instala el plugin <strong>Claude Code</strong> desde el JetBrains Marketplace y reinicia el IDE.</li>
+</ol>
+<h3 id="uso">Uso<a class="headerlink" href="#uso" title="Permanent link">#</a></h3>
+<ul>
+<li>Abre Claude con <code>Cmd+Esc</code> (Mac) / <code>Ctrl+Esc</code> (Windows/Linux) o con el botón de Claude.</li>
+<li>Los <strong>diffs</strong> se muestran en el visor del IDE (puedes cambiarlo en <code>/config</code> → <em>Diff tool</em>).</li>
+<li>La <strong>selección y la pestaña activa</strong> se comparten automáticamente.</li>
+<li>Inserta referencias a archivos con <code>Cmd+Option+K</code> (Mac) / <code>Alt+Ctrl+K</code> (Linux/Windows), p. ej. <code>@src/auth.ts#L1-99</code>.</li>
+<li>Claude puede leer los <strong>diagnósticos</strong> del IDE (errores de inspección, lint).</li>
+</ul>
+<p>Como es la CLI, los modos se cambian igual: <code>Shift+Tab</code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Esc en JetBrains</p>
+<p>Si <code>Esc</code> no interrumpe a Claude en la terminal de JetBrains, revisa en <em>Settings → Tools → Terminal</em> la opción que hace que <code>Esc</code> mueva el foco al editor, y desactívala.</p>
+</div>
+<h2 id="conectar-desde-una-terminal-externa-ide">Conectar desde una terminal externa: <code>/ide</code><a class="headerlink" href="#conectar-desde-una-terminal-externa-ide" title="Permanent link">#</a></h2>
+<p>¿Prefieres tu terminal favorita (iTerm, Ghostty, Windows Terminal) pero quieres los diffs en el IDE? Arranca <code>claude</code> en la carpeta del proyecto y ejecuta:</p>
+<pre><code class="language-text">/ide
+</code></pre>
+<p>Claude Code detectará el IDE abierto en ese proyecto y se conectará: diffs en el editor, selección compartida y diagnósticos.</p>
+<h2 id="seguridad">Seguridad<a class="headerlink" href="#seguridad" title="Permanent link">#</a></h2>
+<p>La extensión de VS Code expone un pequeño servidor MCP local (solo accesible desde tu máquina) para que la CLI pueda pedir diagnósticos, abrir diffs, etc. Las reglas <code>deny</code> de lectura también bloquean que se comparta la selección de archivos protegidos (por ejemplo <code>.env</code>).</p>
+<h2 id="flujo-recomendado">Flujo recomendado<a class="headerlink" href="#flujo-recomendado" title="Permanent link">#</a></h2>
+<ol>
+<li>Trabaja en el panel del IDE para tareas donde quieras ver diffs uno a uno.</li>
+<li>Usa la CLI (terminal integrada o externa + <code>/ide</code>) para comandos avanzados, headless o varias sesiones.</li>
+<li>Revisa cada diff antes de aceptar, o usa <em>Edit automatically</em> y revisa al final con el panel de control de código fuente.</li>
+</ol>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>VS Code: extensión "Claude Code"; JetBrains: plugin que usa la CLI.</li>
+<li>Selección automática + <code>Option/Alt+K</code> para @-menciones con líneas.</li>
+<li><code>Cmd/Ctrl+Esc</code> alterna el foco; <code>/ide</code> conecta una terminal externa.</li>
+<li>Misma configuración que la CLI.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Instala la extensión en tu editor y abre una conversación.</li>
+<li>Selecciona una función, pulsa <code>Option/Alt+K</code> y pide que le añada documentación. Acepta o rechaza el diff.</li>
+<li>Desde una terminal externa, abre <code>claude</code> en el mismo proyecto y ejecuta <code>/ide</code>.</li>
+<li>Cambia el modo de permisos desde el indicador del panel y observa la diferencia.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/vs-code">Claude Code en VS Code</a></li>
+<li><a href="https://code.claude.com/docs/en/jetbrains">Claude Code en JetBrains</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="07-comandos-slash-y-revisar-tu-contexto.html"><small>← Anterior</small>7. Comandos slash y revisar tu contexto</a><a class="next" href="09-comandos-largos-en-segundo-plano.html"><small>Siguiente →</small>9. Ejecutar comandos largos en segundo plano</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#por-que-usar-claude-code-en-el-editor">¿Por qué usar Claude Code en el editor?</a></li>
+<li><a href="#vs-code">VS Code</a><ul>
+<li><a href="#instalacion">Instalación</a></li>
+<li><a href="#el-panel-de-claude">El panel de Claude</a></li>
+<li><a href="#compartir-codigo">Compartir código</a></li>
+<li><a href="#atajos-de-vs-code">Atajos de VS Code</a></li>
+<li><a href="#donde-colocar-el-panel">Dónde colocar el panel</a></li>
+<li><a href="#ajustes-utiles-de-la-extension">Ajustes útiles de la extensión</a></li>
+<li><a href="#extension-vs-cli">Extensión vs CLI</a></li>
+</ul>
+</li>
+<li><a href="#jetbrains-intellij-pycharm-webstorm-goland">JetBrains (IntelliJ, PyCharm, WebStorm, GoLand…)</a><ul>
+<li><a href="#instalacion_1">Instalación</a></li>
+<li><a href="#uso">Uso</a></li>
+</ul>
+</li>
+<li><a href="#conectar-desde-una-terminal-externa-ide">Conectar desde una terminal externa: /ide</a></li>
+<li><a href="#seguridad">Seguridad</a></li>
+<li><a href="#flujo-recomendado">Flujo recomendado</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

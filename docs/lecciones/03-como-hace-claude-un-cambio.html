@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3. Cómo hace Claude realmente un cambio · Curso Claude Code</title>
+<meta name="description" content="El bucle agéntico por dentro - herramientas, lectura antes de editar, ediciones exactas, verificación, lista de tareas y cómo deshacer con checkpoints y /rewind.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="03-como-hace-claude-un-cambio">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 1 · Primeros pasos</p>
+    <h1><span class="num-grande">3</span>Cómo hace Claude realmente un cambio</h1>
+    <p class="resumen">El bucle agéntico por dentro - herramientas, lectura antes de editar, ediciones exactas, verificación, lista de tareas y cómo deshacer con checkpoints y /rewind.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Entender el <strong>bucle agéntico</strong>: reunir contexto → actuar → verificar.</li>
+<li>Conocer las herramientas integradas que usa Claude y cuándo usa cada una.</li>
+<li>Saber cómo se aplica una edición y cómo revisarla (<code>/diff</code>, diffs en el IDE).</li>
+<li>Deshacer cambios con <strong>checkpoints</strong> (<code>/rewind</code>, <code>Esc Esc</code>) y conocer sus límites.</li>
+</ul>
+<h2 id="el-bucle-agentico">El bucle agéntico<a class="headerlink" href="#el-bucle-agentico" title="Permanent link">#</a></h2>
+<p>Cuando le das una tarea a Claude, no genera "la respuesta" de golpe. Recorre un ciclo:</p>
+<ol>
+<li><strong>Reunir contexto</strong>: busca archivos, lee código, ejecuta comandos de inspección.</li>
+<li><strong>Actuar</strong>: edita archivos, crea otros nuevos, ejecuta comandos.</li>
+<li><strong>Verificar</strong>: ejecuta tests, compila, lee errores… y si algo falla, <strong>vuelve al paso 1</strong>.</li>
+</ol>
+<p>Cada llamada a una herramienta devuelve información que alimenta la siguiente decisión. Por ejemplo, ante <em>"arregla los tests que fallan"</em>:</p>
+<pre><code class="language-text">1. Bash(npm test)                  → 2 tests fallan en cart.test.ts
+2. Read(tests/cart.test.ts)        → entiende qué se espera
+3. Grep(&quot;applyDiscount&quot;, src/)     → localiza la función
+4. Read(src/cart/discount.ts)      → encuentra el error de redondeo
+5. Edit(src/cart/discount.ts)      → aplica la corrección
+6. Bash(npm test)                  → todo en verde ✔
+</code></pre>
+<p>Tú formas parte del bucle: puedes interrumpir con <code>Esc</code> en cualquier punto y cambiar la dirección.</p>
+<h2 id="las-herramientas-integradas">Las herramientas integradas<a class="headerlink" href="#las-herramientas-integradas" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Categoría</th>
+<th>Herramientas</th>
+<th>Qué hacen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lectura y búsqueda</td>
+<td><code>Read</code>, <code>Glob</code>, <code>Grep</code></td>
+<td>Leer archivos, buscar por patrón de nombre o por contenido (regex)</td>
+</tr>
+<tr>
+<td>Edición</td>
+<td><code>Edit</code>, <code>Write</code>, <code>NotebookEdit</code></td>
+<td>Reemplazos exactos, crear/sobrescribir archivos, editar notebooks</td>
+</tr>
+<tr>
+<td>Ejecución</td>
+<td><code>Bash</code> (o <code>PowerShell</code> en Windows)</td>
+<td>Tests, builds, git, scripts…</td>
+</tr>
+<tr>
+<td>Web</td>
+<td><code>WebSearch</code>, <code>WebFetch</code></td>
+<td>Buscar en internet y leer páginas/documentación</td>
+</tr>
+<tr>
+<td>Orquestación</td>
+<td><code>Agent</code> (subagentes), <code>TodoWrite</code>/tareas, <code>AskUserQuestion</code></td>
+<td>Delegar trabajo, llevar una lista de tareas, preguntarte</td>
+</tr>
+<tr>
+<td>Extensiones</td>
+<td>Herramientas MCP, skills</td>
+<td>Las que tú añadas (lecciones 31–41)</td>
+</tr>
+</tbody>
+</table>
+<p>Puedes ver cada llamada con detalle pulsando <code>Ctrl+O</code> (visor de transcripción).</p>
+<h2 id="como-funciona-una-edicion">Cómo funciona una edición<a class="headerlink" href="#como-funciona-una-edicion" title="Permanent link">#</a></h2>
+<p>La herramienta <code>Edit</code> <strong>no reescribe el archivo entero</strong>: reemplaza un fragmento exacto (<code>old_string</code>) por otro (<code>new_string</code>). Esto tiene consecuencias prácticas:</p>
+<ul>
+<li>Claude <strong>debe leer el archivo antes</strong> de editarlo, para conocer el texto exacto.</li>
+<li>Si el fragmento no es único o no coincide (por ejemplo, porque tú cambiaste el archivo mientras tanto), la edición falla y Claude vuelve a leer.</li>
+<li>Los cambios son pequeños y revisables: ves un <strong>diff</strong> en cada permiso.</li>
+</ul>
+<p>Para archivos nuevos o reescrituras completas usa <code>Write</code>.</p>
+<h3 id="revisar-los-cambios">Revisar los cambios<a class="headerlink" href="#revisar-los-cambios" title="Permanent link">#</a></h3>
+<ul>
+<li>En el diálogo de permiso ves el diff antes de aceptar (en modo <code>default</code>).</li>
+<li><code>/diff</code> abre un visor con todos los cambios del árbol de trabajo, incluidos los de Claude.</li>
+<li>En VS Code/JetBrains, los cambios se muestran en el visor de diferencias del IDE.</li>
+<li>Y siempre puedes usar <code>git diff</code> (o <code>! git diff</code> dentro de la sesión).</li>
+</ul>
+<h2 id="la-lista-de-tareas">La lista de tareas<a class="headerlink" href="#la-lista-de-tareas" title="Permanent link">#</a></h2>
+<p>En tareas de varios pasos, Claude crea una <strong>lista de tareas</strong> (checklist) y la va marcando. Pulsa <code>Ctrl+T</code> para mostrarla u ocultarla. Es una buena señal de que ha entendido bien el alcance; si ves un paso que sobra o falta, díselo.</p>
+<h2 id="checkpoints-deshacer-sin-miedo">Checkpoints: deshacer sin miedo<a class="headerlink" href="#checkpoints-deshacer-sin-miedo" title="Permanent link">#</a></h2>
+<p>Claude Code guarda automáticamente el estado de los archivos <strong>antes de cada prompt que envías</strong>. Eso te permite volver atrás:</p>
+<ul>
+<li>Ejecuta <strong><code>/rewind</code></strong> (alias <code>/checkpoint</code>, <code>/undo</code>), o</li>
+<li>Pulsa <strong><code>Esc</code> <code>Esc</code></strong> con el cuadro de entrada vacío.</li>
+</ul>
+<p>Seleccionas el mensaje al que quieres volver y eliges una acción:</p>
+<table>
+<thead>
+<tr>
+<th>Opción</th>
+<th>Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Restore code and conversation</td>
+<td>Vuelve atrás código <strong>y</strong> conversación</td>
+</tr>
+<tr>
+<td>Restore conversation</td>
+<td>Rebobina la conversación, conserva el código actual</td>
+</tr>
+<tr>
+<td>Restore code</td>
+<td>Revierte los archivos, conserva la conversación</td>
+</tr>
+<tr>
+<td>Summarize from here</td>
+<td>Resume desde ese punto hacia adelante (libera contexto)</td>
+</tr>
+<tr>
+<td>Summarize up to here</td>
+<td>Resume lo anterior a ese punto</td>
+</tr>
+</tbody>
+</table>
+<p>Los checkpoints se guardan con la sesión, así que siguen disponibles si la reanudas más tarde.</p>
+<div class="admonition warning">
+<p class="admonition-title">Límites de los checkpoints</p>
+<ul>
+<li><strong>No rastrean cambios hechos por comandos Bash</strong> (<code>rm</code>, <code>mv</code>, scripts, migraciones…). Solo los hechos por las herramientas de edición.</li>
+<li>No rastrean cambios externos (los que haces tú en el editor u otros procesos).</li>
+<li>Las ediciones de subagentes no se restauran.</li>
+<li><strong>No sustituyen a Git.</strong> Piensa en ellos como un "deshacer local"; Git es tu historial permanente.</li>
+</ul>
+</div>
+<h2 id="buenas-practicas-derivadas">Buenas prácticas derivadas<a class="headerlink" href="#buenas-practicas-derivadas" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Dale una forma de verificar</strong>: tests, un comando de build, un script. Un agente que puede comprobar su trabajo produce resultados mucho mejores.</li>
+<li><strong>Trabaja sobre un árbol limpio de Git</strong> (o en una rama) para poder revisar y revertir con facilidad.</li>
+<li><strong>Pide primero exploración</strong> en cambios grandes ("lee y explícame antes de editar") o usa el modo plan (lección 18).</li>
+<li><strong>Delegar, no dictar</strong>: describe el objetivo y deja que Claude decida qué archivos leer; interviene si se desvía.</li>
+</ul>
+<h2 id="ejemplo-practico">Ejemplo práctico<a class="headerlink" href="#ejemplo-practico" title="Permanent link">#</a></h2>
+<pre><code class="language-text">&gt; Añade validación al endpoint POST /api/users: email válido y nombre no vacío.
+  Usa la librería de validación que ya use el proyecto. Añade tests y ejecútalos.
+</code></pre>
+<p>Observa en la transcripción:</p>
+<ol>
+<li>Cómo busca qué librería de validación se usa (<code>Grep("zod|joi|yup")</code>).</li>
+<li>Cómo lee el endpoint antes de editarlo.</li>
+<li>Cómo escribe los tests y los ejecuta.</li>
+<li>Si falla algo, cómo corrige y vuelve a ejecutar.</li>
+</ol>
+<p>Después ejecuta <code>/diff</code> para revisar todo, y prueba <code>/rewind</code> → <em>Restore code</em> para ver cómo desaparecen los cambios.</p>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Claude trabaja en un bucle: contexto → acción → verificación.</li>
+<li>Las ediciones son reemplazos exactos, siempre tras leer el archivo.</li>
+<li><code>/diff</code> y <code>Ctrl+O</code> te dejan auditar todo lo que hizo.</li>
+<li><code>/rewind</code> o <code>Esc Esc</code> deshacen cambios de las herramientas de edición, pero no de Bash; usa Git como red de seguridad real.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Pide un cambio pequeño y abre <code>Ctrl+O</code> para identificar cada herramienta usada.</li>
+<li>Tras el cambio, ejecuta <code>/diff</code> y luego <code>/rewind</code> → <em>Restore code</em>. Comprueba con <code>git status</code> que no quedan cambios.</li>
+<li>Pide a Claude que cree un archivo con <code>touch</code> vía Bash y luego intenta rebobinar. ¿Desaparece? ¿Por qué?</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/how-claude-code-works">Cómo funciona Claude Code</a></li>
+<li><a href="https://code.claude.com/docs/en/tools-reference">Referencia de herramientas</a></li>
+<li><a href="https://code.claude.com/docs/en/checkpointing">Checkpointing</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="02-tu-primera-sesion-con-claude.html"><small>← Anterior</small>2. Tu primera sesión con Claude</a><a class="next" href="04-modos-de-permisos-mantener-el-control.html"><small>Siguiente →</small>4. &quot;Modos de permisos: mantener el control&quot;</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#el-bucle-agentico">El bucle agéntico</a></li>
+<li><a href="#las-herramientas-integradas">Las herramientas integradas</a></li>
+<li><a href="#como-funciona-una-edicion">Cómo funciona una edición</a><ul>
+<li><a href="#revisar-los-cambios">Revisar los cambios</a></li>
+</ul>
+</li>
+<li><a href="#la-lista-de-tareas">La lista de tareas</a></li>
+<li><a href="#checkpoints-deshacer-sin-miedo">Checkpoints: deshacer sin miedo</a></li>
+<li><a href="#buenas-practicas-derivadas">Buenas prácticas derivadas</a></li>
+<li><a href="#ejemplo-practico">Ejemplo práctico</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

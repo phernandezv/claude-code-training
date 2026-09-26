@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>6. Reanudar y gestionar sesiones · Curso Claude Code</title>
+<meta name="description" content="Cómo se guardan las sesiones, cómo retomarlas con --continue, --resume y /resume, cómo nombrarlas, ramificarlas con /branch y --fork-session, exportarlas y dónde viven los transcripts.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="06-reanudar-y-gestionar-sesiones">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 1 · Primeros pasos</p>
+    <h1><span class="num-grande">6</span>Reanudar y gestionar sesiones</h1>
+    <p class="resumen">Cómo se guardan las sesiones, cómo retomarlas con --continue, --resume y /resume, cómo nombrarlas, ramificarlas con /branch y --fork-session, exportarlas y dónde viven los transcripts.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Entender qué es una <strong>sesión</strong> y qué se guarda.</li>
+<li>Retomar trabajo con <code>claude --continue</code>, <code>claude --resume</code> y <code>/resume</code>.</li>
+<li>Nombrar sesiones y usar el selector de sesiones con soltura.</li>
+<li>Ramificar una conversación para probar otro enfoque (<code>/branch</code>, <code>--fork-session</code>).</li>
+<li>Exportar sesiones y saber dónde están los archivos.</li>
+</ul>
+<h2 id="que-es-una-sesion">¿Qué es una sesión?<a class="headerlink" href="#que-es-una-sesion" title="Permanent link">#</a></h2>
+<p>Una sesión es una conversación con Claude Code asociada a un directorio de proyecto. Se guarda <strong>continuamente</strong> en disco mientras trabajas, así que puedes cerrar la terminal, apagar el ordenador o ejecutar <code>/clear</code> y volver a ella después.</p>
+<p>Al reanudar se restaura:</p>
+<ul>
+<li><strong>El historial completo</strong>, incluidas las llamadas a herramientas y sus resultados.</li>
+<li><strong>El modelo</strong> que estabas usando (salvo que fuerces otro con <code>--model</code>).</li>
+<li><strong>El modo de permisos</strong> (al reanudar desde la terminal con <code>--continue</code> o <code>--resume &lt;id|nombre&gt;</code>), con excepciones: <code>plan</code> y <code>bypassPermissions</code> no se restauran.</li>
+<li>Los <strong>checkpoints</strong>, así que <code>/rewind</code> sigue funcionando.</li>
+</ul>
+<p>No se restauran los procesos en segundo plano (servidores, <em>watchers</em>) ni ciertos flags de arranque como <code>--mcp-config</code>, <code>--settings</code>, <code>--plugin-dir</code> o <code>--add-dir</code>: vuelve a pasarlos si los necesitas.</p>
+<h2 id="formas-de-reanudar">Formas de reanudar<a class="headerlink" href="#formas-de-reanudar" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude --continue</code> (o <code>-c</code>)</td>
+<td>Reabre la conversación más reciente del directorio actual</td>
+</tr>
+<tr>
+<td><code>claude --resume</code> (o <code>-r</code>)</td>
+<td>Abre el <strong>selector de sesiones</strong></td>
+</tr>
+<tr>
+<td><code>claude --resume &lt;nombre&gt;</code></td>
+<td>Reanuda directamente la sesión con ese nombre</td>
+</tr>
+<tr>
+<td><code>claude --resume &lt;session-id&gt;</code></td>
+<td>Reanuda por ID (lo busca en cualquier proyecto de la máquina)</td>
+</tr>
+<tr>
+<td><code>claude --from-pr &lt;número&gt;</code></td>
+<td>Selector filtrado por sesiones vinculadas a ese pull request</td>
+</tr>
+<tr>
+<td><code>/resume</code></td>
+<td>Cambia a otra conversación desde dentro de una sesión</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Volver a lo último que estaba haciendo en este repo
+claude -c
+
+# Elegir de una lista
+claude -r
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Sesiones headless</p>
+<p>Las sesiones creadas con <code>claude -p</code> o con el Agent SDK no aparecen en el selector ni en <code>--continue</code>, pero puedes reanudarlas por su ID con <code>--resume &lt;id&gt;</code>.</p>
+</div>
+<h2 id="nombrar-sesiones">Nombrar sesiones<a class="headerlink" href="#nombrar-sesiones" title="Permanent link">#</a></h2>
+<p>Cuando trabajas en varias cosas a la vez, los nombres son oro:</p>
+<table>
+<thead>
+<tr>
+<th>Cuándo</th>
+<th>Cómo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Al arrancar</td>
+<td><code>claude -n auth-refactor</code></td>
+</tr>
+<tr>
+<td>Durante la sesión</td>
+<td><code>/rename auth-refactor</code></td>
+</tr>
+<tr>
+<td>Desde el selector</td>
+<td>Selecciona la sesión y pulsa <code>Ctrl+R</code></td>
+</tr>
+<tr>
+<td>Al aprobar un plan</td>
+<td>Se genera un título automático basado en el plan</td>
+</tr>
+</tbody>
+</table>
+<p>Si no la nombras, Claude Code genera un <strong>título</strong> a partir de tu primer prompt, que también sirve para reanudarla.</p>
+<pre><code class="language-bash">claude --resume auth-refactor
+</code></pre>
+<h2 id="el-selector-de-sesiones">El selector de sesiones<a class="headerlink" href="#el-selector-de-sesiones" title="Permanent link">#</a></h2>
+<p>Se abre con <code>claude --resume</code> o <code>/resume</code>. Atajos:</p>
+<table>
+<thead>
+<tr>
+<th>Atajo</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>↑</code> / <code>↓</code></td>
+<td>Moverse</td>
+</tr>
+<tr>
+<td><code>Enter</code></td>
+<td>Reanudar</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td>Previsualizar el contenido</td>
+</tr>
+<tr>
+<td><code>Ctrl+R</code></td>
+<td>Renombrar</td>
+</tr>
+<tr>
+<td><code>/</code> o empezar a escribir</td>
+<td>Buscar (también puedes pegar la URL de un PR)</td>
+</tr>
+<tr>
+<td><code>Ctrl+B</code></td>
+<td>Filtrar por la rama de Git actual</td>
+</tr>
+<tr>
+<td><code>Ctrl+W</code></td>
+<td>Ver sesiones de todos los <em>worktrees</em> del repo</td>
+</tr>
+<tr>
+<td><code>Ctrl+A</code></td>
+<td>Ver sesiones de todos los proyectos de la máquina</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Salir</td>
+</tr>
+</tbody>
+</table>
+<p>Cada fila muestra nombre o título, tiempo desde la última actividad, rama de Git y tamaño.</p>
+<h2 id="reanudar-una-sesion-larga">Reanudar una sesión larga<a class="headerlink" href="#reanudar-una-sesion-larga" title="Permanent link">#</a></h2>
+<p>Si reanudas una sesión muy grande (más de ~100.000 tokens) tras más de una hora de inactividad, en planes Pro/Max Claude Code te ofrece:</p>
+<ul>
+<li><strong>Resume from summary</strong>: compacta primero la conversación (más barato en cada petición posterior).</li>
+<li><strong>Resume full session as-is</strong>: carga todo tal cual (más detalle, más coste por petición).</li>
+</ul>
+<p>Es un equilibrio entre conservar todos los detalles y enviar menos tokens.</p>
+<h2 id="ramificar-una-sesion">Ramificar una sesión<a class="headerlink" href="#ramificar-una-sesion" title="Permanent link">#</a></h2>
+<p>¿Quieres probar un enfoque alternativo sin perder el camino actual? <strong>Ramifica</strong>:</p>
+<pre><code class="language-text">/branch probar-con-websockets
+</code></pre>
+<p>Esto copia la conversación hasta este punto en una sesión nueva y te cambia a ella. La original queda intacta y puedes volver con <code>/resume &lt;nombre-original&gt;</code>.</p>
+<p>Desde la línea de comandos:</p>
+<pre><code class="language-bash">claude --continue --fork-session
+claude --resume auth-refactor --fork-session
+</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">No abras la misma sesión en dos terminales</p>
+<p>Si reanudas la misma sesión en dos terminales sin <code>--fork-session</code>, los mensajes de ambas se mezclan en un único transcript. Usa ramas o <em>worktrees</em> (lección 27) para trabajo en paralelo.</p>
+</div>
+<h2 id="gestionar-el-contexto-dentro-de-una-sesion">Gestionar el contexto dentro de una sesión<a class="headerlink" href="#gestionar-el-contexto-dentro-de-una-sesion" title="Permanent link">#</a></h2>
+<p>Estos comandos no cambian de sesión, pero controlan cuánto "recuerda" Claude (lección 7 y 24):</p>
+<ul>
+<li><code>/clear [nombre]</code>: empieza una conversación nueva con contexto vacío. La anterior se guarda y puedes volver con <code>/resume</code>.</li>
+<li><code>/compact [instrucciones]</code>: sustituye el historial por un resumen, opcionalmente centrado en lo que indiques.</li>
+<li><code>/context</code>: muestra qué está ocupando el contexto.</li>
+</ul>
+<h2 id="exportar-y-localizar-sesiones">Exportar y localizar sesiones<a class="headerlink" href="#exportar-y-localizar-sesiones" title="Permanent link">#</a></h2>
+<ul>
+<li><strong><code>/export</code></strong>: copia la conversación al portapapeles o la guarda como texto legible. <code>/export sesion-auth.txt</code> la escribe directamente en ese archivo.</li>
+<li><strong>Transcripts en disco</strong>: <code>~/.claude/projects/&lt;proyecto&gt;/&lt;session-id&gt;.jsonl</code>, donde <code>&lt;proyecto&gt;</code> es la ruta del directorio con los caracteres no alfanuméricos sustituidos por <code>-</code>.</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">No parsees los .jsonl</p>
+<p>El formato interno de los <code>.jsonl</code> cambia entre versiones. Si necesitas datos de una sesión desde un script, usa <code>claude -p --resume &lt;id&gt; --output-format json</code>:</p>
+<p><code>bash
+claude -p --resume &lt;session-id&gt; --output-format json "resume lo que cambiamos" | jq -r '.result'</code></p>
+</div>
+<p>Por defecto los datos de sesiones antiguas se limpian automáticamente pasado un tiempo (unos 30 días); se puede ajustar con el ajuste <code>cleanupPeriodDays</code>.</p>
+<h2 id="flujo-de-trabajo-recomendado">Flujo de trabajo recomendado<a class="headerlink" href="#flujo-de-trabajo-recomendado" title="Permanent link">#</a></h2>
+<ol>
+<li>Una sesión por tarea: <code>claude -n &lt;tarea&gt;</code>.</li>
+<li>Si cambias de tema, <code>/clear</code> (o una sesión nueva) en vez de arrastrar contexto irrelevante.</li>
+<li>Antes de un experimento arriesgado, <code>/branch</code>.</li>
+<li>Al día siguiente, <code>claude -r</code> → buscar → <code>Enter</code>.</li>
+</ol>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Las sesiones se guardan solas; <code>-c</code> retoma la última, <code>-r</code> abre el selector.</li>
+<li>Nombra las sesiones (<code>-n</code>, <code>/rename</code>) para encontrarlas y reanudarlas por nombre.</li>
+<li><code>/branch</code> y <code>--fork-session</code> crean copias para explorar alternativas.</li>
+<li><code>/export</code> para leer; <code>-p --resume … --output-format json</code> para scripts.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Abre una sesión con <code>claude -n prueba-sesiones</code>, haz dos preguntas y sal con <code>Ctrl+D</code>.</li>
+<li>Reanúdala con <code>claude --resume prueba-sesiones</code> y verifica que recuerda el contexto.</li>
+<li>Dentro, ejecuta <code>/branch alternativa</code>, cambia algo y vuelve a la original con <code>/resume</code>.</li>
+<li>Exporta la sesión con <code>/export mi-sesion.txt</code> y revisa el archivo.</li>
+<li>Localiza la carpeta de tu proyecto en <code>~/.claude/projects/</code>.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/sessions">Gestionar sesiones</a></li>
+<li><a href="https://code.claude.com/docs/en/checkpointing">Checkpointing</a></li>
+<li><a href="https://code.claude.com/docs/en/cli-reference">Referencia de la CLI</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="05-modo-headless-respuestas-rapidas-sin-chat.html"><small>← Anterior</small>5. &quot;Modo headless: respuestas rápidas sin el chat&quot;</a><a class="next" href="07-comandos-slash-y-revisar-tu-contexto.html"><small>Siguiente →</small>7. Comandos slash y revisar tu contexto</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#que-es-una-sesion">¿Qué es una sesión?</a></li>
+<li><a href="#formas-de-reanudar">Formas de reanudar</a></li>
+<li><a href="#nombrar-sesiones">Nombrar sesiones</a></li>
+<li><a href="#el-selector-de-sesiones">El selector de sesiones</a></li>
+<li><a href="#reanudar-una-sesion-larga">Reanudar una sesión larga</a></li>
+<li><a href="#ramificar-una-sesion">Ramificar una sesión</a></li>
+<li><a href="#gestionar-el-contexto-dentro-de-una-sesion">Gestionar el contexto dentro de una sesión</a></li>
+<li><a href="#exportar-y-localizar-sesiones">Exportar y localizar sesiones</a></li>
+<li><a href="#flujo-de-trabajo-recomendado">Flujo de trabajo recomendado</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

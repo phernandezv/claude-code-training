@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7. Comandos slash y revisar tu contexto · Curso Claude Code</title>
+<meta name="description" content="Los comandos integrados más útiles (/help, /context, /compact, /clear, /usage, /model, /config, /init, /memory, /doctor…) y cómo entender y administrar la ventana de contexto.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="07-comandos-slash-y-revisar-tu-contexto">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 1 · Primeros pasos</p>
+    <h1><span class="num-grande">7</span>Comandos slash y revisar tu contexto</h1>
+    <p class="resumen">Los comandos integrados más útiles (/help, /context, /compact, /clear, /usage, /model, /config, /init, /memory, /doctor…) y cómo entender y administrar la ventana de contexto.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Descubrir y usar los <strong>comandos slash</strong> integrados.</li>
+<li>Entender qué es la <strong>ventana de contexto</strong> y qué la llena.</li>
+<li>Inspeccionar el contexto con <code>/context</code> y liberarlo con <code>/compact</code> y <code>/clear</code>.</li>
+<li>Consultar coste y límites de uso con <code>/usage</code>.</li>
+</ul>
+<h2 id="que-es-un-comando-slash">¿Qué es un comando slash?<a class="headerlink" href="#que-es-un-comando-slash" title="Permanent link">#</a></h2>
+<p>Cualquier mensaje que empiece por <code>/</code> es un <strong>comando</strong>: una acción de Claude Code (no un prompt al modelo) o una <em>skill</em>. Escribe <code>/</code> y aparecerá un menú filtrable con todos los disponibles, incluidos los personalizados que crees (lección 42) y los de plugins.</p>
+<pre><code class="language-text">/help            → ayuda y lista de comandos
+/                → menú de autocompletado
+</code></pre>
+<h2 id="los-comandos-que-mas-usaras">Los comandos que más usarás<a class="headerlink" href="#los-comandos-que-mas-usaras" title="Permanent link">#</a></h2>
+<h3 id="sesion-y-contexto">Sesión y contexto<a class="headerlink" href="#sesion-y-contexto" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Para qué sirve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/clear [nombre]</code></td>
+<td>Empieza una conversación nueva con contexto vacío (la anterior se guarda)</td>
+</tr>
+<tr>
+<td><code>/compact [instrucciones]</code></td>
+<td>Resume la conversación para liberar espacio, opcionalmente con un foco</td>
+</tr>
+<tr>
+<td><code>/context</code></td>
+<td>Muestra una cuadrícula de colores con lo que ocupa el contexto</td>
+</tr>
+<tr>
+<td><code>/resume</code>, <code>/rename</code>, <code>/branch</code></td>
+<td>Gestión de sesiones (lección 6)</td>
+</tr>
+<tr>
+<td><code>/rewind</code></td>
+<td>Volver a un checkpoint (lección 3)</td>
+</tr>
+<tr>
+<td><code>/export [archivo]</code></td>
+<td>Exportar la conversación</td>
+</tr>
+<tr>
+<td><code>/btw &lt;pregunta&gt;</code></td>
+<td>Pregunta lateral que no se añade al hilo</td>
+</tr>
+<tr>
+<td><code>/recap</code></td>
+<td>Resumen de una línea de la sesión</td>
+</tr>
+</tbody>
+</table>
+<h3 id="modelo-y-comportamiento">Modelo y comportamiento<a class="headerlink" href="#modelo-y-comportamiento" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Para qué sirve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/model [modelo]</code></td>
+<td>Cambiar de modelo (lección 22)</td>
+</tr>
+<tr>
+<td><code>/effort [nivel]</code></td>
+<td>Nivel de esfuerzo/razonamiento: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>, <code>auto</code></td>
+</tr>
+<tr>
+<td><code>/fast [on\|off]</code></td>
+<td>Modo rápido</td>
+</tr>
+<tr>
+<td><code>/plan [descripción]</code></td>
+<td>Entrar en modo plan</td>
+</tr>
+<tr>
+<td><code>/output-style [estilo]</code></td>
+<td>Cambiar el estilo de respuesta (lección 16)</td>
+</tr>
+<tr>
+<td><code>/config</code></td>
+<td>Panel de ajustes (tema, modelo, etc.); también <code>/config clave=valor</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="proyecto-y-configuracion">Proyecto y configuración<a class="headerlink" href="#proyecto-y-configuracion" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Para qué sirve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/init</code></td>
+<td>Genera un <code>CLAUDE.md</code> inicial analizando el repo (lección 10)</td>
+</tr>
+<tr>
+<td><code>/memory</code></td>
+<td>Editar archivos <code>CLAUDE.md</code> y la memoria automática</td>
+</tr>
+<tr>
+<td><code>/permissions</code></td>
+<td>Ver/editar reglas allow/ask/deny (lección 15)</td>
+</tr>
+<tr>
+<td><code>/add-dir &lt;ruta&gt;</code></td>
+<td>Dar acceso a otro directorio durante la sesión</td>
+</tr>
+<tr>
+<td><code>/mcp</code></td>
+<td>Estado y autenticación de servidores MCP (lección 32)</td>
+</tr>
+<tr>
+<td><code>/hooks</code></td>
+<td>Ver los hooks configurados (lección 44)</td>
+</tr>
+<tr>
+<td><code>/skills</code></td>
+<td>Listar skills disponibles (lección 38)</td>
+</tr>
+<tr>
+<td><code>/plugin</code></td>
+<td>Gestionar plugins (lección 56)</td>
+</tr>
+<tr>
+<td><code>/agents</code></td>
+<td>Gestionar subagentes (lección 52)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="diagnostico-y-cuenta">Diagnóstico y cuenta<a class="headerlink" href="#diagnostico-y-cuenta" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Para qué sirve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/status</code></td>
+<td>Versión, modelo, cuenta, conectividad</td>
+</tr>
+<tr>
+<td><code>/doctor</code></td>
+<td>Revisión de la instalación y configuración, con sugerencias</td>
+</tr>
+<tr>
+<td><code>/usage</code></td>
+<td>Coste de la sesión, límites del plan y estadísticas (<code>/cost</code> y <code>/stats</code> son alias)</td>
+</tr>
+<tr>
+<td><code>/diff</code></td>
+<td>Ver los cambios del árbol de trabajo</td>
+</tr>
+<tr>
+<td><code>/tasks</code></td>
+<td>Ver tareas en segundo plano (lección 9)</td>
+</tr>
+<tr>
+<td><code>/feedback</code></td>
+<td>Reportar un problema a Anthropic</td>
+</tr>
+<tr>
+<td><code>/login</code>, <code>/logout</code></td>
+<td>Cambiar de cuenta</td>
+</tr>
+</tbody>
+</table>
+<h3 id="revision-de-codigo">Revisión de código<a class="headerlink" href="#revision-de-codigo" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Para qué sirve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/review</code> (alias de <code>/code-review</code>)</td>
+<td>Revisar el diff actual, una rama o un PR</td>
+</tr>
+<tr>
+<td><code>/security-review</code></td>
+<td>Revisar los cambios de la rama buscando vulnerabilidades</td>
+</tr>
+</tbody>
+</table>
+<p>Los veremos en la lección 28.</p>
+<h2 id="la-ventana-de-contexto">La ventana de contexto<a class="headerlink" href="#la-ventana-de-contexto" title="Permanent link">#</a></h2>
+<p>El <strong>contexto</strong> es todo lo que el modelo "ve" en cada petición. Incluye:</p>
+<ul>
+<li>El <em>system prompt</em> de Claude Code y las definiciones de herramientas.</li>
+<li>Tus archivos <code>CLAUDE.md</code> y la memoria automática.</li>
+<li>Las descripciones de skills y los nombres de herramientas MCP.</li>
+<li><strong>Toda la conversación</strong>: tus mensajes, respuestas, contenido de archivos leídos, salidas de comandos…</li>
+</ul>
+<p>Cada modelo tiene un límite (típicamente 200.000 tokens, y 1 millón en algunos modelos/planes). Cuanto más lleno está:</p>
+<ul>
+<li><strong>Más cuesta</strong> cada mensaje (se reenvía todo, aunque la caché ayuda).</li>
+<li><strong>Más ruido</strong> compite con lo importante; las instrucciones antiguas pueden diluirse.</li>
+</ul>
+<h3 id="ver-el-contexto-context">Ver el contexto: <code>/context</code><a class="headerlink" href="#ver-el-contexto-context" title="Permanent link">#</a></h3>
+<pre><code class="language-text">/context
+</code></pre>
+<p>Muestra una cuadrícula de colores con cuánto ocupa cada categoría (system prompt, herramientas, MCP, memoria/CLAUDE.md, skills, mensajes) y sugerencias de optimización, por ejemplo servidores MCP que ocupan mucho o archivos de memoria demasiado grandes. Úsalo cuando:</p>
+<ul>
+<li>La sesión se vuelve lenta o cara.</li>
+<li>Sospechas que un MCP o un <code>CLAUDE.md</code> enorme está ocupando demasiado.</li>
+<li>Vas a empezar una tarea grande y quieres saber cuánto margen tienes.</li>
+</ul>
+<h3 id="liberar-contexto">Liberar contexto<a class="headerlink" href="#liberar-contexto" title="Permanent link">#</a></h3>
+<p><strong><code>/clear</code></strong>: la opción más limpia cuando cambias de tarea. Contexto a cero (la conversación anterior sigue guardada).</p>
+<p><strong><code>/compact</code></strong>: sustituye el historial por un resumen. Puedes guiar el resumen:</p>
+<pre><code class="language-text">/compact céntrate en los cambios de la API de pagos y los tests que siguen fallando
+</code></pre>
+<p><strong>Compactación automática</strong>: cuando te acercas al límite, Claude Code primero descarta salidas antiguas de herramientas y luego resume la conversación automáticamente. Puedes ajustar cuándo ocurre con <code>/autocompact</code> (por ejemplo <code>/autocompact 500k</code>).</p>
+<h3 id="que-sobrevive-a-la-compactacion">Qué sobrevive a la compactación<a class="headerlink" href="#que-sobrevive-a-la-compactacion" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Elemento</th>
+<th>Tras compactar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>System prompt y estilo de salida</td>
+<td>Se mantienen</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code> raíz y reglas sin <code>paths</code></td>
+<td>Se vuelven a leer de disco</td>
+</tr>
+<tr>
+<td>Memoria automática</td>
+<td>Se vuelve a inyectar</td>
+</tr>
+<tr>
+<td>El plan del modo plan</td>
+<td>Se vuelve a inyectar</td>
+</tr>
+<tr>
+<td>Archivos leídos/editados</td>
+<td>Se releen hasta 5 (los modificados más recientemente)</td>
+</tr>
+<tr>
+<td>Skills invocadas</td>
+<td>Se reinyectan (con un límite de tamaño)</td>
+</tr>
+<tr>
+<td>Instrucciones que diste al principio en el chat</td>
+<td><strong>Pueden perderse</strong> (quedan resumidas)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Regla de oro</p>
+<p>Si una instrucción debe cumplirse <strong>siempre</strong>, no la digas solo en el chat: ponla en <code>CLAUDE.md</code> (lección 10). El chat se compacta; <code>CLAUDE.md</code> se recarga.</p>
+</div>
+<p>También puedes añadir una sección "Compact Instructions" en tu <code>CLAUDE.md</code> para indicar qué conservar siempre al compactar.</p>
+<h2 id="coste-y-limites-usage">Coste y límites: <code>/usage</code><a class="headerlink" href="#coste-y-limites-usage" title="Permanent link">#</a></h2>
+<pre><code class="language-text">/usage
+</code></pre>
+<p>Muestra el coste de la sesión, tus límites de uso del plan y estadísticas de actividad. En planes Pro/Max/Team/Enterprise incluye un desglose de qué consume tu cuota. Profundizaremos en la lección 24.</p>
+<h2 id="personalizar-la-barra-de-estado">Personalizar la barra de estado<a class="headerlink" href="#personalizar-la-barra-de-estado" title="Permanent link">#</a></h2>
+<p>Con <code>/statusline</code> puedes configurar una barra de estado que muestre, por ejemplo, el modelo, la rama de Git y el porcentaje de contexto usado. Descríbelo en lenguaje natural:</p>
+<pre><code class="language-text">/statusline muestra el modelo, la rama de git y el % de contexto usado
+</code></pre>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Escribe <code>/</code> para descubrir comandos; <code>/help</code> para ayuda.</li>
+<li><code>/context</code> diagnostica, <code>/compact</code> resume, <code>/clear</code> reinicia.</li>
+<li>La compactación automática existe, pero lo importante debe vivir en <code>CLAUDE.md</code>.</li>
+<li><code>/usage</code> para coste y límites, <code>/status</code> y <code>/doctor</code> para diagnóstico.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Escribe <code>/</code> y recorre el menú. Anota cinco comandos que no conocías.</li>
+<li>Ejecuta <code>/context</code> al inicio de una sesión y otra vez tras pedir a Claude que lea varios archivos grandes. Compara.</li>
+<li>Ejecuta <code>/compact céntrate en X</code> y pregunta a Claude qué recuerda de la conversación.</li>
+<li>Configura una barra de estado con <code>/statusline</code>.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/commands">Comandos integrados</a></li>
+<li><a href="https://code.claude.com/docs/en/context-window">Explorar la ventana de contexto</a></li>
+<li><a href="https://code.claude.com/docs/en/statusline">Barra de estado</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="06-reanudar-y-gestionar-sesiones.html"><small>← Anterior</small>6. Reanudar y gestionar sesiones</a><a class="next" href="08-claude-code-en-tu-editor.html"><small>Siguiente →</small>8. Claude Code en tu editor</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#que-es-un-comando-slash">¿Qué es un comando slash?</a></li>
+<li><a href="#los-comandos-que-mas-usaras">Los comandos que más usarás</a><ul>
+<li><a href="#sesion-y-contexto">Sesión y contexto</a></li>
+<li><a href="#modelo-y-comportamiento">Modelo y comportamiento</a></li>
+<li><a href="#proyecto-y-configuracion">Proyecto y configuración</a></li>
+<li><a href="#diagnostico-y-cuenta">Diagnóstico y cuenta</a></li>
+<li><a href="#revision-de-codigo">Revisión de código</a></li>
+</ul>
+</li>
+<li><a href="#la-ventana-de-contexto">La ventana de contexto</a><ul>
+<li><a href="#ver-el-contexto-context">Ver el contexto: /context</a></li>
+<li><a href="#liberar-contexto">Liberar contexto</a></li>
+<li><a href="#que-sobrevive-a-la-compactacion">Qué sobrevive a la compactación</a></li>
+</ul>
+</li>
+<li><a href="#coste-y-limites-usage">Coste y límites: /usage</a></li>
+<li><a href="#personalizar-la-barra-de-estado">Personalizar la barra de estado</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5. &quot;Modo headless: respuestas rápidas sin el chat&quot; · Curso Claude Code</title>
+<meta name="description" content="Usar claude -p para preguntas puntuales, pipes, scripts y automatización - formatos de salida (text, json, stream-json), JSON Schema, herramientas preaprobadas, --bare y continuación de conversaciones.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="05-modo-headless-respuestas-rapidas-sin-chat">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 1 · Primeros pasos</p>
+    <h1><span class="num-grande">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</h1>
+    <p class="resumen">Usar claude -p para preguntas puntuales, pipes, scripts y automatización - formatos de salida (text, json, stream-json), JSON Schema, herramientas preaprobadas, --bare y continuación de conversaciones.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Ejecutar Claude Code <strong>sin interfaz interactiva</strong> con <code>-p</code> / <code>--print</code>.</li>
+<li>Encadenar Claude con otras herramientas de la terminal usando <em>pipes</em>.</li>
+<li>Obtener salida estructurada (<code>--output-format json</code>, <code>--json-schema</code>) y procesarla con <code>jq</code>.</li>
+<li>Controlar permisos en ejecuciones desatendidas (<code>--allowedTools</code>, <code>--permission-mode</code>).</li>
+<li>Continuar conversaciones headless (<code>--continue</code>, <code>--resume</code>).</li>
+</ul>
+<h2 id="que-es-el-modo-headless">¿Qué es el modo headless?<a class="headerlink" href="#que-es-el-modo-headless" title="Permanent link">#</a></h2>
+<p>Con <code>-p</code> Claude Code recibe un prompt, hace su trabajo (con el mismo bucle agéntico y las mismas herramientas) y <strong>imprime el resultado en stdout</strong>. No hay cuadro de entrada ni diálogos. Es perfecto para:</p>
+<ul>
+<li>Preguntas rápidas sin abrir una sesión.</li>
+<li>Scripts, alias y tareas de <code>npm</code>.</li>
+<li>CI/CD, cron y hooks de Git (lección 47).</li>
+</ul>
+<pre><code class="language-bash">claude -p &quot;¿Qué hace el módulo de autenticación?&quot;
+</code></pre>
+<p>El proceso termina con <strong>código 0</strong> si todo va bien y distinto de 0 si falla, así que puedes usarlo en condiciones de shell:</p>
+<pre><code class="language-bash">if claude -p &quot;¿Hay credenciales hardcodeadas en src/? Responde solo SI o NO&quot; | grep -q &quot;^NO&quot;; then
+  echo &quot;OK&quot;
+fi
+</code></pre>
+<h2 id="pipes-claude-como-filtro-unix">Pipes: Claude como filtro Unix<a class="headerlink" href="#pipes-claude-como-filtro-unix" title="Permanent link">#</a></h2>
+<p><code>claude -p</code> lee de <strong>stdin</strong>, así que puedes pasarle la salida de otros comandos:</p>
+<pre><code class="language-bash"># Explicar un error de compilación
+npm run build 2&gt;&amp;1 | claude -p &quot;explica la causa raíz de este error en 3 líneas&quot;
+
+# Resumir un log
+tail -n 200 logs/app.log | claude -p &quot;resume los errores y agrúpalos por tipo&quot; &gt; resumen.txt
+
+# Revisar un diff sin darle acceso a git
+git diff main | claude -p &quot;revisa este diff y señala posibles bugs&quot;
+</code></pre>
+<div class="admonition tip">
+<p class="admonition-title">Pasar el diff es más seguro</p>
+<p>Si le pasas el diff por stdin, Claude no necesita permiso para ejecutar <code>git</code>. Es una forma sencilla de limitar lo que puede hacer.</p>
+</div>
+<p>El contenido por stdin tiene un límite de 10 MB; para entradas mayores, guarda un archivo y menciónalo en el prompt.</p>
+<h3 id="un-linter-con-ia-en-packagejson">Un "linter" con IA en <code>package.json</code><a class="headerlink" href="#un-linter-con-ia-en-packagejson" title="Permanent link">#</a></h3>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;lint:ortografia&quot;: &quot;git diff main | claude -p \&quot;eres un corrector ortográfico. Para cada error en este diff indica archivo:línea y el problema. No digas nada más.\&quot;&quot;
+  }
+}
+</code></pre>
+<pre><code class="language-bash">npm run lint:ortografia
+</code></pre>
+<h2 id="formatos-de-salida">Formatos de salida<a class="headerlink" href="#formatos-de-salida" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th><code>--output-format</code></th>
+<th>Qué devuelve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text</code> (por defecto)</td>
+<td>Solo el texto de la respuesta</td>
+</tr>
+<tr>
+<td><code>json</code></td>
+<td>Un objeto JSON con <code>result</code>, <code>session_id</code>, uso de tokens, <code>total_cost_usd</code>, etc.</td>
+</tr>
+<tr>
+<td><code>stream-json</code></td>
+<td>Un JSON por línea con cada evento en tiempo real</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">claude -p &quot;Resume este proyecto&quot; --output-format json | jq -r '.result'
+</code></pre>
+<p>Guardar el ID de sesión para continuar después:</p>
+<pre><code class="language-bash">session_id=$(claude -p &quot;Empieza una revisión de seguridad&quot; --output-format json | jq -r '.session_id')
+</code></pre>
+<h3 id="salida-con-esquema-json-schema">Salida con esquema (JSON Schema)<a class="headerlink" href="#salida-con-esquema-json-schema" title="Permanent link">#</a></h3>
+<p>Si necesitas datos con una forma concreta, combina <code>--output-format json</code> con <code>--json-schema</code>. El resultado validado aparece en el campo <code>structured_output</code>:</p>
+<pre><code class="language-bash">claude -p &quot;Extrae los nombres de las funciones exportadas de src/utils.ts&quot; \
+  --output-format json \
+  --json-schema '{&quot;type&quot;:&quot;object&quot;,&quot;properties&quot;:{&quot;funciones&quot;:{&quot;type&quot;:&quot;array&quot;,&quot;items&quot;:{&quot;type&quot;:&quot;string&quot;}}},&quot;required&quot;:[&quot;funciones&quot;]}' \
+  | jq '.structured_output.funciones'
+</code></pre>
+<h3 id="streaming">Streaming<a class="headerlink" href="#streaming" title="Permanent link">#</a></h3>
+<pre><code class="language-bash">claude -p &quot;Explica la recursión&quot; --output-format stream-json --verbose --include-partial-messages
+</code></pre>
+<p>Cada línea es un evento; la última es un mensaje <code>result</code> con el texto final, el coste y los metadatos.</p>
+<h2 id="permisos-en-modo-headless">Permisos en modo headless<a class="headerlink" href="#permisos-en-modo-headless" title="Permanent link">#</a></h2>
+<p>No hay nadie para pulsar "Yes", así que tienes que decidir de antemano qué se permite. En <code>-p</code> el modo inicial por defecto es <strong>Manual</strong>, y lo que requeriría aprobación se deniega.</p>
+<h3 id="preaprobar-herramientas">Preaprobar herramientas<a class="headerlink" href="#preaprobar-herramientas" title="Permanent link">#</a></h3>
+<pre><code class="language-bash">claude -p &quot;Ejecuta los tests y arregla los fallos&quot; --allowedTools &quot;Bash,Read,Edit&quot;
+</code></pre>
+<p>Puedes usar la sintaxis de reglas para ser más preciso (lección 15):</p>
+<pre><code class="language-bash">claude -p &quot;Mira mis cambios en staging y crea un commit adecuado&quot; \
+  --allowedTools &quot;Bash(git diff *),Bash(git log *),Bash(git status *),Bash(git commit *)&quot;
+</code></pre>
+<p>El <code>*</code> final (con espacio) permite cualquier argumento después de ese prefijo.</p>
+<h3 id="elegir-un-modo">Elegir un modo<a class="headerlink" href="#elegir-un-modo" title="Permanent link">#</a></h3>
+<pre><code class="language-bash">claude -p &quot;Aplica las correcciones del linter&quot; --permission-mode acceptEdits
+claude -p &quot;Actualiza dependencias y ejecuta tests&quot; --permission-mode auto
+claude -p &quot;Ejecuta la suite&quot; --permission-mode dontAsk --allowedTools &quot;Bash(npm test)&quot;
+</code></pre>
+<p>También existe <code>--disallowedTools</code> para prohibir herramientas concretas y <code>--max-turns</code> para limitar el número de turnos agénticos.</p>
+<h2 id="modo-bare-arranque-rapido-y-reproducible">Modo <code>--bare</code>: arranque rápido y reproducible<a class="headerlink" href="#modo-bare-arranque-rapido-y-reproducible" title="Permanent link">#</a></h2>
+<p>Por defecto, <code>claude -p</code> carga lo mismo que una sesión interactiva: <code>CLAUDE.md</code>, hooks, skills, MCP, plugins… Con <code>--bare</code> se salta todo ese descubrimiento automático:</p>
+<pre><code class="language-bash">claude --bare -p &quot;Resume README.md&quot; --allowedTools &quot;Read&quot;
+</code></pre>
+<p>Ventajas: arranca más rápido y da <strong>el mismo resultado en cualquier máquina</strong> (no le afectan los hooks o MCP que alguien tenga en su <code>~/.claude</code>). Ideal para CI.</p>
+<div class="admonition note">
+<p class="admonition-title">Autenticación en bare</p>
+<p>En modo bare no se usa el login de tu suscripción ni el llavero del sistema: necesitas <code>ANTHROPIC_API_KEY</code> (o las credenciales de tu proveedor cloud).</p>
+</div>
+<p>Lo que necesites lo pasas explícitamente:</p>
+<table>
+<thead>
+<tr>
+<th>Para cargar</th>
+<th>Usa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Instrucciones extra</td>
+<td><code>--append-system-prompt "…"</code> o <code>--append-system-prompt-file archivo</code></td>
+</tr>
+<tr>
+<td>Configuración</td>
+<td><code>--settings archivo.json</code></td>
+</tr>
+<tr>
+<td>Servidores MCP</td>
+<td><code>--mcp-config archivo.json</code></td>
+</tr>
+<tr>
+<td>Subagentes</td>
+<td><code>--agents '&lt;json&gt;'</code></td>
+</tr>
+<tr>
+<td>Un plugin</td>
+<td><code>--plugin-dir ruta</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="personalizar-el-system-prompt">Personalizar el system prompt<a class="headerlink" href="#personalizar-el-system-prompt" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">gh pr diff &quot;$1&quot; | claude -p \
+  --append-system-prompt &quot;Eres un ingeniero de seguridad. Revisa vulnerabilidades.&quot; \
+  --output-format json
+</code></pre>
+<p><code>--append-system-prompt</code> añade instrucciones manteniendo el comportamiento de Claude Code. <code>--system-prompt</code> lo <strong>reemplaza</strong> por completo (úsalo con cuidado).</p>
+<h2 id="continuar-conversaciones">Continuar conversaciones<a class="headerlink" href="#continuar-conversaciones" title="Permanent link">#</a></h2>
+<pre><code class="language-bash"># Primera petición
+claude -p &quot;Revisa este código buscando problemas de rendimiento&quot;
+
+# Continúa la conversación más reciente
+claude -p &quot;Ahora céntrate en las consultas a la base de datos&quot; --continue
+claude -p &quot;Genera un resumen de todos los problemas&quot; --continue
+
+# Continuar una sesión concreta por ID
+claude -p &quot;Sigue con la revisión&quot; --resume &quot;$session_id&quot;
+</code></pre>
+<h2 id="comandos-slash-en-p">Comandos slash en <code>-p</code><a class="headerlink" href="#comandos-slash-en-p" title="Permanent link">#</a></h2>
+<p>Las skills y comandos personalizados funcionan si los incluyes en el prompt (<code>claude -p "/revisar-pr 123"</code>). Algunos comandos integrados aceptan argumento, por ejemplo <code>/model sonnet</code>. Los que solo tienen sentido en la interfaz (como <code>/login</code>) no están disponibles.</p>
+<h2 id="recetas-utiles">Recetas útiles<a class="headerlink" href="#recetas-utiles" title="Permanent link">#</a></h2>
+<pre><code class="language-bash"># Alias para preguntar rápido desde cualquier sitio
+alias q='claude -p'
+q &quot;¿cómo listo los puertos abiertos en macOS?&quot;
+
+# Generar mensaje de commit a partir de lo que está en staging
+git diff --cached | claude -p &quot;escribe un mensaje de commit convencional (feat/fix/...) de una línea&quot;
+
+# Explicar por qué falla un comando
+npm test 2&gt;&amp;1 | tail -n 80 | claude -p &quot;¿por qué falla esto y cómo lo arreglo?&quot;
+</code></pre>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li><code>claude -p "prompt"</code> = Claude Code sin interfaz, con salida por stdout y código de salida.</li>
+<li>Lee de stdin → úsalo en pipes.</li>
+<li><code>--output-format json</code> + <code>jq</code> para scripts; <code>--json-schema</code> para datos con forma garantizada.</li>
+<li>Controla permisos con <code>--allowedTools</code>, <code>--permission-mode</code> y <code>--bare</code> en CI.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Crea un alias <code>q='claude -p'</code> y hazle tres preguntas sobre tu proyecto.</li>
+<li>Pasa la salida de <code>git log --oneline -20</code> a Claude y pide un changelog agrupado por tipo.</li>
+<li>Usa <code>--json-schema</code> para extraer una lista de endpoints de tu API y guárdala en <code>endpoints.json</code>.</li>
+<li>Ejecuta una tarea con <code>--output-format json</code> y muestra con <code>jq</code> el coste (<code>total_cost_usd</code>) y el <code>session_id</code>; después continúa esa sesión con <code>--resume</code>.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/headless">Ejecutar Claude Code programáticamente (headless)</a></li>
+<li><a href="https://code.claude.com/docs/en/cli-reference">Referencia de la CLI</a></li>
+<li><a href="https://code.claude.com/docs/en/agent-sdk/overview">Agent SDK</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="04-modos-de-permisos-mantener-el-control.html"><small>← Anterior</small>4. &quot;Modos de permisos: mantener el control&quot;</a><a class="next" href="06-reanudar-y-gestionar-sesiones.html"><small>Siguiente →</small>6. Reanudar y gestionar sesiones</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#que-es-el-modo-headless">¿Qué es el modo headless?</a></li>
+<li><a href="#pipes-claude-como-filtro-unix">Pipes: Claude como filtro Unix</a><ul>
+<li><a href="#un-linter-con-ia-en-packagejson">Un "linter" con IA en package.json</a></li>
+</ul>
+</li>
+<li><a href="#formatos-de-salida">Formatos de salida</a><ul>
+<li><a href="#salida-con-esquema-json-schema">Salida con esquema (JSON Schema)</a></li>
+<li><a href="#streaming">Streaming</a></li>
+</ul>
+</li>
+<li><a href="#permisos-en-modo-headless">Permisos en modo headless</a><ul>
+<li><a href="#preaprobar-herramientas">Preaprobar herramientas</a></li>
+<li><a href="#elegir-un-modo">Elegir un modo</a></li>
+</ul>
+</li>
+<li><a href="#modo-bare-arranque-rapido-y-reproducible">Modo --bare: arranque rápido y reproducible</a></li>
+<li><a href="#personalizar-el-system-prompt">Personalizar el system prompt</a></li>
+<li><a href="#continuar-conversaciones">Continuar conversaciones</a></li>
+<li><a href="#comandos-slash-en-p">Comandos slash en -p</a></li>
+<li><a href="#recetas-utiles">Recetas útiles</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

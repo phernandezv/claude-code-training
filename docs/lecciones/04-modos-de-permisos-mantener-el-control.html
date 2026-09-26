@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4. &quot;Modos de permisos: mantener el control&quot; · Curso Claude Code</title>
+<meta name="description" content="Los seis modos de permisos (Manual, acceptEdits, plan, auto, dontAsk, bypassPermissions), cómo cambiarlos con Shift+Tab, cómo fijar uno por defecto y cuándo usar cada uno con seguridad.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="04-modos-de-permisos-mantener-el-control">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 1 · Primeros pasos</p>
+    <h1><span class="num-grande">4</span>&quot;Modos de permisos: mantener el control&quot;</h1>
+    <p class="resumen">Los seis modos de permisos (Manual, acceptEdits, plan, auto, dontAsk, bypassPermissions), cómo cambiarlos con Shift+Tab, cómo fijar uno por defecto y cuándo usar cada uno con seguridad.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Conocer los <strong>modos de permisos</strong> y qué acciones aprueba cada uno sin preguntar.</li>
+<li>Cambiar de modo durante la sesión (<code>Shift+Tab</code>) o al arrancar (<code>--permission-mode</code>).</li>
+<li>Fijar un modo por defecto en <code>settings.json</code>.</li>
+<li>Elegir el modo adecuado según el riesgo de la tarea.</li>
+</ul>
+<h2 id="por-que-existen-los-permisos">¿Por qué existen los permisos?<a class="headerlink" href="#por-que-existen-los-permisos" title="Permanent link">#</a></h2>
+<p>Claude Code puede editar archivos y ejecutar comandos en tu máquina. Eso es lo que lo hace útil y también lo que exige <strong>control</strong>. Los permisos se organizan en dos capas:</p>
+<ol>
+<li><strong>El modo de permisos</strong>: define la "línea base" de qué se hace sin preguntar.</li>
+<li><strong>Las reglas de permisos</strong> (<code>allow</code>, <code>ask</code>, <code>deny</code>): afinan herramienta por herramienta. Las verás en la lección 15.</li>
+</ol>
+<p>Una regla <code>deny</code> <strong>siempre gana</strong>, en cualquier modo.</p>
+<h2 id="los-modos-disponibles">Los modos disponibles<a class="headerlink" href="#los-modos-disponibles" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Modo (valor de configuración)</th>
+<th>Qué se ejecuta sin preguntar</th>
+<th>Ideal para</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Manual</strong> (<code>default</code>)</td>
+<td>Solo lecturas</td>
+<td>Trabajo delicado, revisar cada acción</td>
+</tr>
+<tr>
+<td><strong><code>acceptEdits</code></strong></td>
+<td>Lecturas, ediciones de archivos y comandos de sistema de archivos comunes (<code>mkdir</code>, <code>touch</code>, <code>mv</code>, <code>cp</code>, <code>rm</code>, <code>sed</code>…) dentro del proyecto</td>
+<td>Iterar rápido revisando luego con <code>git diff</code></td>
+</tr>
+<tr>
+<td><strong><code>plan</code></strong></td>
+<td>Lecturas (y comandos aprobados por el clasificador si hay modo auto)</td>
+<td>Explorar y proponer antes de tocar nada</td>
+</tr>
+<tr>
+<td><strong><code>auto</code></strong></td>
+<td>Todo, con un <strong>clasificador de seguridad</strong> que revisa cada acción en segundo plano</td>
+<td>Tareas largas en las que confías en la dirección general</td>
+</tr>
+<tr>
+<td><strong><code>dontAsk</code></strong></td>
+<td>Lecturas y herramientas preaprobadas; lo que normalmente preguntaría <strong>se deniega</strong></td>
+<td>CI y scripts cerrados</td>
+</tr>
+<tr>
+<td><strong><code>bypassPermissions</code></strong></td>
+<td>Todo, sin comprobaciones</td>
+<td><strong>Solo</strong> contenedores o VMs aislados</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Manual = default</p>
+<p>En la interfaz el modo que pregunta por todo se llama <strong>Manual</strong>; en archivos de configuración, hooks y SDK su valor es <code>default</code>. La CLI acepta <code>manual</code> como alias.</p>
+</div>
+<h3 id="manual-default">Manual (<code>default</code>)<a class="headerlink" href="#manual-default" title="Permanent link">#</a></h3>
+<p>Claude te pide aprobación antes de editar archivos, ejecutar comandos no triviales o acceder a la red. Las lecturas dentro del directorio de trabajo y un conjunto de comandos de solo lectura (<code>ls</code>, <code>cat</code>, <code>git status</code>, <code>git diff</code>…) no preguntan.</p>
+<h3 id="acceptedits"><code>acceptEdits</code><a class="headerlink" href="#acceptedits" title="Permanent link">#</a></h3>
+<p>Aprueba automáticamente las ediciones de archivos y los comandos de archivos más habituales <strong>dentro de tu directorio de trabajo</strong>. Los comandos arbitrarios (<code>npm install</code>, <code>curl</code>, scripts) siguen preguntando. Es un gran punto intermedio cuando trabajas con Git y revisas después con <code>git diff</code>.</p>
+<h3 id="plan"><code>plan</code><a class="headerlink" href="#plan" title="Permanent link">#</a></h3>
+<p>Claude investiga y escribe un <strong>plan</strong>, pero no edita tu código hasta que lo apruebas. Lo trataremos a fondo en las lecciones 18–20. Atajo rápido: empieza un mensaje con <code>/plan</code>:</p>
+<pre><code class="language-text">/plan migrar el cliente HTTP de axios a fetch
+</code></pre>
+<h3 id="auto"><code>auto</code><a class="headerlink" href="#auto" title="Permanent link">#</a></h3>
+<p>En modo auto, un <strong>segundo modelo (clasificador)</strong> revisa cada acción en lugar de preguntarte a ti. Deja pasar el trabajo normal (editar en tu proyecto, ejecutar tests…) y <strong>bloquea</strong> por defecto acciones de riesgo, por ejemplo:</p>
+<ul>
+<li>Descargar y ejecutar código (<code>curl … | bash</code>).</li>
+<li>Enviar datos sensibles a destinos externos.</li>
+<li>Despliegues y migraciones en producción.</li>
+<li><code>git push --force</code>, <code>git reset --hard</code>, <code>git clean -fd</code> y otras operaciones que destruyen trabajo.</li>
+<li>Borrar archivos que ya existían antes de la sesión de forma irreversible.</li>
+<li>Cambiar permisos de IAM o de repositorios.</li>
+</ul>
+<p>Cuando el clasificador bloquea algo, Claude recibe el motivo y busca otra vía o te pregunta. Puedes revisar los rechazos recientes con <code>/permissions</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Auto no es una garantía</p>
+<p>El modo auto reduce muchísimo las interrupciones, pero <strong>no sustituye tu revisión</strong> en operaciones sensibles. Úsalo en tareas cuya dirección general te parezca bien.</p>
+</div>
+<p>En versiones recientes, <strong>auto es el modo de arranque por defecto</strong> en la terminal y VS Code cuando está disponible para tu cuenta y modelo. Si no está disponible, la sesión arranca en Manual.</p>
+<h3 id="dontask"><code>dontAsk</code><a class="headerlink" href="#dontask" title="Permanent link">#</a></h3>
+<p>Pensado para ejecuciones sin persona delante: todo lo que requeriría preguntar se <strong>deniega automáticamente</strong>, así que solo se ejecuta lo que hayas preaprobado:</p>
+<pre><code class="language-bash">claude -p &quot;ejecuta los tests&quot; --permission-mode dontAsk --allowedTools &quot;Bash(npm test)&quot; &quot;Read&quot;
+</code></pre>
+<h3 id="bypasspermissions"><code>bypassPermissions</code><a class="headerlink" href="#bypasspermissions" title="Permanent link">#</a></h3>
+<p>Desactiva los diálogos y las comprobaciones. Equivale a <code>--dangerously-skip-permissions</code>.</p>
+<pre><code class="language-bash"># Solo dentro de un contenedor/VM desechable
+claude --dangerously-skip-permissions
+</code></pre>
+<div class="admonition danger">
+<p class="admonition-title">Nunca en tu máquina de trabajo</p>
+<p><code>bypassPermissions</code> no protege contra <em>prompt injection</em> (instrucciones maliciosas escondidas en un archivo o página web) ni contra errores. En Linux/macOS se niega a arrancar como <code>root</code>/<code>sudo</code>. Úsalo solo en entornos aislados, como un <em>dev container</em>. Las organizaciones pueden prohibirlo con <code>permissions.disableBypassPermissionsMode: "disable"</code>.</p>
+</div>
+<h2 id="cambiar-de-modo">Cambiar de modo<a class="headerlink" href="#cambiar-de-modo" title="Permanent link">#</a></h2>
+<h3 id="durante-la-sesion-shifttab">Durante la sesión: <code>Shift+Tab</code><a class="headerlink" href="#durante-la-sesion-shifttab" title="Permanent link">#</a></h3>
+<p>Cada pulsación rota entre modos. El ciclo básico es:</p>
+<pre><code class="language-text">default (Manual) → acceptEdits → plan → [bypassPermissions] → [auto] → default …
+</code></pre>
+<p>Los modos entre corchetes solo aparecen si están habilitados. La barra de estado indica el modo actual:</p>
+<table>
+<thead>
+<tr>
+<th>Indicador</th>
+<th>Modo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>⏸ manual mode on</code></td>
+<td>Manual</td>
+</tr>
+<tr>
+<td><code>⏵⏵ accept edits on</code></td>
+<td>acceptEdits</td>
+</tr>
+<tr>
+<td><code>⏸ plan mode on</code></td>
+<td>plan</td>
+</tr>
+<tr>
+<td><code>⏵⏵ auto mode on</code></td>
+<td>auto</td>
+</tr>
+<tr>
+<td><code>⏵⏵ bypass permissions on</code></td>
+<td>bypassPermissions</td>
+</tr>
+</tbody>
+</table>
+<p><code>dontAsk</code> nunca aparece en el ciclo: solo se activa con el flag.</p>
+<h3 id="al-arrancar-permission-mode">Al arrancar: <code>--permission-mode</code><a class="headerlink" href="#al-arrancar-permission-mode" title="Permanent link">#</a></h3>
+<pre><code class="language-bash">claude --permission-mode plan
+claude --permission-mode acceptEdits
+claude --permission-mode manual
+</code></pre>
+<h3 id="como-valor-por-defecto-settingsjson">Como valor por defecto: <code>settings.json</code><a class="headerlink" href="#como-valor-por-defecto-settingsjson" title="Permanent link">#</a></h3>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;defaultMode&quot;: &quot;acceptEdits&quot;
+  }
+}
+</code></pre>
+<p>¿Dónde ponerlo?</p>
+<table>
+<thead>
+<tr>
+<th>Archivo</th>
+<th>Alcance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/.claude/settings.json</code></td>
+<td>Todas tus sesiones en esta máquina</td>
+</tr>
+<tr>
+<td><code>.claude/settings.json</code> (en el repo)</td>
+<td>Todas las sesiones de ese proyecto (compartido con el equipo)</td>
+</tr>
+<tr>
+<td><code>.claude/settings.local.json</code></td>
+<td>Ese proyecto, solo para ti (no se sube a Git)</td>
+</tr>
+<tr>
+<td><em>Managed settings</em></td>
+<td>Toda la organización (lo fija el administrador)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Detalle de seguridad</p>
+<p>Por seguridad, <code>"auto"</code> y <code>"bypassPermissions"</code> <strong>no tienen efecto</strong> si están en <code>.claude/settings.json</code> o <code>.claude/settings.local.json</code> de un proyecto (un repositorio clonado no debería poder desactivar tus protecciones). Ponlos en <code>~/.claude/settings.json</code> si quieres usarlos por defecto.</p>
+</div>
+<h3 id="en-vs-code">En VS Code<a class="headerlink" href="#en-vs-code" title="Permanent link">#</a></h3>
+<p>Haz clic en el indicador de modo debajo del cuadro de entrada: <em>Manual</em>, <em>Edit automatically</em> (acceptEdits), <em>Plan</em>, <em>Auto</em>, <em>Bypass permissions</em>. Para fijar un modo inicial usa el ajuste <code>claudeCode.initialPermissionMode</code>.</p>
+<h2 id="rutas-protegidas">Rutas protegidas<a class="headerlink" href="#rutas-protegidas" title="Permanent link">#</a></h2>
+<p>Ciertas rutas <strong>nunca se aprueban automáticamente</strong> (salvo en <code>bypassPermissions</code>), para no corromper el estado del repositorio ni la propia configuración de Claude: por ejemplo el directorio <code>.git</code>, o la configuración de Claude Code. Además, borrar rutas críticas (<code>rm -rf /</code>, <code>rm -rf ~</code>) se deniega en cualquier modo.</p>
+<h2 id="que-modo-elijo">¿Qué modo elijo?<a class="headerlink" href="#que-modo-elijo" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Situación</th>
+<th>Modo recomendado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Llego a un repo que no conozco</td>
+<td><code>plan</code></td>
+</tr>
+<tr>
+<td>Cambio acotado que quiero revisar paso a paso</td>
+<td>Manual</td>
+</tr>
+<tr>
+<td>Refactor largo en una rama, revisando con <code>git diff</code> al final</td>
+<td><code>acceptEdits</code> o <code>auto</code></td>
+</tr>
+<tr>
+<td>Tarea larga "desatendida" en mi máquina</td>
+<td><code>auto</code></td>
+</tr>
+<tr>
+<td>Job de CI con una lista cerrada de herramientas</td>
+<td><code>dontAsk</code> + <code>--allowedTools</code></td>
+</tr>
+<tr>
+<td>Contenedor efímero sin credenciales ni red sensible</td>
+<td><code>bypassPermissions</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>El modo marca la línea base; las reglas <code>allow/ask/deny</code> afinan, y <code>deny</code> siempre gana.</li>
+<li><code>Shift+Tab</code> rota entre modos; <code>--permission-mode</code> fija el de arranque; <code>permissions.defaultMode</code> lo deja por defecto.</li>
+<li><code>auto</code> usa un clasificador que bloquea acciones peligrosas; <code>bypassPermissions</code> no protege de nada.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Abre una sesión y pulsa <code>Shift+Tab</code> varias veces observando la barra de estado.</li>
+<li>En modo <code>plan</code>, pide <em>"añade un endpoint /health"</em>. Comprueba que no edita nada hasta que apruebas.</li>
+<li>En modo <code>acceptEdits</code>, pide el mismo cambio y revisa luego con <code>! git diff</code>.</li>
+<li>Crea <code>~/.claude/settings.json</code> con <code>"defaultMode": "acceptEdits"</code>, abre una sesión nueva y verifica el modo. Después, vuelve a dejarlo como estaba.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/permission-modes">Modos de permisos</a></li>
+<li><a href="https://code.claude.com/docs/en/auto-mode-config">Configurar el modo auto</a></li>
+<li><a href="https://code.claude.com/docs/en/permissions">Permisos y reglas</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="03-como-hace-claude-un-cambio.html"><small>← Anterior</small>3. Cómo hace Claude realmente un cambio</a><a class="next" href="05-modo-headless-respuestas-rapidas-sin-chat.html"><small>Siguiente →</small>5. &quot;Modo headless: respuestas rápidas sin el chat&quot;</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#por-que-existen-los-permisos">¿Por qué existen los permisos?</a></li>
+<li><a href="#los-modos-disponibles">Los modos disponibles</a><ul>
+<li><a href="#manual-default">Manual (default)</a></li>
+<li><a href="#acceptedits">acceptEdits</a></li>
+<li><a href="#plan">plan</a></li>
+<li><a href="#auto">auto</a></li>
+<li><a href="#dontask">dontAsk</a></li>
+<li><a href="#bypasspermissions">bypassPermissions</a></li>
+</ul>
+</li>
+<li><a href="#cambiar-de-modo">Cambiar de modo</a><ul>
+<li><a href="#durante-la-sesion-shifttab">Durante la sesión: Shift+Tab</a></li>
+<li><a href="#al-arrancar-permission-mode">Al arrancar: --permission-mode</a></li>
+<li><a href="#como-valor-por-defecto-settingsjson">Como valor por defecto: settings.json</a></li>
+<li><a href="#en-vs-code">En VS Code</a></li>
+</ul>
+</li>
+<li><a href="#rutas-protegidas">Rutas protegidas</a></li>
+<li><a href="#que-modo-elijo">¿Qué modo elijo?</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>
