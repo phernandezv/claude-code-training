@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23. El híbrido opusplan · Curso Claude Code</title>
+<meta name="description" content="Cómo funciona el alias opusplan (Opus en modo plan, Sonnet al ejecutar), cómo activarlo, cuándo compensa, sus matices de contexto y caché, y alternativas como el advisor o combinar modelos con subagentes.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="23-el-hibrido-opusplan">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="18-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/18-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">18</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="19-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/19-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">19</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="20-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/20-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">20</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/21-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">21</span>&quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></li>
+<li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="23-el-hibrido-opusplan"><a href="../lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
+<li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 3 · Planificar y elegir modelo</p>
+    <h1><span class="num-grande">23</span>El híbrido opusplan</h1>
+    <p class="resumen">Cómo funciona el alias opusplan (Opus en modo plan, Sonnet al ejecutar), cómo activarlo, cuándo compensa, sus matices de contexto y caché, y alternativas como el advisor o combinar modelos con subagentes.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Entender qué hace <code>opusplan</code> y por qué existe.</li>
+<li>Activarlo en una sesión, al arrancar o por defecto.</li>
+<li>Saber cuándo compensa y cuándo no.</li>
+<li>Conocer alternativas para combinar modelos.</li>
+</ul>
+<h2 id="la-idea">La idea<a class="headerlink" href="#la-idea" title="Permanent link">#</a></h2>
+<p>En el flujo explorar → planificar → implementar (lección 18), las fases tienen necesidades distintas:</p>
+<ul>
+<li><strong>Planificar</strong> exige razonamiento: entender el código, evaluar alternativas, anticipar riesgos. Aquí brilla <strong>Opus</strong>.</li>
+<li><strong>Implementar un plan claro</strong> es más mecánico: escribir código siguiendo pasos concretos. <strong>Sonnet</strong> lo hace muy bien, más rápido y más barato.</li>
+</ul>
+<p><code>opusplan</code> automatiza esa combinación:</p>
+<table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Modelo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modo plan (<code>⏸ plan mode on</code>)</td>
+<td><code>opus</code></td>
+</tr>
+<tr>
+<td>Cualquier otro modo (ejecución)</td>
+<td><code>sonnet</code></td>
+</tr>
+</tbody>
+</table>
+<p>No tienes que cambiar de modelo a mano: al aprobar el plan y salir del modo plan, Claude Code pasa a Sonnet; si vuelves a planificar, vuelve a Opus.</p>
+<h2 id="activarlo">Activarlo<a class="headerlink" href="#activarlo" title="Permanent link">#</a></h2>
+<pre><code class="language-text">/model opusplan
+</code></pre>
+<pre><code class="language-bash">claude --model opusplan --permission-mode plan
+</code></pre>
+<pre><code class="language-json">{
+  &quot;model&quot;: &quot;opusplan&quot;
+}
+</code></pre>
+<h2 id="un-flujo-tipico">Un flujo típico<a class="headerlink" href="#un-flujo-tipico" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">claude --model opusplan --permission-mode plan -n cache-productos
+</code></pre>
+<pre><code class="language-text">(plan mode · Opus)
+&gt; Las páginas de producto tardan 2 s. Investiga dónde se va el tiempo y
+  propón una estrategia de caché. Considera invalidación al editar productos.
+
+  (Opus explora, mide, propone: caché en Redis con TTL + invalidación por
+   evento &quot;product.updated&quot;, con pasos, riesgos y tests)
+
+&gt; [No, keep planning] Usa la librería de caché que ya tenemos en src/lib/cache.ts.
+
+&gt; [Yes, and use auto mode]
+
+(ejecución · Sonnet)
+  (implementa pasos, ejecuta tests, resume)
+</code></pre>
+<h2 id="cuando-compensa">Cuándo compensa<a class="headerlink" href="#cuando-compensa" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Compensa</th>
+<th>No compensa tanto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Funcionalidades medianas/grandes con plan explícito</td>
+<td>Cambios triviales (no hay fase de plan)</td>
+</tr>
+<tr>
+<td>Equipos que usan el modo plan de forma habitual</td>
+<td>Tareas donde la dificultad está en la implementación (algoritmos complejos, bugs sutiles que aparecen al programar)</td>
+</tr>
+<tr>
+<td>Optimizar coste manteniendo buenos diseños</td>
+<td>Sesiones donde alternas plan/ejecución constantemente</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Si la implementación se complica</p>
+<p>Si en la fase de ejecución Sonnet se atasca, puedes volver a modo plan (<code>Shift+Tab</code> o <code>/plan</code>) para que Opus replantee, o cambiar temporalmente a <code>/model opus</code>.</p>
+</div>
+<h2 id="matices">Matices<a class="headerlink" href="#matices" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Caché</strong>: cada modelo tiene su propia caché de prompts. El primer mensaje tras cambiar de fase no aprovecha la caché del otro modelo. Por eso conviene tener <strong>pocas transiciones</strong> plan ↔ ejecución, no decenas.</li>
+<li><strong>Contexto</strong>: cada fase usa la ventana de contexto de su modelo.</li>
+<li><strong>Planificar a fondo, ejecutar ligero</strong>: puedes combinar <code>opusplan</code> con la opción de <strong>aprobar y limpiar contexto</strong> (<code>showClearContextOnPlanAccept</code>, lección 20) para que Sonnet arranque solo con el plan.</li>
+<li><strong>Restricciones</strong>: si tu organización limita modelos con <code>availableModels</code>, <code>opusplan</code> usa el Opus más reciente permitido.</li>
+</ul>
+<h2 id="alternativas-para-combinar-modelos">Alternativas para combinar modelos<a class="headerlink" href="#alternativas-para-combinar-modelos" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Técnica</th>
+<th>Cómo funciona</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>opusplan</code></td>
+<td>Cambio automático en la frontera plan/ejecución</td>
+</tr>
+<tr>
+<td>Cambio manual (<code>/model</code>)</td>
+<td>Tú decides cuándo cambiar (lección 22)</td>
+</tr>
+<tr>
+<td><strong>Subagentes con modelo propio</strong></td>
+<td>La sesión principal usa un modelo y cada subagente el suyo (p. ej. Haiku para buscar). Lección 52</td>
+</tr>
+<tr>
+<td><strong>Advisor</strong></td>
+<td>Claude decide durante la tarea cuándo consultar a un segundo modelo, en lugar de cambiar en la frontera del plan (<code>/advisor</code>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li><code>opusplan</code> = Opus para planificar, Sonnet para ejecutar, sin cambios manuales.</li>
+<li>Actívalo con <code>/model opusplan</code>, <code>--model opusplan</code> o <code>"model": "opusplan"</code>.</li>
+<li>Ideal con un flujo de plan explícito; minimiza las transiciones para aprovechar la caché.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Activa <code>opusplan</code>, entra en modo plan y comprueba con <code>/status</code> qué modelo está activo; aprueba el plan y vuelve a comprobar.</li>
+<li>Realiza una funcionalidad mediana con <code>opusplan</code> y otra similar solo con Opus. Compara coste en <code>/usage</code>.</li>
+<li>Combina <code>opusplan</code> con <code>showClearContextOnPlanAccept</code> y observa <code>/context</code> al empezar la ejecución.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/model-config#opusplan-model-setting">opusplan en la configuración de modelos</a></li>
+<li><a href="https://code.claude.com/docs/en/advisor">Advisor</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="22-cambiar-de-modelo-a-mitad-de-sesion.html"><small>← Anterior</small>22. Cambiar de modelo a mitad de sesión</a><a class="next" href="24-gestionar-contexto-y-coste-en-el-bucle.html"><small>Siguiente →</small>24. Gestionar contexto y coste a lo largo del bucle</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#la-idea">La idea</a></li>
+<li><a href="#activarlo">Activarlo</a></li>
+<li><a href="#un-flujo-tipico">Un flujo típico</a></li>
+<li><a href="#cuando-compensa">Cuándo compensa</a></li>
+<li><a href="#matices">Matices</a></li>
+<li><a href="#alternativas-para-combinar-modelos">Alternativas para combinar modelos</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

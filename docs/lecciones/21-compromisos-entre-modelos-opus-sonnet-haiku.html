@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>21. &quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot; · Curso Claude Code</title>
+<meta name="description" content="Qué familia de modelos usar para cada tipo de trabajo - capacidad, velocidad y coste; alias (opus, sonnet, haiku, fable, best), niveles de esfuerzo, contexto de 1M, modo rápido y una guía de decisión práctica.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="18-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/18-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">18</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="19-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/19-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">19</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="20-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/20-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">20</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/21-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">21</span>&quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></li>
+<li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="23-el-hibrido-opusplan"><a href="../lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
+<li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 3 · Planificar y elegir modelo</p>
+    <h1><span class="num-grande">21</span>&quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</h1>
+    <p class="resumen">Qué familia de modelos usar para cada tipo de trabajo - capacidad, velocidad y coste; alias (opus, sonnet, haiku, fable, best), niveles de esfuerzo, contexto de 1M, modo rápido y una guía de decisión práctica.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Conocer las familias de modelos disponibles en Claude Code y sus puntos fuertes.</li>
+<li>Entender el triángulo <strong>capacidad ↔ velocidad ↔ coste</strong>.</li>
+<li>Usar <strong>alias</strong> en lugar de nombres de versión.</li>
+<li>Combinar modelo y <strong>nivel de esfuerzo</strong> (effort) según la tarea.</li>
+</ul>
+<h2 id="las-familias">Las familias<a class="headerlink" href="#las-familias" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Familia</th>
+<th>Perfil</th>
+<th>Úsalo para</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Opus</strong></td>
+<td>El más capaz de uso general; mejor razonamiento en problemas complejos</td>
+<td>Arquitectura, depuración difícil, refactors grandes, planificación</td>
+</tr>
+<tr>
+<td><strong>Sonnet</strong></td>
+<td>Excelente equilibrio calidad/velocidad/coste</td>
+<td>La mayoría del trabajo diario de programación</td>
+</tr>
+<tr>
+<td><strong>Haiku</strong></td>
+<td>Rápido y barato</td>
+<td>Tareas simples y acotadas, subagentes de búsqueda, clasificación, resúmenes</td>
+</tr>
+<tr>
+<td><strong>Fable</strong></td>
+<td>La gama más alta, para las tareas más difíciles y largas (según disponibilidad de tu cuenta)</td>
+<td>Trabajos muy exigentes y de larga duración</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Las versiones cambian</p>
+<p>Los alias apuntan siempre a la versión recomendada para tu proveedor y se actualizan con el tiempo (por ejemplo, <code>opus</code> apunta hoy a Opus 5.5 y <code>sonnet</code> a Sonnet 5 en la API de Anthropic). Consulta <code>/model</code> para ver lo que tienes disponible.</p>
+</div>
+<h2 id="alias-de-modelo">Alias de modelo<a class="headerlink" href="#alias-de-modelo" title="Permanent link">#</a></h2>
+<p>En lugar de recordar identificadores como <code>claude-opus-5-5</code>, usa alias:</p>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Qué selecciona</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>opus</code></td>
+<td>El último Opus</td>
+</tr>
+<tr>
+<td><code>sonnet</code></td>
+<td>El último Sonnet</td>
+</tr>
+<tr>
+<td><code>haiku</code></td>
+<td>Haiku</td>
+</tr>
+<tr>
+<td><code>fable</code></td>
+<td>El modelo Fable de tu proveedor</td>
+</tr>
+<tr>
+<td><code>best</code></td>
+<td>Fable si lo tienes disponible; si no, Opus</td>
+</tr>
+<tr>
+<td><code>opus[1m]</code>, <code>sonnet[1m]</code></td>
+<td>Variante con ventana de contexto de 1 millón de tokens (cuando aplica)</td>
+</tr>
+<tr>
+<td><code>opusplan</code></td>
+<td>Opus para planificar y Sonnet para ejecutar (lección 23)</td>
+</tr>
+<tr>
+<td><code>default</code></td>
+<td>Vuelve al modelo por defecto de tu cuenta</td>
+</tr>
+</tbody>
+</table>
+<p>Si necesitas <strong>fijar</strong> una versión exacta (por ejemplo en CI, para resultados reproducibles), usa el nombre completo: <code>claude --model claude-opus-5-5</code>.</p>
+<h2 id="el-triangulo-capacidad-velocidad-coste">El triángulo capacidad, velocidad, coste<a class="headerlink" href="#el-triangulo-capacidad-velocidad-coste" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Capacidad</strong>: los modelos mayores resuelven mejor problemas ambiguos, con muchas piezas o que requieren razonamiento largo.</li>
+<li><strong>Velocidad</strong>: los modelos menores responden antes; importa en iteraciones rápidas.</li>
+<li><strong>Coste</strong>: se paga (o se consume cuota) por token de entrada y salida; los modelos mayores cuestan más por token.</li>
+</ul>
+<p>Pero ojo: un modelo más capaz a veces <strong>cuesta menos en total</strong>, porque acierta a la primera, necesita menos vueltas y lee menos archivos innecesarios. Mide por tarea completada, no por token.</p>
+<h2 id="el-nivel-de-esfuerzo-effort">El nivel de esfuerzo (effort)<a class="headerlink" href="#el-nivel-de-esfuerzo-effort" title="Permanent link">#</a></h2>
+<p>Además del modelo, controlas <strong>cuánto razona</strong> en cada paso:</p>
+<table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>low</code></td>
+<td>Tareas cortas, acotadas y sensibles a la latencia</td>
+</tr>
+<tr>
+<td><code>medium</code></td>
+<td>Ahorro de tokens con algo menos de profundidad (por defecto en Opus 5.5)</td>
+</tr>
+<tr>
+<td><code>high</code></td>
+<td>Equilibrio entre tokens e inteligencia (por defecto en la mayoría de modelos)</td>
+</tr>
+<tr>
+<td><code>xhigh</code></td>
+<td>Razonamiento más profundo, más gasto</td>
+</tr>
+<tr>
+<td><code>max</code></td>
+<td>Lo máximo; puede mejorar tareas muy exigentes pero con rendimientos decrecientes. Solo para la sesión actual</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-text">/effort high
+/effort status
+</code></pre>
+<p>o al arrancar:</p>
+<pre><code class="language-bash">claude --model opus --effort high
+</code></pre>
+<p>También puedes ajustarlo en el selector de <code>/model</code> con las flechas izquierda/derecha. Y para una sola pregunta difícil, incluye la palabra <strong>"ultrathink"</strong> en el prompt para pedir razonamiento profundo puntual.</p>
+<div class="admonition tip">
+<p class="admonition-title">Modelo y esfuerzo son dos palancas</p>
+<p>Sonnet con esfuerzo alto puede ser mejor opción que Opus con esfuerzo bajo para algunas tareas, y viceversa. Experimenta con tus tareas típicas.</p>
+</div>
+<h2 id="contexto-de-1-millon-de-tokens">Contexto de 1 millón de tokens<a class="headerlink" href="#contexto-de-1-millon-de-tokens" title="Permanent link">#</a></h2>
+<p>Algunos modelos admiten una ventana de contexto de 1M (según plan y proveedor). Útil para sesiones muy largas o bases de código enormes. Recuerda que <strong>más contexto no es gratis</strong>: cada petición envía todo lo acumulado.</p>
+<h2 id="modo-rapido-fast-mode">Modo rápido (fast mode)<a class="headerlink" href="#modo-rapido-fast-mode" title="Permanent link">#</a></h2>
+<p><code>/fast</code> activa una configuración de <strong>Opus</strong> que responde hasta ~2,5 veces más rápido, con <strong>la misma calidad</strong> pero un <strong>precio por token más alto</strong> (en suscripciones se paga con créditos de uso adicionales). Aparece un icono <code>↯</code> junto al prompt cuando está activo.</p>
+<ul>
+<li>Úsalo en depuración en vivo o iteraciones rápidas cuando la latencia importa.</li>
+<li>Actívalo <strong>al principio</strong> de la sesión: al activarlo a mitad se paga el contexto acumulado al precio del modo rápido.</li>
+</ul>
+<h2 id="guia-de-decision">Guía de decisión<a class="headerlink" href="#guia-de-decision" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tarea</th>
+<th>Recomendación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entender un repo nuevo, diseñar una funcionalidad</td>
+<td>Opus (o <code>opusplan</code>)</td>
+</tr>
+<tr>
+<td>Implementar un plan ya aprobado</td>
+<td>Sonnet</td>
+</tr>
+<tr>
+<td>Bug difícil, intermitente, con muchas piezas</td>
+<td>Opus, esfuerzo <code>high</code>/<code>xhigh</code></td>
+</tr>
+<tr>
+<td>Renombrar, formatear, cambios mecánicos</td>
+<td>Sonnet o Haiku, esfuerzo <code>low</code></td>
+</tr>
+<tr>
+<td>Subagentes de búsqueda/exploración</td>
+<td>Haiku o Sonnet</td>
+</tr>
+<tr>
+<td>Scripts de CI con muchas ejecuciones</td>
+<td>Sonnet/Haiku fijados por versión</td>
+</tr>
+<tr>
+<td>Demo en directo o pair-programming rápido</td>
+<td>Opus + <code>/fast</code></td>
+</tr>
+<tr>
+<td>Tarea larguísima y muy exigente</td>
+<td>Fable (si disponible) o Opus con esfuerzo alto</td>
+</tr>
+</tbody>
+</table>
+<h2 id="modelo-de-subagentes-y-tareas-en-segundo-plano">Modelo de subagentes y tareas en segundo plano<a class="headerlink" href="#modelo-de-subagentes-y-tareas-en-segundo-plano" title="Permanent link">#</a></h2>
+<p>Cada subagente puede tener su propio modelo (lección 52). Un patrón muy eficiente: sesión principal con Opus para razonar y subagentes con Haiku/Sonnet para buscar y leer.</p>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Opus: razonamiento; Sonnet: el caballo de batalla; Haiku: rápido y barato; Fable: lo más exigente.</li>
+<li>Usa alias (<code>opus</code>, <code>sonnet</code>, <code>haiku</code>) salvo que necesites fijar versión.</li>
+<li>El esfuerzo es la segunda palanca: <code>/effort</code>.</li>
+<li>Mide el coste por tarea terminada, no por token.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Ejecuta <code>/model</code> y anota qué modelos y precios ves.</li>
+<li>Haz la misma tarea mediana con Sonnet y con Opus. Compara resultado, tiempo y coste (<code>/usage</code>).</li>
+<li>Prueba una pregunta difícil con <code>/effort low</code> y luego <code>high</code>. ¿Cambia la calidad?</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/model-config">Configuración de modelos</a></li>
+<li><a href="https://code.claude.com/docs/en/fast-mode">Modo rápido</a></li>
+<li><a href="https://platform.claude.com/docs/en/about-claude/models/overview">Modelos de Claude (plataforma)</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="20-aprobar-editar-e-iterar-un-plan.html"><small>← Anterior</small>20. Aprobar, editar e iterar sobre un plan</a><a class="next" href="22-cambiar-de-modelo-a-mitad-de-sesion.html"><small>Siguiente →</small>22. Cambiar de modelo a mitad de sesión</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#las-familias">Las familias</a></li>
+<li><a href="#alias-de-modelo">Alias de modelo</a></li>
+<li><a href="#el-triangulo-capacidad-velocidad-coste">El triángulo capacidad, velocidad, coste</a></li>
+<li><a href="#el-nivel-de-esfuerzo-effort">El nivel de esfuerzo (effort)</a></li>
+<li><a href="#contexto-de-1-millon-de-tokens">Contexto de 1 millón de tokens</a></li>
+<li><a href="#modo-rapido-fast-mode">Modo rápido (fast mode)</a></li>
+<li><a href="#guia-de-decision">Guía de decisión</a></li>
+<li><a href="#modelo-de-subagentes-y-tareas-en-segundo-plano">Modelo de subagentes y tareas en segundo plano</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

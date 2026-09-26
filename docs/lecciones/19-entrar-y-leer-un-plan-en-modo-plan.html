@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>19. Entrar en modo plan y leer un plan · Curso Claude Code</title>
+<meta name="description" content="Las formas de activar el modo plan (Shift+Tab, /plan, --permission-mode plan, defaultMode), qué puede y qué no puede hacer Claude mientras planifica, y cómo leer un plan de forma crítica.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="19-entrar-y-leer-un-plan-en-modo-plan">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="18-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/18-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">18</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="19-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/19-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">19</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="20-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/20-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">20</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/21-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">21</span>&quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></li>
+<li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="23-el-hibrido-opusplan"><a href="../lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
+<li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 3 · Planificar y elegir modelo</p>
+    <h1><span class="num-grande">19</span>Entrar en modo plan y leer un plan</h1>
+    <p class="resumen">Las formas de activar el modo plan (Shift+Tab, /plan, --permission-mode plan, defaultMode), qué puede y qué no puede hacer Claude mientras planifica, y cómo leer un plan de forma crítica.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Activar el modo plan de todas las formas posibles.</li>
+<li>Saber qué se permite y qué se bloquea durante la planificación.</li>
+<li>Leer un plan con ojo crítico: detectar huecos, supuestos y riesgos.</li>
+</ul>
+<h2 id="entrar-en-modo-plan">Entrar en modo plan<a class="headerlink" href="#entrar-en-modo-plan" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Forma</th>
+<th>Cuándo usarla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Shift+Tab</code> hasta ver <code>⏸ plan mode on</code></td>
+<td>En mitad de una sesión</td>
+</tr>
+<tr>
+<td><code>/plan &lt;descripción&gt;</code></td>
+<td>Entrar y empezar a planificar una tarea en un paso</td>
+</tr>
+<tr>
+<td><code>claude --permission-mode plan</code></td>
+<td>Arrancar la sesión ya planificando</td>
+</tr>
+<tr>
+<td><code>"defaultMode": "plan"</code> en <code>.claude/settings.json</code></td>
+<td>Que el proyecto arranque siempre en plan</td>
+</tr>
+<tr>
+<td>VS Code: indicador de modo → <em>Plan</em></td>
+<td>En la extensión</td>
+</tr>
+</tbody>
+</table>
+<p>Ejemplos:</p>
+<pre><code class="language-bash">claude --permission-mode plan
+</code></pre>
+<pre><code class="language-text">/plan migrar la autenticación de JWT en localStorage a cookies httpOnly
+</code></pre>
+<p>Para salir sin aprobar ningún plan, vuelve a pulsar <code>Shift+Tab</code>.</p>
+<h2 id="que-hace-claude-en-modo-plan">Qué hace Claude en modo plan<a class="headerlink" href="#que-hace-claude-en-modo-plan" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Lee</strong> archivos y busca en el código libremente.</li>
+<li><strong>Ejecuta comandos de exploración</strong>: los de solo lectura siempre; otros, según tu configuración (con el clasificador del modo auto si está disponible, o pidiendo permiso).</li>
+<li><strong>Hace preguntas</strong> si algo es ambiguo.</li>
+<li><strong>Escribe el plan</strong> en un archivo de plan.</li>
+<li><strong>No edita tu código fuente</strong> hasta que apruebes.</li>
+</ul>
+<p>El plan se guarda como archivo (por defecto en <code>~/.claude/plans</code>; configurable con <code>plansDirectory</code>, p. ej. <code>"plansDirectory": "./plans"</code> para versionarlos en el repo). Además, el plan <strong>sobrevive a la compactación</strong>: se vuelve a inyectar desde disco.</p>
+<h2 id="como-pedir-un-buen-plan">Cómo pedir un buen plan<a class="headerlink" href="#como-pedir-un-buen-plan" title="Permanent link">#</a></h2>
+<pre><code class="language-text">/plan Queremos permitir que los usuarios exporten sus pedidos a CSV desde
+el panel. Requisitos: máx. 10.000 filas, respetar los filtros activos, no
+bloquear la petición HTTP. Incluye archivos afectados, pasos, riesgos,
+cómo lo probamos y qué queda fuera de alcance.
+</code></pre>
+<p>Cuanto más claros sean los <strong>requisitos</strong> y <strong>restricciones</strong>, mejor será el plan.</p>
+<h2 id="anatomia-de-un-plan">Anatomía de un plan<a class="headerlink" href="#anatomia-de-un-plan" title="Permanent link">#</a></h2>
+<p>Un plan típico tiene esta forma:</p>
+<pre><code class="language-markdown">## Plan: Exportación de pedidos a CSV
+
+### Contexto
+- Los filtros del panel se serializan en `useOrderFilters()` (web/src/hooks).
+- La API ya tiene `GET /orders` con los mismos filtros (api/src/orders/routes.ts).
+- Hay una cola BullMQ en api/src/jobs para tareas largas.
+
+### Enfoque
+Generar el CSV en un job en segundo plano y notificar con un enlace de descarga.
+
+### Pasos
+1. api: nuevo endpoint `POST /orders/export` que encola un job con los filtros.
+2. api: job `exportOrders` que pagina de 1.000 en 1.000 y escribe en S3.
+3. api: endpoint `GET /exports/:id` para consultar estado y URL firmada.
+4. web: botón &quot;Exportar CSV&quot; + sondeo de estado + descarga.
+5. Tests: unitarios del job, integración de los endpoints, e2e del botón.
+
+### Riesgos
+- Exportaciones enormes → límite de 10.000 filas y aviso al usuario.
+- Datos personales en S3 → URL firmada con caducidad de 15 min.
+
+### Verificación
+- `pnpm --filter api test`, `pnpm --filter web test`, e2e `export.spec.ts`.
+
+### Fuera de alcance
+- Exportación a Excel; programación de exportaciones periódicas.
+</code></pre>
+<h2 id="leer-un-plan-con-ojo-critico">Leer un plan con ojo crítico<a class="headerlink" href="#leer-un-plan-con-ojo-critico" title="Permanent link">#</a></h2>
+<p>No apruebes por inercia. Repasa esta lista:</p>
+<table>
+<thead>
+<tr>
+<th>Pregunta</th>
+<th>Qué buscar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>¿Ha entendido el problema?</td>
+<td>¿El objetivo coincide con lo que querías?</td>
+</tr>
+<tr>
+<td>¿Se basa en el código real?</td>
+<td>¿Cita archivos y funciones concretos que existen, o es genérico?</td>
+</tr>
+<tr>
+<td>¿Reutiliza lo que hay?</td>
+<td>¿Propone una librería nueva cuando ya existe una en el proyecto?</td>
+</tr>
+<tr>
+<td>¿El alcance es el justo?</td>
+<td>¿Toca más archivos de los necesarios? ¿Falta alguno obvio?</td>
+</tr>
+<tr>
+<td>¿Qué supone?</td>
+<td>Supuestos implícitos ("asumo que siempre hay un usuario logueado")</td>
+</tr>
+<tr>
+<td>¿Cómo se verifica?</td>
+<td>¿Hay tests concretos o solo "probar que funciona"?</td>
+</tr>
+<tr>
+<td>¿Qué puede salir mal?</td>
+<td>Migraciones, compatibilidad, rendimiento, seguridad</td>
+</tr>
+<tr>
+<td>¿Qué queda fuera?</td>
+<td>¿Coincide con tus expectativas?</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Pregunta antes de aprobar</p>
+<p>Puedes seguir conversando en modo plan: <em>"¿por qué un job y no streaming directo?"</em>, <em>"¿qué pasa si el usuario cierra la pestaña?"</em>. Claude ajustará el plan sin tocar código.</p>
+</div>
+<h2 id="senales-de-un-plan-flojo">Señales de un plan flojo<a class="headerlink" href="#senales-de-un-plan-flojo" title="Permanent link">#</a></h2>
+<ul>
+<li>Vago: "actualizar los componentes necesarios".</li>
+<li>Sin rutas de archivo reales.</li>
+<li>Sin verificación o con "probar manualmente".</li>
+<li>Mezcla la tarea con refactors no pedidos.</li>
+<li>No menciona riesgos en un cambio que claramente los tiene.</li>
+</ul>
+<p>Si ves esto, <strong>pide más exploración</strong> antes de aprobar: <em>"Lee primero X e Y y rehaz el plan con rutas concretas"</em>.</p>
+<h2 id="modo-plan-como-herramienta-de-aprendizaje">Modo plan como herramienta de aprendizaje<a class="headerlink" href="#modo-plan-como-herramienta-de-aprendizaje" title="Permanent link">#</a></h2>
+<p>El modo plan también sirve para <strong>entender</strong> código sin riesgo:</p>
+<pre><code class="language-text">(plan mode)
+&gt; Explícame el ciclo de vida de una petición en este backend, desde que entra
+  por el router hasta que se escribe en la base de datos. Cita archivos y líneas.
+</code></pre>
+<p>Perfecto para <em>onboarding</em> en un repo nuevo.</p>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li><code>Shift+Tab</code>, <code>/plan</code>, <code>--permission-mode plan</code> o <code>defaultMode: "plan"</code>.</li>
+<li>En plan, Claude lee y explora pero no edita tu código hasta que apruebas.</li>
+<li>Los planes se guardan en archivos y sobreviven a la compactación.</li>
+<li>Lee el plan como revisarías un diseño: código real, alcance, supuestos, verificación, riesgos.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Arranca <code>claude --permission-mode plan</code> en un repo que conozcas poco y pide una explicación de su arquitectura.</li>
+<li>Usa <code>/plan</code> para una funcionalidad mediana e identifica al menos un supuesto implícito en el plan.</li>
+<li>Configura <code>"plansDirectory": "./plans"</code> y comprueba que el plan aparece en tu proyecto.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode">Modo plan</a></li>
+<li><a href="https://code.claude.com/docs/en/settings-reference">Referencia de settings: plansDirectory</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="18-la-mentalidad-planificar-y-luego-ejecutar.html"><small>← Anterior</small>18. La mentalidad de planificar y luego ejecutar</a><a class="next" href="20-aprobar-editar-e-iterar-un-plan.html"><small>Siguiente →</small>20. Aprobar, editar e iterar sobre un plan</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#entrar-en-modo-plan">Entrar en modo plan</a></li>
+<li><a href="#que-hace-claude-en-modo-plan">Qué hace Claude en modo plan</a></li>
+<li><a href="#como-pedir-un-buen-plan">Cómo pedir un buen plan</a></li>
+<li><a href="#anatomia-de-un-plan">Anatomía de un plan</a></li>
+<li><a href="#leer-un-plan-con-ojo-critico">Leer un plan con ojo crítico</a></li>
+<li><a href="#senales-de-un-plan-flojo">Señales de un plan flojo</a></li>
+<li><a href="#modo-plan-como-herramienta-de-aprendizaje">Modo plan como herramienta de aprendizaje</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>
