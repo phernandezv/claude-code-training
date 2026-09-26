@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>48. Proyecto de portafolio: integra Claude en tu stack · Curso Claude Code</title>
-<meta name="description" content="Proyecto práctico de las secciones 5 y 6 - conectar un servicio por MCP o CLI, crear skills y comandos del equipo, añadir hooks de calidad y seguridad, y automatizar una tarea en CI, todo documentado y versionado en el repositorio.">
+<title>59. Proyecto de portafolio: construye un flujo multiagente · Curso Claude Code</title>
+<meta name="description" content="Proyecto final del curso - diseñar, implementar y empaquetar como plugin un flujo de trabajo con varios subagentes especializados, orquestados en paralelo y en cadena, con skills, hooks de control, permisos de mínimo privilegio y ejecución en CI.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="48-proyecto-integra-claude-en-tu-stack">
+<body data-slug="59-proyecto-construye-un-flujo-multiagente">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -91,168 +91,270 @@
 <li data-slug="59-proyecto-construye-un-flujo-multiagente"><a href="../lecciones/59-proyecto-construye-un-flujo-multiagente.html"><span class="nav-num">59</span>Proyecto de portafolio: construye un flujo multiagente</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 6 · Skills, comandos y hooks</p>
-    <h1><span class="num-grande">48</span>Proyecto de portafolio: integra Claude en tu stack</h1>
-    <p class="resumen">Proyecto práctico de las secciones 5 y 6 - conectar un servicio por MCP o CLI, crear skills y comandos del equipo, añadir hooks de calidad y seguridad, y automatizar una tarea en CI, todo documentado y versionado en el repositorio.</p>
+    <p class="migas">Sección 8 · Plugins</p>
+    <h1><span class="num-grande">59</span>Proyecto de portafolio: construye un flujo multiagente</h1>
+    <p class="resumen">Proyecto final del curso - diseñar, implementar y empaquetar como plugin un flujo de trabajo con varios subagentes especializados, orquestados en paralelo y en cadena, con skills, hooks de control, permisos de mínimo privilegio y ejecución en CI.</p>
     <article class="leccion">
 <h2 id="el-reto">El reto<a class="headerlink" href="#el-reto" title="Permanent link">#</a></h2>
-<p>Vas a convertir tu repositorio en un entorno donde Claude Code está <strong>integrado con las herramientas del equipo</strong> y trabaja con <strong>guardarraíles</strong>. Al terminar tendrás, versionado en Git:</p>
-<ol>
-<li>Al menos <strong>una integración externa</strong> (MCP o CLI) con permisos de mínimo privilegio.</li>
-<li>Al menos <strong>dos skills</strong> (una de conocimiento y una de tarea) y <strong>dos comandos</strong> con argumentos.</li>
-<li>Al menos <strong>tres hooks</strong>: calidad, seguridad y notificación/registro.</li>
-<li>Al menos <strong>una automatización</strong> en CI o programada.</li>
-<li>Documentación para el equipo.</li>
-</ol>
+<p>Construye un <strong>flujo multiagente</strong> que resuelva un problema real y recurrente de tu equipo, y empaquétalo como <strong>plugin</strong> para que cualquiera pueda usarlo con un comando.</p>
+<p>Elige uno de estos escenarios (o propón el tuyo):</p>
+<table>
+<thead>
+<tr>
+<th>Escenario</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. Revisión de PR multiexperto</strong></td>
+<td>Especialistas en seguridad, rendimiento, tests y convenciones revisan en paralelo; un verificador confirma hallazgos; se publica un resumen en el PR</td>
+</tr>
+<tr>
+<td><strong>B. Triage de incidentes</strong></td>
+<td>Un agente recoge errores (Sentry/logs), otros investigan causas en paralelo por servicio, otro propone correcciones con tests</td>
+</tr>
+<tr>
+<td><strong>C. Migración asistida</strong></td>
+<td>Un investigador inventaría usos de una API obsoleta, implementadores migran lotes en worktrees aislados, un ejecutor de tests valida, un coordinador informa</td>
+</tr>
+<tr>
+<td><strong>D. Documentación viva</strong></td>
+<td>Agentes por módulo generan/actualizan docs a partir del código; un revisor comprueba exactitud; se abre un PR</td>
+</tr>
+</tbody>
+</table>
+<p>A continuación se detalla el escenario <strong>A</strong> como guía; adapta la estructura a tu elección.</p>
 <h2 id="criterios-de-exito">Criterios de éxito<a class="headerlink" href="#criterios-de-exito" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
 <th>#</th>
 <th>Criterio</th>
-<th>Evidencia</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>1</td>
-<td>Integración funcionando con permisos allow/ask/deny por herramienta</td>
-<td><code>/mcp</code> o uso de la CLI + reglas en <code>settings.json</code></td>
+<td>Al menos <strong>4 subagentes</strong> con roles claros, descripciones precisas y prompts con formato de salida</td>
 </tr>
 <tr>
 <td>2</td>
-<td>Sin secretos en el repo (<code>${VAR}</code> en <code>.mcp.json</code>)</td>
-<td>Revisión del diff</td>
+<td><strong>Mínimo privilegio</strong>: cada agente con solo las herramientas que necesita; modelo adecuado a su rol</td>
 </tr>
 <tr>
 <td>3</td>
-<td>Skill de conocimiento que Claude activa sola</td>
-<td>Petición natural que la activa</td>
+<td>Orquestación con <strong>paralelismo</strong> (fan-out/fan-in) <strong>y</strong> al menos un paso en <strong>cadena</strong> (p. ej. verificación)</td>
 </tr>
 <tr>
 <td>4</td>
-<td>Skill/comando de tarea con argumentos</td>
-<td><code>/comando arg1 arg2</code> funcionando</td>
+<td>Una <strong>skill/comando</strong> de entrada con argumentos que dispara el flujo</td>
 </tr>
 <tr>
 <td>5</td>
-<td>Hook de calidad (formato/lint)</td>
-<td>Archivo formateado o feedback de lint</td>
+<td>Al menos un <strong>hook</strong> de control (seguridad, calidad o registro)</td>
 </tr>
 <tr>
 <td>6</td>
-<td>Hook de seguridad (proteger archivos o comandos)</td>
-<td>Intento bloqueado con explicación</td>
+<td>Todo empaquetado como <strong>plugin</strong> validado, en un <strong>marketplace</strong> (local o remoto)</td>
 </tr>
 <tr>
 <td>7</td>
-<td>Automatización en CI o programada</td>
-<td>Ejecución exitosa del workflow</td>
+<td>Ejecución <strong>en CI</strong> o en modo headless demostrada</td>
 </tr>
 <tr>
 <td>8</td>
-<td>README de la configuración de Claude</td>
-<td><code>docs/claude-code.md</code> o similar</td>
+<td>Documentación: arquitectura, uso, coste medido y limitaciones</td>
 </tr>
 </tbody>
 </table>
-<h2 id="fase-1-elige-la-integracion-30-min">Fase 1: elige la integración (30 min)<a class="headerlink" href="#fase-1-elige-la-integracion-30-min" title="Permanent link">#</a></h2>
-<p>Piensa en la información externa que <strong>más copias a mano</strong> al chat: tickets, errores de producción, datos, documentación. Decide entre MCP y CLI con la tabla de la lección 37.</p>
-<p><strong>Opción MCP (ejemplo con Sentry):</strong></p>
-<pre><code class="language-bash">claude mcp add --transport http sentry --scope project https://mcp.sentry.dev/mcp
+<h2 id="fase-1-diseno-30-min">Fase 1: diseño (30 min)<a class="headerlink" href="#fase-1-diseno-30-min" title="Permanent link">#</a></h2>
+<p>Dibuja el flujo antes de escribir nada:</p>
+<pre><code class="language-text">/revision-completa &lt;PR&gt;
+        │
+        ▼
+  [coordinador] ── obtiene diff y contexto del PR
+        │
+        ├──► revisor-seguridad   (opus, solo lectura)   ┐
+        ├──► revisor-rendimiento (sonnet, solo lectura) ├─ en paralelo
+        ├──► revisor-tests       (sonnet, lectura+bash) │
+        └──► revisor-convenciones(haiku, solo lectura)  ┘
+        │
+        ▼
+  [verificador] (opus) ── confirma cada hallazgo contra el código real
+        │
+        ▼
+  Resumen priorizado ── (opcional) comentario en el PR
 </code></pre>
-<pre><code class="language-text">/mcp   → Authenticate
+<p>Para cada agente define: responsabilidad, entradas, salida exacta, herramientas, modelo.</p>
+<h2 id="fase-2-los-subagentes-60-min">Fase 2: los subagentes (60 min)<a class="headerlink" href="#fase-2-los-subagentes-60-min" title="Permanent link">#</a></h2>
+<p>Estructura del plugin:</p>
+<pre><code class="language-text">revision-multiagente/
+├── .claude-plugin/plugin.json
+├── agents/
+│   ├── revisor-seguridad.md
+│   ├── revisor-rendimiento.md
+│   ├── revisor-tests.md
+│   ├── revisor-convenciones.md
+│   └── verificador.md
+├── skills/
+│   └── revision-completa/SKILL.md
+├── hooks/hooks.json
+├── scripts/
+│   └── registrar-subagente.sh
+└── README.md
 </code></pre>
-<p><strong>Opción CLI (ejemplo con gh):</strong></p>
-<pre><code class="language-bash">gh auth login
+<p>Ejemplo de especialista (<code>agents/revisor-rendimiento.md</code>):</p>
+<pre><code class="language-markdown">---
+name: revisor-rendimiento
+description: Revisa un diff buscando problemas de rendimiento (consultas N+1, bucles costosos, falta de paginación, trabajo síncrono bloqueante). Úsalo en revisiones de PR.
+tools: Read, Grep, Glob
+model: sonnet
+maxTurns: 20
+---
+Eres especialista en rendimiento de backend y frontend.
+Recibirás un diff y la lista de archivos cambiados.
+1. Lee el contexto necesario alrededor de cada cambio.
+2. Busca: consultas en bucle (N+1), ausencia de índices evidentes, carga de
+   colecciones completas sin paginar, trabajo pesado en el hilo principal,
+   renders innecesarios, cachés invalidadas en exceso.
+3. Reporta SOLO problemas con impacto plausible.
+
+Formato (máx. 25 líneas):
+- `RENDIMIENTO | severidad (alta/media/baja) | archivo:línea | problema | corrección`
+- Si no hay hallazgos: `RENDIMIENTO | sin hallazgos`
 </code></pre>
-<p>Añade permisos en <code>.claude/settings.json</code> separando lectura, escritura y destrucción:</p>
+<p>El verificador (<code>agents/verificador.md</code>):</p>
+<pre><code class="language-markdown">---
+name: verificador
+description: Verifica hallazgos de revisión contra el código real y descarta falsos positivos.
+tools: Read, Grep, Glob
+model: opus
+---
+Recibirás una lista de hallazgos de varios revisores. Para cada uno:
+1. Abre el archivo y la línea citados y comprueba que el problema existe.
+2. Clasifica: CONFIRMADO, DUDOSO (explica qué falta) o DESCARTADO (explica por qué).
+3. Fusiona duplicados.
+Devuelve solo CONFIRMADOS y DUDOSOS, ordenados por severidad, en una tabla.
+</code></pre>
+<h2 id="fase-3-la-skill-de-entrada-30-min">Fase 3: la skill de entrada (30 min)<a class="headerlink" href="#fase-3-la-skill-de-entrada-30-min" title="Permanent link">#</a></h2>
+<p><code>skills/revision-completa/SKILL.md</code>:</p>
+<pre><code class="language-markdown">---
+name: revision-completa
+description: Revisión multiexperto de un pull request con verificación de hallazgos.
+argument-hint: &quot;[número-de-PR]&quot;
+disable-model-invocation: true
+allowed-tools: Bash(gh pr diff *) Bash(gh pr view *)
+---
+## Contexto del PR #$0
+!`gh pr view $0 --json title,body,files --jq '.title + &quot;\n\n&quot; + .body + &quot;\n\nArchivos:\n&quot; + ([.files[].path] | join(&quot;\n&quot;))'`
+
+## Instrucciones
+1. Obtén el diff con `gh pr diff $0`.
+2. Lanza EN PARALELO a estos subagentes, pasando a cada uno el diff y la lista
+   de archivos: revisor-seguridad, revisor-rendimiento, revisor-tests,
+   revisor-convenciones.
+3. Cuando terminen todos, pasa la unión de sus hallazgos al subagente verificador.
+4. Presenta el resultado final:
+   - Línea resumen: `N confirmados (X altos, Y medios, Z bajos), M dudosos`.
+   - Tabla de hallazgos confirmados.
+   - Sección de dudosos.
+5. No edites archivos. No publiques nada en el PR salvo que el usuario lo pida.
+</code></pre>
+<h2 id="fase-4-hooks-de-control-20-min">Fase 4: hooks de control (20 min)<a class="headerlink" href="#fase-4-hooks-de-control-20-min" title="Permanent link">#</a></h2>
+<p>Un registro de qué subagentes se lanzan y cuándo terminan, útil para medir coste y tiempo:</p>
+<p><code>hooks/hooks.json</code>:</p>
 <pre><code class="language-json">{
-  &quot;permissions&quot;: {
-    &quot;allow&quot;: [&quot;mcp__sentry__search_issues&quot;, &quot;mcp__sentry__get_issue_details&quot;],
-    &quot;ask&quot;: [&quot;mcp__sentry__update_issue&quot;],
-    &quot;deny&quot;: []
+  &quot;hooks&quot;: {
+    &quot;SubagentStart&quot;: [
+      { &quot;hooks&quot;: [{ &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;\&quot;${CLAUDE_PLUGIN_ROOT}/scripts/registrar-subagente.sh\&quot; inicio&quot; }] }
+    ],
+    &quot;SubagentStop&quot;: [
+      { &quot;hooks&quot;: [{ &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;\&quot;${CLAUDE_PLUGIN_ROOT}/scripts/registrar-subagente.sh\&quot; fin&quot; }] }
+    ]
   }
 }
 </code></pre>
-<h2 id="fase-2-skills-45-min">Fase 2: skills (45 min)<a class="headerlink" href="#fase-2-skills-45-min" title="Permanent link">#</a></h2>
-<p><strong>Skill de conocimiento</strong> (Claude la usa cuando hace falta), por ejemplo cómo interpretar vuestros errores o cómo consultar vuestros datos:</p>
-<pre><code class="language-text">.claude/skills/errores-produccion/SKILL.md
+<p><code>scripts/registrar-subagente.sh</code>:</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# Registra inicio/fin de subagentes en un JSONL dentro del directorio de datos del plugin.
+evento=&quot;$1&quot;
+destino=&quot;${CLAUDE_PLUGIN_DATA:-$HOME/.claude}/subagentes.jsonl&quot;
+mkdir -p &quot;$(dirname &quot;$destino&quot;)&quot;
+jq -c --arg e &quot;$evento&quot; '{t: (now|todate), evento: $e, sesion: .session_id, agente: .agent_type}' &gt;&gt; &quot;$destino&quot;
+exit 0
 </code></pre>
-<pre><code class="language-markdown">---
-name: errores-produccion
-description: Cómo investigar errores de producción del proyecto con Sentry y el código. Úsala cuando pregunten por errores, excepciones, caídas o incidencias en producción.
----
-1. Busca el error en Sentry (proyecto &quot;&lt;nombre&gt;&quot;), filtra por entorno &quot;production&quot;.
-2. Obtén el stack trace y localiza el archivo y la línea en el repo.
-3. Revisa `git log` del archivo para ver cambios recientes relacionados.
-4. Propón la causa raíz y una corrección con test que la reproduzca.
-Convenciones: los errores de negocio heredan de DomainError y no se reportan como bugs.
+<p>Además, en el <code>settings.json</code> del proyecto (no en el plugin), asegura que ningún agente puede escribir:</p>
+<pre><code class="language-json">{ &quot;permissions&quot;: { &quot;deny&quot;: [&quot;Bash(git push *)&quot;, &quot;Bash(gh pr merge *)&quot;] } }
 </code></pre>
-<p><strong>Skill o comando de tarea</strong> con argumentos:</p>
-<pre><code class="language-markdown">---
-name: investigar-error
-description: Investiga un error concreto de Sentry y propone una corrección
-argument-hint: &quot;[id-del-issue-de-sentry]&quot;
-disable-model-invocation: true
----
-Investiga el error de Sentry $0 siguiendo la skill errores-produccion.
-No edites código: entrega un informe con causa raíz, archivos afectados y plan de corrección.
+<h2 id="fase-5-empaquetar-validar-y-distribuir-30-min">Fase 5: empaquetar, validar y distribuir (30 min)<a class="headerlink" href="#fase-5-empaquetar-validar-y-distribuir-30-min" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">claude plugin validate ./revision-multiagente
+claude --plugin-dir ./revision-multiagente      # prueba local
 </code></pre>
-<p>Añade un segundo comando útil para tu día a día (p. ej. <code>/standup</code>, <code>/revisar</code>, <code>/resumen-pr</code>).</p>
-<h2 id="fase-3-hooks-45-min">Fase 3: hooks (45 min)<a class="headerlink" href="#fase-3-hooks-45-min" title="Permanent link">#</a></h2>
-<p>Crea <code>.claude/hooks/</code> con al menos:</p>
-<ol>
-<li><strong>Calidad</strong>: formateo o lint tras <code>Edit|Write</code> (lección 45).</li>
-<li><strong>Seguridad</strong>: protección de archivos sensibles o bloqueo de comandos peligrosos.</li>
-<li><strong>Experiencia</strong>: notificación de escritorio (en tu configuración de usuario) o registro de auditoría.</li>
-</ol>
-<p>Prueba cada script por stdin antes de conectarlo:</p>
-<pre><code class="language-bash">echo '{&quot;tool_name&quot;:&quot;Edit&quot;,&quot;tool_input&quot;:{&quot;file_path&quot;:&quot;.env&quot;}}' | .claude/hooks/proteger.sh; echo &quot;exit=$?&quot;
+<pre><code class="language-text">/revision-multiagente:revision-completa 123
 </code></pre>
-<p>Y verifica con <code>/hooks</code>.</p>
-<h2 id="fase-4-automatizacion-45-min">Fase 4: automatización (45 min)<a class="headerlink" href="#fase-4-automatizacion-45-min" title="Permanent link">#</a></h2>
-<p>Elige una:</p>
+<p>Añádelo a tu marketplace (lección 58) e instálalo desde él.</p>
+<h2 id="fase-6-ejecucion-en-ci-30-min">Fase 6: ejecución en CI (30 min)<a class="headerlink" href="#fase-6-ejecucion-en-ci-30-min" title="Permanent link">#</a></h2>
+<p>Workflow de GitHub Actions que ejecuta el flujo en cada PR listo para revisión:</p>
+<pre><code class="language-yaml">name: Revisión multiagente
+on:
+  pull_request:
+    types: [opened, ready_for_review, synchronize]
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          plugin_marketplaces: &quot;https://github.com/acme/claude-plugins.git&quot;
+          plugins: &quot;revision-multiagente@acme&quot;
+          prompt: &quot;/revision-multiagente:revision-completa ${{ github.event.pull_request.number }} y publica el resultado final como comentario del PR con gh pr comment.&quot;
+          claude_args: '--max-turns 60 --allowedTools &quot;Read,Grep,Glob,Agent,Bash(gh pr diff *),Bash(gh pr view *),Bash(gh pr comment *)&quot;'
+</code></pre>
+<p>O en modo headless local:</p>
+<pre><code class="language-bash">claude -p &quot;/revision-multiagente:revision-completa 123&quot; --output-format json \
+  | jq '{resultado: .result, coste: .total_cost_usd}'
+</code></pre>
+<h2 id="fase-7-medir-y-documentar-30-min">Fase 7: medir y documentar (30 min)<a class="headerlink" href="#fase-7-medir-y-documentar-30-min" title="Permanent link">#</a></h2>
+<p>Ejecuta el flujo sobre 3 PRs reales y registra:</p>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>Hallazgos confirmados</th>
+<th>Falsos positivos descartados</th>
+<th>Tiempo</th>
+<th>Coste</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<p>Compara con una revisión de un solo agente (<code>/review high</code>). ¿Aporta más valor? ¿Compensa el coste?</p>
+<p><code>README.md</code> del plugin:</p>
 <ul>
-<li><strong>GitHub Actions</strong>: workflow de menciones <code>@claude</code> o de revisión automática de PRs con tu skill.</li>
-<li><strong>Programada</strong>: workflow con <code>cron</code> o una routine que genere un informe semanal.</li>
-<li><strong>Pre-commit</strong>: revisión rápida del staging con <code>claude -p</code> y Haiku.</li>
+<li>Qué hace y para quién.</li>
+<li>Diagrama del flujo.</li>
+<li>Instalación y uso (<code>/revision-multiagente:revision-completa &lt;PR&gt;</code>).</li>
+<li>Agentes, modelos y herramientas de cada uno (y por qué).</li>
+<li>Coste y tiempo típicos medidos.</li>
+<li>Limitaciones conocidas y cómo desactivarlo.</li>
 </ul>
-<p>Requisitos: permisos explícitos (<code>--allowedTools</code>), secretos en el gestor del CI, <code>--max-turns</code>.</p>
-<h2 id="fase-5-documentacion-20-min">Fase 5: documentación (20 min)<a class="headerlink" href="#fase-5-documentacion-20-min" title="Permanent link">#</a></h2>
-<p>Crea <code>docs/claude-code.md</code> con:</p>
-<pre><code class="language-markdown"># Claude Code en este repositorio
-
-## Integraciones
-- Sentry (MCP, alcance project). Autenticación: `/mcp` → Authenticate.
-
-## Skills y comandos
-| Comando | Qué hace |
-|---|---|
-| /investigar-error &lt;id&gt; | Informe de causa raíz de un error de Sentry |
-| … | … |
-
-## Hooks
-| Hook | Evento | Qué hace |
-|---|---|---|
-| proteger.sh | PreToolUse (Edit\|Write) | Bloquea .env, secrets/, lockfiles |
-| … | … | … |
-
-## Automatizaciones
-- `.github/workflows/claude-review.yml`: revisión automática en PRs.
-
-## Cómo desactivar algo
-- Hooks: `&quot;disableAllHooks&quot;: true` en `.claude/settings.local.json`.
-- Un servidor MCP: `/mcp disable &lt;nombre&gt;`.
-</code></pre>
-<h2 id="fase-6-prueba-de-extremo-a-extremo">Fase 6: prueba de extremo a extremo<a class="headerlink" href="#fase-6-prueba-de-extremo-a-extremo" title="Permanent link">#</a></h2>
-<p>En una sesión nueva:</p>
-<pre><code class="language-text">&gt; ¿Cuál es el error más frecuente de producción esta semana? Investígalo.
-</code></pre>
-<p>Comprueba que: se activa la skill de conocimiento, se usan las herramientas MCP/CLI permitidas sin preguntar, se pide confirmación en las de escritura, los hooks formatean/protegen, y el resultado es útil.</p>
-<h2 id="entrega">Entrega<a class="headerlink" href="#entrega" title="Permanent link">#</a></h2>
-<p>Un PR con toda la configuración (<code>.claude/</code>, <code>.mcp.json</code>, workflows, docs) y en la descripción: decisiones (MCP vs. CLI, permisos), qué hooks y por qué, y el resultado de la prueba de extremo a extremo.</p>
-<h2 id="rubrica">Rúbrica<a class="headerlink" href="#rubrica" title="Permanent link">#</a></h2>
+<h2 id="rubrica-final">Rúbrica final<a class="headerlink" href="#rubrica-final" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
@@ -264,59 +366,70 @@ No edites código: entrega un informe con causa raíz, archivos afectados y plan
 </thead>
 <tbody>
 <tr>
-<td>Integración</td>
-<td>Funciona</td>
-<td>Con permisos por herramienta</td>
-<td>Mínimo privilegio + sin secretos + documentada</td>
+<td>Diseño</td>
+<td>Agentes sin roles claros</td>
+<td>Roles y salidas definidos</td>
+<td>Diagrama, contratos de entrada/salida, justificación de modelos</td>
 </tr>
 <tr>
-<td>Skills/comandos</td>
-<td>Uno</td>
-<td>Conocimiento + tarea</td>
-<td>Descripciones que activan bien + argumentos + archivos de apoyo</td>
+<td>Mínimo privilegio</td>
+<td>Herramientas por defecto</td>
+<td><code>tools</code> acotados</td>
+<td>Herramientas, modelos y reglas deny coherentes con cada rol</td>
 </tr>
 <tr>
-<td>Hooks</td>
-<td>Uno</td>
-<td>Calidad + seguridad</td>
-<td>Probados por stdin, rápidos, con mensajes útiles para Claude</td>
+<td>Orquestación</td>
+<td>Secuencial</td>
+<td>Paralelo</td>
+<td>Paralelo + cadena de verificación + formato de síntesis</td>
+</tr>
+<tr>
+<td>Empaquetado</td>
+<td>Archivos sueltos</td>
+<td>Plugin validado</td>
+<td>Plugin en marketplace, versionado, con README y CHANGELOG</td>
 </tr>
 <tr>
 <td>Automatización</td>
-<td>Workflow copiado</td>
-<td>Adaptado al repo</td>
-<td>Permisos mínimos, límites, útil para el equipo</td>
+<td>Manual</td>
+<td>Headless</td>
+<td>CI con permisos mínimos y límites</td>
 </tr>
 <tr>
-<td>Documentación</td>
-<td>—</td>
-<td>Lista de piezas</td>
-<td>Guía para el equipo con cómo usar y desactivar</td>
+<td>Evaluación</td>
+<td>Sin medir</td>
+<td>Probado en un PR</td>
+<td>Métricas en varios PRs y comparación con alternativa simple</td>
 </tr>
 </tbody>
 </table>
+<h2 id="cierre-del-curso">Cierre del curso<a class="headerlink" href="#cierre-del-curso" title="Permanent link">#</a></h2>
+<p>Con este proyecto has recorrido todo el camino: instalación y sesiones, <code>CLAUDE.md</code> y permisos, planificación y modelos, Git, MCP y CLIs, skills, comandos y hooks, subagentes y plugins. El siguiente paso es convertirlo en hábito: cada vez que repitas algo, pregúntate si debería ser una regla, una skill, un hook, un agente o un plugin.</p>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/mcp">MCP</a> · <a href="https://code.claude.com/docs/en/skills">Skills</a> · <a href="https://code.claude.com/docs/en/hooks-guide">Hooks</a> · <a href="https://code.claude.com/docs/en/github-actions">GitHub Actions</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents">Subagentes</a> · <a href="https://code.claude.com/docs/en/skills">Skills</a> · <a href="https://code.claude.com/docs/en/hooks">Hooks</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/overview">Plugins</a> · <a href="https://code.claude.com/docs/en/plugins/create-marketplace">Marketplaces</a></li>
+<li><a href="https://code.claude.com/docs/en/github-actions">GitHub Actions</a> · <a href="https://code.claude.com/docs/en/workflows">Workflows dinámicos</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="47-ejecutar-claude-sin-ti.html"><small>← Anterior</small>47. Ejecutar Claude sin ti: CI, tareas programadas y pre-commit</a><a class="next" href="49-que-es-un-subagente.html"><small>Siguiente →</small>49. Qué es un subagente: contexto aislado, devuelve solo resultados</a></nav>
+    <nav class="paginacion"><a class="prev" href="58-compartir-un-plugin-con-tu-equipo.html"><small>← Anterior</small>58. Compartir un plugin con tu equipo</a><span></span></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#el-reto">El reto</a></li>
 <li><a href="#criterios-de-exito">Criterios de éxito</a></li>
-<li><a href="#fase-1-elige-la-integracion-30-min">Fase 1: elige la integración (30 min)</a></li>
-<li><a href="#fase-2-skills-45-min">Fase 2: skills (45 min)</a></li>
-<li><a href="#fase-3-hooks-45-min">Fase 3: hooks (45 min)</a></li>
-<li><a href="#fase-4-automatizacion-45-min">Fase 4: automatización (45 min)</a></li>
-<li><a href="#fase-5-documentacion-20-min">Fase 5: documentación (20 min)</a></li>
-<li><a href="#fase-6-prueba-de-extremo-a-extremo">Fase 6: prueba de extremo a extremo</a></li>
-<li><a href="#entrega">Entrega</a></li>
-<li><a href="#rubrica">Rúbrica</a></li>
+<li><a href="#fase-1-diseno-30-min">Fase 1: diseño (30 min)</a></li>
+<li><a href="#fase-2-los-subagentes-60-min">Fase 2: los subagentes (60 min)</a></li>
+<li><a href="#fase-3-la-skill-de-entrada-30-min">Fase 3: la skill de entrada (30 min)</a></li>
+<li><a href="#fase-4-hooks-de-control-20-min">Fase 4: hooks de control (20 min)</a></li>
+<li><a href="#fase-5-empaquetar-validar-y-distribuir-30-min">Fase 5: empaquetar, validar y distribuir (30 min)</a></li>
+<li><a href="#fase-6-ejecucion-en-ci-30-min">Fase 6: ejecución en CI (30 min)</a></li>
+<li><a href="#fase-7-medir-y-documentar-30-min">Fase 7: medir y documentar (30 min)</a></li>
+<li><a href="#rubrica-final">Rúbrica final</a></li>
+<li><a href="#cierre-del-curso">Cierre del curso</a></li>
 <li><a href="#referencias">Referencias</a></li>
 </ul>
 </div>

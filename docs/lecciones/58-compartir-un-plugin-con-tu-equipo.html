@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>49. Qué es un subagente: contexto aislado, devuelve solo resultados · Curso Claude Code</title>
-<meta name="description" content="El concepto de subagente - un asistente con su propia ventana de contexto, prompt de sistema, herramientas y permisos, que recibe una tarea y devuelve un resumen. Qué carga al empezar, ventajas, costes, cuándo usarlo frente a la conversación principal, forks y /btw.">
+<title>58. Compartir un plugin con tu equipo · Curso Claude Code</title>
+<meta name="description" content="Distribuir plugins - crear un marketplace propio con marketplace.json, tipos de origen (ruta relativa, github, git-subdir, url…), validar y probar, publicar en Git, que el repo los active para todo el equipo con extraKnownMarketplaces y enabledPlugins, despliegue gestionado por la organización, versiones y actualizaciones.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="49-que-es-un-subagente">
+<body data-slug="58-compartir-un-plugin-con-tu-equipo">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -91,216 +91,251 @@
 <li data-slug="59-proyecto-construye-un-flujo-multiagente"><a href="../lecciones/59-proyecto-construye-un-flujo-multiagente.html"><span class="nav-num">59</span>Proyecto de portafolio: construye un flujo multiagente</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 7 · Subagentes</p>
-    <h1><span class="num-grande">49</span>Qué es un subagente: contexto aislado, devuelve solo resultados</h1>
-    <p class="resumen">El concepto de subagente - un asistente con su propia ventana de contexto, prompt de sistema, herramientas y permisos, que recibe una tarea y devuelve un resumen. Qué carga al empezar, ventajas, costes, cuándo usarlo frente a la conversación principal, forks y /btw.</p>
+    <p class="migas">Sección 8 · Plugins</p>
+    <h1><span class="num-grande">58</span>Compartir un plugin con tu equipo</h1>
+    <p class="resumen">Distribuir plugins - crear un marketplace propio con marketplace.json, tipos de origen (ruta relativa, github, git-subdir, url…), validar y probar, publicar en Git, que el repo los active para todo el equipo con extraKnownMarketplaces y enabledPlugins, despliegue gestionado por la organización, versiones y actualizaciones.</p>
     <article class="leccion">
 <h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
 <ul>
-<li>Entender qué es un <strong>subagente</strong> y cómo se relaciona con la conversación principal.</li>
-<li>Saber qué información recibe un subagente al empezar y cuál no.</li>
-<li>Reconocer cuándo delegar compensa y cuándo no.</li>
-<li>Distinguir subagentes, <em>forks</em> y preguntas laterales (<code>/btw</code>).</li>
+<li>Crear un <strong>marketplace</strong> propio para tu equipo u organización.</li>
+<li>Hacer que un repositorio active plugins automáticamente para quien lo clone.</li>
+<li>Conocer el despliegue gestionado a nivel de organización.</li>
+<li>Gestionar versiones y actualizaciones.</li>
 </ul>
-<h2 id="la-idea">La idea<a class="headerlink" href="#la-idea" title="Permanent link">#</a></h2>
-<p>Un subagente es un <strong>asistente especializado que Claude lanza para hacer una tarea concreta</strong>. Tiene:</p>
-<ul>
-<li>Su <strong>propia ventana de contexto</strong>, independiente de la tuya.</li>
-<li>Su <strong>propio prompt de sistema</strong> (qué es y cómo trabaja).</li>
-<li>Sus <strong>propias herramientas y permisos</strong> (puede ser de solo lectura, por ejemplo).</li>
-<li>Opcionalmente, su <strong>propio modelo</strong> (Haiku para buscar, Opus para razonar…).</li>
-</ul>
-<p>La conversación principal le pasa una tarea; el subagente trabaja (lee, busca, ejecuta…) y <strong>devuelve solo el resultado</strong>: un resumen, una lista de hallazgos, un informe.</p>
-<pre><code class="language-text">Conversación principal (tu contexto)
-   │  &quot;Busca todos los sitios donde se valida el email y resume cómo lo hacen&quot;
-   ▼
-┌───────────── Subagente (contexto propio) ─────────────┐
-│ Grep … Read … Read … Grep … Read … (40 archivos)       │
-│ → cientos de líneas leídas que NO llegan a tu contexto │
-└───────────────────────────────────────────────────────┘
-   │  Resultado: &quot;Se valida en 4 sitios: … (con archivo:línea)&quot;
-   ▼
-Conversación principal (solo recibe el resumen)
-</code></pre>
-<h2 id="por-que-es-util-higiene-del-contexto">Por qué es útil: higiene del contexto<a class="headerlink" href="#por-que-es-util-higiene-del-contexto" title="Permanent link">#</a></h2>
-<p>Sin subagentes, cada archivo leído y cada salida de comando se acumula en tu conversación, encareciendo cada mensaje y diluyendo lo importante (lección 24). Un subagente hace el trabajo "sucio" en otro contexto y te devuelve lo esencial.</p>
-<p>Beneficios:</p>
+<h2 id="opciones-para-compartir">Opciones para compartir<a class="headerlink" href="#opciones-para-compartir" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Beneficio</th>
+<th>Audiencia</th>
+<th>Cómo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Un par de personas, de forma puntual</td>
+<td>Enviar la carpeta o un <code>.zip</code> (se carga con <code>--plugin-dir</code>)</td>
+</tr>
+<tr>
+<td>Tu equipo o tu empresa</td>
+<td><strong>Marketplace propio</strong> en un repositorio Git</td>
+</tr>
+<tr>
+<td>Todos los repos del equipo sin pasos manuales</td>
+<td>Marketplace + <code>extraKnownMarketplaces</code> y <code>enabledPlugins</code> en <code>.claude/settings.json</code></td>
+</tr>
+<tr>
+<td>Toda la organización, de forma obligatoria</td>
+<td>Los mismos ajustes en <em>managed settings</em></td>
+</tr>
+<tr>
+<td>La comunidad</td>
+<td>Publicar en un marketplace público o enviarlo al directorio de Anthropic</td>
+</tr>
+</tbody>
+</table>
+<h2 id="paso-1-crear-el-marketplace">Paso 1: crear el marketplace<a class="headerlink" href="#paso-1-crear-el-marketplace" title="Permanent link">#</a></h2>
+<p>Un marketplace es un directorio (normalmente un repo) con <code>.claude-plugin/marketplace.json</code>:</p>
+<pre><code class="language-text">acme-claude-plugins/            ← raíz del marketplace
+├── .claude-plugin/
+│   └── marketplace.json
+├── plugins/
+│   ├── acme-dev-tools/         ← el plugin de la lección 57
+│   └── acme-data-tools/
+└── README.md
+</code></pre>
+<p><code>.claude-plugin/marketplace.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;acme&quot;,
+  &quot;description&quot;: &quot;Plugins de Claude Code del equipo de ingeniería de Acme&quot;,
+  &quot;owner&quot;: { &quot;name&quot;: &quot;Equipo de Plataforma&quot;, &quot;email&quot;: &quot;plataforma@acme.dev&quot; },
+  &quot;plugins&quot;: [
+    {
+      &quot;name&quot;: &quot;acme-dev-tools&quot;,
+      &quot;source&quot;: &quot;./plugins/acme-dev-tools&quot;,
+      &quot;description&quot;: &quot;Revisión, endpoints, dependencias, formato y protección de archivos&quot;
+    },
+    {
+      &quot;name&quot;: &quot;acme-data-tools&quot;,
+      &quot;source&quot;: &quot;./plugins/acme-data-tools&quot;,
+      &quot;description&quot;: &quot;Consultas a la BD de analítica y agentes de informes&quot;
+    },
+    {
+      &quot;name&quot;: &quot;acme-ui-kit&quot;,
+      &quot;source&quot;: { &quot;source&quot;: &quot;github&quot;, &quot;repo&quot;: &quot;acme/claude-ui-kit&quot; },
+      &quot;description&quot;: &quot;Skills del sistema de diseño (repositorio propio)&quot;
+    }
+  ]
+}
+</code></pre>
+<p>Campos obligatorios: <code>name</code>, <code>owner</code> y <code>plugins</code> (cada entrada con <code>name</code> y <code>source</code>).</p>
+<h3 id="tipos-de-source">Tipos de <code>source</code><a class="headerlink" href="#tipos-de-source" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Cuándo</th>
 <th>Ejemplo</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Preservar contexto</strong></td>
-<td>Explorar 50 archivos sin llenar tu conversación</td>
+<td>Ruta relativa</td>
+<td>El plugin está dentro del marketplace</td>
+<td><code>"./plugins/acme-dev-tools"</code></td>
 </tr>
 <tr>
-<td><strong>Imponer restricciones</strong></td>
-<td>Un revisor que solo puede leer, nunca editar</td>
+<td><code>github</code></td>
+<td>El plugin tiene su propio repo en GitHub</td>
+<td><code>{ "source": "github", "repo": "acme/claude-ui-kit" }</code></td>
 </tr>
 <tr>
-<td><strong>Especializar</strong></td>
-<td>Un experto en SQL, en accesibilidad, en seguridad</td>
+<td><code>git-subdir</code></td>
+<td>Es una subcarpeta de otro repo (monorepo)</td>
+<td><code>{ "source": "git-subdir", "url": "acme/monorepo", "path": "tools/claude-plugin" }</code></td>
 </tr>
 <tr>
-<td><strong>Reutilizar</strong></td>
-<td>Definido una vez, disponible en todos tus proyectos</td>
+<td><code>url</code></td>
+<td>Repo git en cualquier host</td>
+<td>URL de clonado</td>
 </tr>
 <tr>
-<td><strong>Controlar costes</strong></td>
-<td>Tareas simples con un modelo más barato</td>
-</tr>
-<tr>
-<td><strong>Paralelizar</strong></td>
-<td>Varios subagentes investigando a la vez (lección 51)</td>
+<td><code>archive</code>, <code>npm</code>, <code>command</code></td>
+<td>Casos avanzados</td>
+<td>Ver referencia</td>
 </tr>
 </tbody>
 </table>
-<h2 id="que-recibe-un-subagente-al-empezar">Qué recibe un subagente al empezar<a class="headerlink" href="#que-recibe-un-subagente-al-empezar" title="Permanent link">#</a></h2>
-<p>Un subagente normal <strong>empieza de cero</strong>: no ve tu historial, ni los archivos que ya leyó Claude, ni las skills que invocaste. Recibe:</p>
+<h3 id="reglas-que-evitan-errores">Reglas que evitan errores<a class="headerlink" href="#reglas-que-evitan-errores" title="Permanent link">#</a></h3>
 <ul>
-<li>Su <strong>prompt de sistema</strong> (el de su definición) más detalles del entorno.</li>
-<li>El <strong>mensaje de tarea</strong> que Claude redacta al delegar.</li>
-<li>Tus archivos <strong><code>CLAUDE.md</code></strong> (excepto los integrados Explore y Plan, que los omiten para ser más rápidos; y los que configures con <code>omitClaudeMd: true</code>).</li>
-<li>Una instantánea del <strong>estado de Git</strong> (salvo Explore y Plan).</li>
-<li>Las <strong>skills precargadas</strong> que indique su definición.</li>
+<li>Rutas relativas <strong>desde la raíz del marketplace</strong> (la carpeta que contiene <code>.claude-plugin/</code>), empezando por <code>./</code> y sin <code>..</code>.</li>
+<li>El <code>name</code> de la entrada debe coincidir con el <code>name</code> del <code>plugin.json</code> del plugin.</li>
+<li>Nombres sin espacios; no imites nombres de marketplaces oficiales.</li>
 </ul>
-<p>No recibe tu estilo de salida ni tu memoria automática (puede tener memoria propia).</p>
-<div class="admonition tip">
-<p class="admonition-title">La calidad depende del encargo</p>
-<p>Como el subagente no ha visto la conversación, <strong>el mensaje de tarea lo es todo</strong>. Claude lo redacta por ti, pero cuando pides delegar, sé específico: qué buscar, dónde, qué formato de respuesta quieres y qué ignorar.</p>
-</div>
-<h2 id="como-se-usan">Cómo se usan<a class="headerlink" href="#como-se-usan" title="Permanent link">#</a></h2>
-<h3 id="delegacion-automatica">Delegación automática<a class="headerlink" href="#delegacion-automatica" title="Permanent link">#</a></h3>
-<p>Claude decide delegar según la tarea y la <strong>descripción</strong> de cada subagente disponible. Por ejemplo, ante <em>"¿dónde se gestionan los reintentos de pago?"</em>, puede lanzar el subagente de exploración.</p>
-<h3 id="pidiendolo-explicitamente">Pidiéndolo explícitamente<a class="headerlink" href="#pidiendolo-explicitamente" title="Permanent link">#</a></h3>
-<pre><code class="language-text">&gt; Usa un subagente para ejecutar toda la suite de tests y devuélveme solo
-  los tests que fallan con su error resumido.
-
-&gt; Con un subagente de exploración, localiza todos los usos de la función
-  legacyFormatPrice y dime cuáles se pueden migrar sin riesgo.
+<h2 id="paso-2-validar-y-probar-en-local">Paso 2: validar y probar en local<a class="headerlink" href="#paso-2-validar-y-probar-en-local" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">claude plugin validate ./acme-claude-plugins
+claude plugin marketplace add ./acme-claude-plugins
+claude plugin install acme-dev-tools@acme
 </code></pre>
-<h3 id="mencionandolo-con">Mencionándolo con <code>@</code><a class="headerlink" href="#mencionandolo-con" title="Permanent link">#</a></h3>
-<p>Escribe <code>@</code> y elige un subagente de la lista (aparecen como <code>(agent)</code>), o escribe <code>@agent-&lt;nombre&gt;</code>. Eso <strong>garantiza</strong> que se use ese subagente para la tarea.</p>
-<h2 id="primer-plano-y-segundo-plano">Primer plano y segundo plano<a class="headerlink" href="#primer-plano-y-segundo-plano" title="Permanent link">#</a></h2>
+<p>Abre una sesión y comprueba que todo funciona antes de publicarlo.</p>
+<h2 id="paso-3-publicar">Paso 3: publicar<a class="headerlink" href="#paso-3-publicar" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">cd acme-claude-plugins
+git init &amp;&amp; git add . &amp;&amp; git commit -m &quot;feat: marketplace inicial con acme-dev-tools&quot;
+git remote add origin git@github.com:acme/claude-plugins.git
+git push -u origin main
+</code></pre>
+<p>Tus compañeros ya pueden:</p>
+<pre><code class="language-text">/plugin marketplace add acme/claude-plugins
+/plugin install acme-dev-tools@acme
+</code></pre>
+<p>Si el repo es privado, cada persona necesita acceso de lectura con sus credenciales de git.</p>
+<h2 id="paso-4-que-el-repositorio-lo-active-para-todos">Paso 4: que el repositorio lo active para todos<a class="headerlink" href="#paso-4-que-el-repositorio-lo-active-para-todos" title="Permanent link">#</a></h2>
+<p>En el <code>.claude/settings.json</code> de cada proyecto del equipo:</p>
+<pre><code class="language-json">{
+  &quot;extraKnownMarketplaces&quot;: {
+    &quot;acme&quot;: {
+      &quot;source&quot;: { &quot;source&quot;: &quot;github&quot;, &quot;repo&quot;: &quot;acme/claude-plugins&quot; },
+      &quot;autoUpdate&quot;: true
+    }
+  },
+  &quot;enabledPlugins&quot;: {
+    &quot;acme-dev-tools@acme&quot;: true
+  }
+}
+</code></pre>
 <ul>
-<li><strong>Primer plano</strong>: la conversación espera a que termine; los permisos que pida te aparecen directamente.</li>
-<li><strong>Segundo plano</strong>: sigues trabajando mientras corre; su resultado llega cuando termina. Sus peticiones de permiso aparecen en tu sesión. <code>Ctrl+B</code> manda a segundo plano una tarea en curso y <code>/tasks</code> lista lo que está corriendo.</li>
+<li><code>extraKnownMarketplaces</code> registra el marketplace para quien abra el repo (tras aceptar la confianza de la carpeta).</li>
+<li><code>enabledPlugins</code> activa los plugins indicados en ese proyecto.</li>
+<li><code>autoUpdate: true</code> mantiene el catálogo y los plugins actualizados en segundo plano.</li>
 </ul>
-<p>En sesiones interactivas, por defecto los subagentes suelen ejecutarse en segundo plano.</p>
-<h2 id="costes-y-limites">Costes y límites<a class="headerlink" href="#costes-y-limites" title="Permanent link">#</a></h2>
+<p>Así, un compañero clona el repo, abre <code>claude</code>, acepta la confianza y tiene las herramientas del equipo sin pasos manuales.</p>
+<h2 id="paso-5-opcional-despliegue-gestionado">Paso 5 (opcional): despliegue gestionado<a class="headerlink" href="#paso-5-opcional-despliegue-gestionado" title="Permanent link">#</a></h2>
+<p>Para toda la organización, los administradores ponen esas mismas claves en <em>managed settings</em> (consola de administración de claude.ai, MDM o <code>managed-settings.json</code>):</p>
 <ul>
-<li>Cada subagente hace sus propias peticiones al modelo: <strong>consume tokens</strong> (y cuota) aparte.</li>
-<li>Sus resultados, al volver, <strong>sí entran</strong> en tu contexto: pide resúmenes, no volcados.</li>
-<li>No tiene sentido para cambios rápidos: arrancar desde cero y reunir contexto lleva tiempo.</li>
+<li>Los plugins se instalan al inicio de la siguiente sesión de cada persona.</li>
+<li>Un plugin puesto a <code>false</code> en el <code>enabledPlugins</code> gestionado queda <strong>bloqueado</strong> en todos los niveles.</li>
+<li>También se puede restringir qué marketplaces están permitidos.</li>
 </ul>
-<h2 id="subagente-o-conversacion-principal">¿Subagente o conversación principal?<a class="headerlink" href="#subagente-o-conversacion-principal" title="Permanent link">#</a></h2>
+<h2 id="versiones-y-actualizaciones">Versiones y actualizaciones<a class="headerlink" href="#versiones-y-actualizaciones" title="Permanent link">#</a></h2>
+<ul>
+<li>Sube <code>version</code> en <code>plugin.json</code> en cada publicación y mantén un <code>CHANGELOG.md</code>.</li>
+<li>Versionado semántico: renombrar o eliminar una skill es un cambio <strong>mayor</strong> (rompe <code>/plugin:skill</code> de la gente).</li>
+<li>Con auto-actualización, las nuevas versiones se descargan en segundo plano; la sesión en curso sigue con la cargada hasta <code>/reload-plugins</code> o la siguiente sesión.</li>
+<li>Manualmente: <code>claude plugin update acme-dev-tools@acme</code>.</li>
+<li>Para fijar una versión estable, los orígenes git admiten fijar <code>ref</code> o <code>sha</code>.</li>
+</ul>
+<h2 id="gobernanza-recomendada">Gobernanza recomendada<a class="headerlink" href="#gobernanza-recomendada" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Usa la conversación principal cuando…</th>
-<th>Usa un subagente cuando…</th>
+<th>Práctica</th>
+<th>Por qué</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>La tarea necesita ida y vuelta contigo</td>
-<td>La tarea es autocontenida y cabe en un resumen</td>
+<td>Revisión por PR de cualquier cambio en el marketplace</td>
+<td>Los plugins ejecutan código en las máquinas de todos</td>
 </tr>
 <tr>
-<td>Las fases comparten mucho contexto (plan → código → tests)</td>
-<td>Genera mucha salida que no necesitas conservar</td>
+<td>CI que ejecute <code>claude plugin validate</code></td>
+<td>Evita publicar plugins rotos</td>
 </tr>
 <tr>
-<td>Es un cambio rápido y localizado</td>
-<td>Quieres limitar herramientas o permisos</td>
+<td>Evaluaciones (<code>claude plugin eval</code>) para skills y agentes clave</td>
+<td>Detecta regresiones en cómo Claude los usa</td>
 </tr>
 <tr>
-<td>La latencia importa</td>
-<td>Puedes paralelizar partes independientes</td>
-</tr>
-</tbody>
-</table>
-<h2 id="parientes-cercanos">Parientes cercanos<a class="headerlink" href="#parientes-cercanos" title="Permanent link">#</a></h2>
-<table>
-<thead>
-<tr>
-<th>Mecanismo</th>
-<th>Qué es</th>
-<th>Contexto</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Subagente</strong></td>
-<td>Asistente especializado con tarea propia</td>
-<td>Empieza de cero</td>
+<td>README por plugin con requisitos y cómo desactivarlo</td>
+<td>Menos fricción y soporte</td>
 </tr>
 <tr>
-<td><strong>Fork</strong> (<code>/subtask &lt;tarea&gt;</code>)</td>
-<td>Una copia de la conversación actual que trabaja en segundo plano</td>
-<td>Hereda <strong>todo</strong> el historial</td>
-</tr>
-<tr>
-<td><strong><code>/btw &lt;pregunta&gt;</code></strong></td>
-<td>Pregunta lateral sobre lo que ya está en la conversación</td>
-<td>Ve tu contexto pero no usa herramientas ni lo ensucia</td>
-</tr>
-<tr>
-<td><strong>Skill con <code>context: fork</code></strong></td>
-<td>Una skill que se ejecuta dentro de un subagente</td>
-<td>Empieza de cero con la skill como tarea</td>
-</tr>
-<tr>
-<td><strong>Sesiones en segundo plano / equipos de agentes</strong></td>
-<td>Sesiones independientes que trabajan en paralelo</td>
-<td>Cada una su contexto completo</td>
+<td>Canal de feedback y propietarios claros</td>
+<td>Mejora continua</td>
 </tr>
 </tbody>
 </table>
 <h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
 <ul>
-<li>Subagente = contexto, prompt, herramientas y modelo propios; recibe una tarea y devuelve un resultado.</li>
-<li>Principal ventaja: mantener limpio tu contexto; además restringe, especializa, abarata y paraleliza.</li>
-<li>Empieza de cero: el encargo debe ser claro.</li>
-<li>No es gratis ni instantáneo: úsalo para trabajo autocontenido o voluminoso.</li>
+<li>Marketplace = repo con <code>.claude-plugin/marketplace.json</code> (<code>name</code>, <code>owner</code>, <code>plugins</code>).</li>
+<li>Valida, prueba en local, publica en Git; los demás lo añaden con <code>/plugin marketplace add</code>.</li>
+<li><code>extraKnownMarketplaces</code> + <code>enabledPlugins</code> en <code>.claude/settings.json</code> lo activan para todo el equipo; en <em>managed settings</em>, para toda la organización.</li>
+<li>Versiona con semver, CHANGELOG y auto-actualización.</li>
 </ul>
 <h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
 <ol>
-<li>Pide a Claude que investigue una pregunta amplia sobre tu repo <strong>con</strong> un subagente y luego <strong>sin</strong> él. Compara <code>/context</code>.</li>
-<li>Ejecuta tu suite de tests a través de un subagente y pide solo los fallos.</li>
-<li>Prueba <code>/btw</code> con una pregunta sobre algo ya discutido y <code>/subtask</code> para una tarea paralela.</li>
+<li>Crea un marketplace local con tu plugin de la lección 57, valídalo e instálalo desde él.</li>
+<li>Publícalo en un repositorio (privado si quieres) e instálalo desde otra máquina o carpeta.</li>
+<li>Añade <code>extraKnownMarketplaces</code> y <code>enabledPlugins</code> a un repo y comprueba que un clon nuevo recibe el plugin.</li>
+<li>Añade un workflow de CI que ejecute <code>claude plugin validate</code> en cada PR del marketplace.</li>
 </ol>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/sub-agents">Subagentes</a></li>
-<li><a href="https://code.claude.com/docs/en/how-claude-code-works">Cómo funciona Claude Code: contexto</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/create-marketplace">Crear un marketplace</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/marketplace-reference">Referencia de marketplace.json</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/org">Plugins para organizaciones</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/publish">Publicar plugins</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="48-proyecto-integra-claude-en-tu-stack.html"><small>← Anterior</small>48. Proyecto de portafolio: integra Claude en tu stack</a><a class="next" href="50-subagentes-integrados.html"><small>Siguiente →</small>50. Subagentes integrados: Explore, Plan y general-purpose</a></nav>
+    <nav class="paginacion"><a class="prev" href="57-construir-tu-propio-plugin.html"><small>← Anterior</small>57. Construir tu propio plugin con las piezas que ya has hecho</a><a class="next" href="59-proyecto-construye-un-flujo-multiagente.html"><small>Siguiente →</small>59. Proyecto de portafolio: construye un flujo multiagente</a></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#la-idea">La idea</a></li>
-<li><a href="#por-que-es-util-higiene-del-contexto">Por qué es útil: higiene del contexto</a></li>
-<li><a href="#que-recibe-un-subagente-al-empezar">Qué recibe un subagente al empezar</a></li>
-<li><a href="#como-se-usan">Cómo se usan</a><ul>
-<li><a href="#delegacion-automatica">Delegación automática</a></li>
-<li><a href="#pidiendolo-explicitamente">Pidiéndolo explícitamente</a></li>
-<li><a href="#mencionandolo-con">Mencionándolo con @</a></li>
+<li><a href="#opciones-para-compartir">Opciones para compartir</a></li>
+<li><a href="#paso-1-crear-el-marketplace">Paso 1: crear el marketplace</a><ul>
+<li><a href="#tipos-de-source">Tipos de source</a></li>
+<li><a href="#reglas-que-evitan-errores">Reglas que evitan errores</a></li>
 </ul>
 </li>
-<li><a href="#primer-plano-y-segundo-plano">Primer plano y segundo plano</a></li>
-<li><a href="#costes-y-limites">Costes y límites</a></li>
-<li><a href="#subagente-o-conversacion-principal">¿Subagente o conversación principal?</a></li>
-<li><a href="#parientes-cercanos">Parientes cercanos</a></li>
+<li><a href="#paso-2-validar-y-probar-en-local">Paso 2: validar y probar en local</a></li>
+<li><a href="#paso-3-publicar">Paso 3: publicar</a></li>
+<li><a href="#paso-4-que-el-repositorio-lo-active-para-todos">Paso 4: que el repositorio lo active para todos</a></li>
+<li><a href="#paso-5-opcional-despliegue-gestionado">Paso 5 (opcional): despliegue gestionado</a></li>
+<li><a href="#versiones-y-actualizaciones">Versiones y actualizaciones</a></li>
+<li><a href="#gobernanza-recomendada">Gobernanza recomendada</a></li>
 <li><a href="#resumen">Resumen</a></li>
 <li><a href="#ejercicios">Ejercicios</a></li>
 <li><a href="#referencias">Referencias</a></li>

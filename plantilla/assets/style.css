@@ -65,13 +65,15 @@ h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 12px; letter-spacing: -.01
 .leccion h3 { font-size: 1.18rem; margin: 1.8em 0 .5em; }
 .leccion .headerlink { opacity: 0; margin-left: 6px; text-decoration: none; color: var(--muted); }
 .leccion h2:hover .headerlink, .leccion h3:hover .headerlink { opacity: 1; }
+.leccion { overflow-wrap: break-word; }
+.leccion p code, .leccion li code, .leccion td code { overflow-wrap: anywhere; }
 .leccion code { font-family: var(--mono); font-size: .88em; background: var(--code-inline); padding: .12em .36em; border-radius: 5px; }
-.leccion pre { background: var(--code-bg); color: #e6e6e6; border-radius: var(--radius); padding: 16px 18px; overflow-x: auto; font-size: 14px; line-height: 1.55; position: relative; }
+.leccion pre { max-width: 100%; background: var(--code-bg); color: #e6e6e6; border-radius: var(--radius); padding: 16px 18px; overflow-x: auto; font-size: 14px; line-height: 1.55; position: relative; }
 .leccion pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
 .leccion pre code.hljs { padding: 0; background: none; }
 .copiar { position: absolute; top: 8px; right: 8px; font-size: 12px; border: 1px solid #444; background: #2b2b33; color: #ddd; border-radius: 6px; padding: 2px 8px; cursor: pointer; opacity: 0; transition: opacity .15s; }
 .leccion pre:hover .copiar { opacity: 1; }
-.leccion table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: 15px; display: block; overflow-x: auto; }
+.leccion table { border-collapse: collapse; max-width: 100%; margin: 1.2em 0; font-size: 15px; display: block; overflow-x: auto; }
 .leccion th, .leccion td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
 .leccion th { background: var(--bg-2); }
 .leccion blockquote { margin: 1.2em 0; padding: 4px 16px; border-left: 4px solid var(--border); color: var(--muted); }

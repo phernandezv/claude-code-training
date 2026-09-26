@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>49. Qué es un subagente: contexto aislado, devuelve solo resultados · Curso Claude Code</title>
-<meta name="description" content="El concepto de subagente - un asistente con su propia ventana de contexto, prompt de sistema, herramientas y permisos, que recibe una tarea y devuelve un resumen. Qué carga al empezar, ventajas, costes, cuándo usarlo frente a la conversación principal, forks y /btw.">
+<title>57. Construir tu propio plugin con las piezas que ya has hecho · Curso Claude Code</title>
+<meta name="description" content="Convertir tu configuración de .claude/ (skills, comandos, agentes, hooks, MCP) en un plugin - estructura, manifiesto, rutas con ${CLAUDE_PLUGIN_ROOT}, hooks.json y .mcp.json del plugin, probar con --plugin-dir, validar con claude plugin validate, depurar y versionar.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="49-que-es-un-subagente">
+<body data-slug="57-construir-tu-propio-plugin">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -91,216 +91,218 @@
 <li data-slug="59-proyecto-construye-un-flujo-multiagente"><a href="../lecciones/59-proyecto-construye-un-flujo-multiagente.html"><span class="nav-num">59</span>Proyecto de portafolio: construye un flujo multiagente</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 7 · Subagentes</p>
-    <h1><span class="num-grande">49</span>Qué es un subagente: contexto aislado, devuelve solo resultados</h1>
-    <p class="resumen">El concepto de subagente - un asistente con su propia ventana de contexto, prompt de sistema, herramientas y permisos, que recibe una tarea y devuelve un resumen. Qué carga al empezar, ventajas, costes, cuándo usarlo frente a la conversación principal, forks y /btw.</p>
+    <p class="migas">Sección 8 · Plugins</p>
+    <h1><span class="num-grande">57</span>Construir tu propio plugin con las piezas que ya has hecho</h1>
+    <p class="resumen">Convertir tu configuración de .claude/ (skills, comandos, agentes, hooks, MCP) en un plugin - estructura, manifiesto, rutas con ${CLAUDE_PLUGIN_ROOT}, hooks.json y .mcp.json del plugin, probar con --plugin-dir, validar con claude plugin validate, depurar y versionar.</p>
     <article class="leccion">
 <h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
 <ul>
-<li>Entender qué es un <strong>subagente</strong> y cómo se relaciona con la conversación principal.</li>
-<li>Saber qué información recibe un subagente al empezar y cuál no.</li>
-<li>Reconocer cuándo delegar compensa y cuándo no.</li>
-<li>Distinguir subagentes, <em>forks</em> y preguntas laterales (<code>/btw</code>).</li>
+<li>Empaquetar las piezas creadas en el curso en un plugin.</li>
+<li>Adaptar rutas y configuraciones para que funcionen dentro del plugin.</li>
+<li>Probar el plugin sin instalarlo (<code>--plugin-dir</code>) y validarlo.</li>
+<li>Preparar el plugin para versionarlo y compartirlo.</li>
 </ul>
-<h2 id="la-idea">La idea<a class="headerlink" href="#la-idea" title="Permanent link">#</a></h2>
-<p>Un subagente es un <strong>asistente especializado que Claude lanza para hacer una tarea concreta</strong>. Tiene:</p>
-<ul>
-<li>Su <strong>propia ventana de contexto</strong>, independiente de la tuya.</li>
-<li>Su <strong>propio prompt de sistema</strong> (qué es y cómo trabaja).</li>
-<li>Sus <strong>propias herramientas y permisos</strong> (puede ser de solo lectura, por ejemplo).</li>
-<li>Opcionalmente, su <strong>propio modelo</strong> (Haiku para buscar, Opus para razonar…).</li>
-</ul>
-<p>La conversación principal le pasa una tarea; el subagente trabaja (lee, busca, ejecuta…) y <strong>devuelve solo el resultado</strong>: un resumen, una lista de hallazgos, un informe.</p>
-<pre><code class="language-text">Conversación principal (tu contexto)
-   │  &quot;Busca todos los sitios donde se valida el email y resume cómo lo hacen&quot;
-   ▼
-┌───────────── Subagente (contexto propio) ─────────────┐
-│ Grep … Read … Read … Grep … Read … (40 archivos)       │
-│ → cientos de líneas leídas que NO llegan a tu contexto │
-└───────────────────────────────────────────────────────┘
-   │  Resultado: &quot;Se valida en 4 sitios: … (con archivo:línea)&quot;
-   ▼
-Conversación principal (solo recibe el resumen)
+<h2 id="punto-de-partida">Punto de partida<a class="headerlink" href="#punto-de-partida" title="Permanent link">#</a></h2>
+<p>Supongamos que tu proyecto tiene esto (de lecciones anteriores):</p>
+<pre><code class="language-text">.claude/
+├── skills/
+│   ├── informe-dependencias/SKILL.md
+│   └── nuevo-endpoint/SKILL.md
+├── commands/
+│   └── revisar.md
+├── agents/
+│   ├── revisor-seguridad.md
+│   └── ejecutor-tests.md
+├── hooks/
+│   ├── formatear.sh
+│   └── proteger.sh
+└── settings.json      ← contiene la sección &quot;hooks&quot;
+.mcp.json              ← servidor de Sentry
 </code></pre>
-<h2 id="por-que-es-util-higiene-del-contexto">Por qué es útil: higiene del contexto<a class="headerlink" href="#por-que-es-util-higiene-del-contexto" title="Permanent link">#</a></h2>
-<p>Sin subagentes, cada archivo leído y cada salida de comando se acumula en tu conversación, encareciendo cada mensaje y diluyendo lo importante (lección 24). Un subagente hace el trabajo "sucio" en otro contexto y te devuelve lo esencial.</p>
-<p>Beneficios:</p>
-<table>
-<thead>
-<tr>
-<th>Beneficio</th>
-<th>Ejemplo</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Preservar contexto</strong></td>
-<td>Explorar 50 archivos sin llenar tu conversación</td>
-</tr>
-<tr>
-<td><strong>Imponer restricciones</strong></td>
-<td>Un revisor que solo puede leer, nunca editar</td>
-</tr>
-<tr>
-<td><strong>Especializar</strong></td>
-<td>Un experto en SQL, en accesibilidad, en seguridad</td>
-</tr>
-<tr>
-<td><strong>Reutilizar</strong></td>
-<td>Definido una vez, disponible en todos tus proyectos</td>
-</tr>
-<tr>
-<td><strong>Controlar costes</strong></td>
-<td>Tareas simples con un modelo más barato</td>
-</tr>
-<tr>
-<td><strong>Paralelizar</strong></td>
-<td>Varios subagentes investigando a la vez (lección 51)</td>
-</tr>
-</tbody>
-</table>
-<h2 id="que-recibe-un-subagente-al-empezar">Qué recibe un subagente al empezar<a class="headerlink" href="#que-recibe-un-subagente-al-empezar" title="Permanent link">#</a></h2>
-<p>Un subagente normal <strong>empieza de cero</strong>: no ve tu historial, ni los archivos que ya leyó Claude, ni las skills que invocaste. Recibe:</p>
-<ul>
-<li>Su <strong>prompt de sistema</strong> (el de su definición) más detalles del entorno.</li>
-<li>El <strong>mensaje de tarea</strong> que Claude redacta al delegar.</li>
-<li>Tus archivos <strong><code>CLAUDE.md</code></strong> (excepto los integrados Explore y Plan, que los omiten para ser más rápidos; y los que configures con <code>omitClaudeMd: true</code>).</li>
-<li>Una instantánea del <strong>estado de Git</strong> (salvo Explore y Plan).</li>
-<li>Las <strong>skills precargadas</strong> que indique su definición.</li>
-</ul>
-<p>No recibe tu estilo de salida ni tu memoria automática (puede tener memoria propia).</p>
-<div class="admonition tip">
-<p class="admonition-title">La calidad depende del encargo</p>
-<p>Como el subagente no ha visto la conversación, <strong>el mensaje de tarea lo es todo</strong>. Claude lo redacta por ti, pero cuando pides delegar, sé específico: qué buscar, dónde, qué formato de respuesta quieres y qué ignorar.</p>
+<p>Objetivo: un plugin <code>acme-dev-tools</code> reutilizable en cualquier repo.</p>
+<h2 id="paso-1-estructura-y-manifiesto">Paso 1: estructura y manifiesto<a class="headerlink" href="#paso-1-estructura-y-manifiesto" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">mkdir -p acme-dev-tools/.claude-plugin
+</code></pre>
+<p><code>acme-dev-tools/.claude-plugin/plugin.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;acme-dev-tools&quot;,
+  &quot;description&quot;: &quot;Herramientas estándar de desarrollo de Acme: revisión, endpoints, dependencias, formato y protección de archivos&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;author&quot;: { &quot;name&quot;: &quot;Equipo de Plataforma&quot; },
+  &quot;repository&quot;: &quot;https://github.com/acme/claude-plugins&quot;,
+  &quot;license&quot;: &quot;MIT&quot;,
+  &quot;keywords&quot;: [&quot;revision&quot;, &quot;seguridad&quot;, &quot;formato&quot;]
+}
+</code></pre>
+<p>También puedes generar un esqueleto con:</p>
+<pre><code class="language-bash">claude plugin init acme-dev-tools
+</code></pre>
+<p>(lo crea bajo <code>~/.claude/skills/</code>, donde se carga en todas tus sesiones mientras lo desarrollas).</p>
+<h2 id="paso-2-copiar-los-componentes">Paso 2: copiar los componentes<a class="headerlink" href="#paso-2-copiar-los-componentes" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">cp -r .claude/skills   acme-dev-tools/
+cp -r .claude/commands acme-dev-tools/
+cp -r .claude/agents   acme-dev-tools/
+mkdir -p acme-dev-tools/scripts
+cp .claude/hooks/*.sh  acme-dev-tools/scripts/
+</code></pre>
+<p>Resultado:</p>
+<pre><code class="language-text">acme-dev-tools/
+├── .claude-plugin/plugin.json
+├── skills/
+├── commands/
+├── agents/
+├── scripts/
+│   ├── formatear.sh
+│   └── proteger.sh
+├── hooks/
+│   └── hooks.json        ← paso 3
+└── .mcp.json             ← paso 4
+</code></pre>
+<h2 id="paso-3-hooks-del-plugin">Paso 3: hooks del plugin<a class="headerlink" href="#paso-3-hooks-del-plugin" title="Permanent link">#</a></h2>
+<p>Los hooks pasan de <code>settings.json</code> a <code>hooks/hooks.json</code>, con el mismo formato bajo una clave <code>hooks</code>. Cambia las rutas de <code>$CLAUDE_PROJECT_DIR</code> a <strong><code>${CLAUDE_PLUGIN_ROOT}</code></strong>, que apunta a la carpeta donde está instalado el plugin:</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PostToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write&quot;,
+        &quot;hooks&quot;: [
+          { &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;\&quot;${CLAUDE_PLUGIN_ROOT}/scripts/formatear.sh\&quot;&quot; }
+        ]
+      }
+    ],
+    &quot;PreToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write&quot;,
+        &quot;hooks&quot;: [
+          { &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;\&quot;${CLAUDE_PLUGIN_ROOT}/scripts/proteger.sh\&quot;&quot; }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<pre><code class="language-bash">chmod +x acme-dev-tools/scripts/*.sh
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Los hooks de un plugin siempre están activos</p>
+<p>Se registran al cargar el plugin y se disparan en sus eventos desde entonces, aunque no uses ninguna skill del plugin. Diseña los scripts para salir rápido (<code>exit 0</code>) cuando no apliquen.</p>
 </div>
-<h2 id="como-se-usan">Cómo se usan<a class="headerlink" href="#como-se-usan" title="Permanent link">#</a></h2>
-<h3 id="delegacion-automatica">Delegación automática<a class="headerlink" href="#delegacion-automatica" title="Permanent link">#</a></h3>
-<p>Claude decide delegar según la tarea y la <strong>descripción</strong> de cada subagente disponible. Por ejemplo, ante <em>"¿dónde se gestionan los reintentos de pago?"</em>, puede lanzar el subagente de exploración.</p>
-<h3 id="pidiendolo-explicitamente">Pidiéndolo explícitamente<a class="headerlink" href="#pidiendolo-explicitamente" title="Permanent link">#</a></h3>
-<pre><code class="language-text">&gt; Usa un subagente para ejecutar toda la suite de tests y devuélveme solo
-  los tests que fallan con su error resumido.
-
-&gt; Con un subagente de exploración, localiza todos los usos de la función
-  legacyFormatPrice y dime cuáles se pueden migrar sin riesgo.
+<p>También existe <code>${CLAUDE_PLUGIN_DATA}</code>: un directorio persistente del plugin que sobrevive a las actualizaciones (útil para cachés o dependencias instaladas).</p>
+<h2 id="paso-4-servidores-mcp-del-plugin">Paso 4: servidores MCP del plugin<a class="headerlink" href="#paso-4-servidores-mcp-del-plugin" title="Permanent link">#</a></h2>
+<p><code>acme-dev-tools/.mcp.json</code>, con el mismo formato que el <code>.mcp.json</code> de un proyecto:</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;sentry&quot;: {
+      &quot;type&quot;: &quot;http&quot;,
+      &quot;url&quot;: &quot;https://mcp.sentry.dev/mcp&quot;
+    }
+  }
+}
 </code></pre>
-<h3 id="mencionandolo-con">Mencionándolo con <code>@</code><a class="headerlink" href="#mencionandolo-con" title="Permanent link">#</a></h3>
-<p>Escribe <code>@</code> y elige un subagente de la lista (aparecen como <code>(agent)</code>), o escribe <code>@agent-&lt;nombre&gt;</code>. Eso <strong>garantiza</strong> que se use ese subagente para la tarea.</p>
-<h2 id="primer-plano-y-segundo-plano">Primer plano y segundo plano<a class="headerlink" href="#primer-plano-y-segundo-plano" title="Permanent link">#</a></h2>
+<p>Nunca incluyas secretos: usa <code>${VARIABLE}</code> o autenticación OAuth.</p>
+<h2 id="paso-5-revisar-referencias-internas">Paso 5: revisar referencias internas<a class="headerlink" href="#paso-5-revisar-referencias-internas" title="Permanent link">#</a></h2>
 <ul>
-<li><strong>Primer plano</strong>: la conversación espera a que termine; los permisos que pida te aparecen directamente.</li>
-<li><strong>Segundo plano</strong>: sigues trabajando mientras corre; su resultado llega cuando termina. Sus peticiones de permiso aparecen en tu sesión. <code>Ctrl+B</code> manda a segundo plano una tarea en curso y <code>/tasks</code> lista lo que está corriendo.</li>
+<li>En skills que ejecutan scripts propios, usa <code>${CLAUDE_SKILL_DIR}</code> (carpeta de la skill) o <code>${CLAUDE_PLUGIN_ROOT}</code> (raíz del plugin).</li>
+<li>Menciones entre componentes: los agentes y skills del plugin llevan prefijo (<code>acme-dev-tools:revisor-seguridad</code>). Actualiza las referencias en tus prompts si nombran otros componentes.</li>
+<li>Recuerda que los <strong>subagentes de plugins ignoran</strong> <code>hooks</code>, <code>mcpServers</code> y <code>permissionMode</code> en su <em>frontmatter</em> por seguridad. Si un agente los necesitaba, muévelos a <code>hooks/hooks.json</code> / <code>.mcp.json</code> del plugin o documenta la configuración necesaria.</li>
 </ul>
-<p>En sesiones interactivas, por defecto los subagentes suelen ejecutarse en segundo plano.</p>
-<h2 id="costes-y-limites">Costes y límites<a class="headerlink" href="#costes-y-limites" title="Permanent link">#</a></h2>
-<ul>
-<li>Cada subagente hace sus propias peticiones al modelo: <strong>consume tokens</strong> (y cuota) aparte.</li>
-<li>Sus resultados, al volver, <strong>sí entran</strong> en tu contexto: pide resúmenes, no volcados.</li>
-<li>No tiene sentido para cambios rápidos: arrancar desde cero y reunir contexto lleva tiempo.</li>
-</ul>
-<h2 id="subagente-o-conversacion-principal">¿Subagente o conversación principal?<a class="headerlink" href="#subagente-o-conversacion-principal" title="Permanent link">#</a></h2>
+<h2 id="paso-6-probar-sin-instalar">Paso 6: probar sin instalar<a class="headerlink" href="#paso-6-probar-sin-instalar" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">claude --plugin-dir ./acme-dev-tools
+</code></pre>
+<p>Dentro de la sesión comprueba:</p>
+<pre><code class="language-text">/                          ← aparecen /acme-dev-tools:informe-dependencias, etc.
+/hooks                     ← los hooks del plugin
+/mcp                       ← el servidor sentry
+@                          ← los agentes con prefijo
+/plugin                    ← pestaña Installed / Errors
+</code></pre>
+<p>Prueba cada pieza: ejecuta una skill, pide una edición (formateo), intenta editar <code>.env</code> (protección), delega en un agente.</p>
+<p>Si modificas archivos del plugin durante la sesión, aplica los cambios con:</p>
+<pre><code class="language-text">/reload-plugins
+</code></pre>
+<p>Otras formas de cargar para probar: un <code>.zip</code> con <code>--plugin-dir</code>, un <code>.zip</code> remoto con <code>--plugin-url</code>, o la variable <code>CLAUDE_CODE_PLUGIN_DIRS</code>.</p>
+<h2 id="paso-7-validar">Paso 7: validar<a class="headerlink" href="#paso-7-validar" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">claude plugin validate ./acme-dev-tools
+# … ✔ Validation passed
+</code></pre>
+<p>Comprueba la sintaxis del manifiesto, del <em>frontmatter</em> de skills y agentes, y la estructura.</p>
+<h2 id="depuracion">Depuración<a class="headerlink" href="#depuracion" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Usa la conversación principal cuando…</th>
-<th>Usa un subagente cuando…</th>
+<th>Síntoma</th>
+<th>Causa probable</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>La tarea necesita ida y vuelta contigo</td>
-<td>La tarea es autocontenida y cabe en un resumen</td>
+<td>El plugin no carga</td>
+<td><code>plugin.json</code> mal formado; revisa la pestaña <strong>Errors</strong> de <code>/plugin</code></td>
 </tr>
 <tr>
-<td>Las fases comparten mucho contexto (plan → código → tests)</td>
-<td>Genera mucha salida que no necesitas conservar</td>
+<td>No aparecen las skills</td>
+<td>Están dentro de <code>.claude-plugin/</code> en vez de en la raíz; falta <code>SKILL.md</code></td>
 </tr>
 <tr>
-<td>Es un cambio rápido y localizado</td>
-<td>Quieres limitar herramientas o permisos</td>
+<td>Los hooks no se disparan</td>
+<td>Ruta sin <code>${CLAUDE_PLUGIN_ROOT}</code>, script sin permiso de ejecución, matcher incorrecto</td>
 </tr>
 <tr>
-<td>La latencia importa</td>
-<td>Puedes paralelizar partes independientes</td>
+<td>"component path isn't found"</td>
+<td>Rutas del manifiesto que no existen</td>
+</tr>
+<tr>
+<td>Funciona pero Claude no lo usa</td>
+<td>Descripciones poco claras; mídelo con evaluaciones (<code>claude plugin eval</code>)</td>
 </tr>
 </tbody>
 </table>
-<h2 id="parientes-cercanos">Parientes cercanos<a class="headerlink" href="#parientes-cercanos" title="Permanent link">#</a></h2>
-<table>
-<thead>
-<tr>
-<th>Mecanismo</th>
-<th>Qué es</th>
-<th>Contexto</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Subagente</strong></td>
-<td>Asistente especializado con tarea propia</td>
-<td>Empieza de cero</td>
-</tr>
-<tr>
-<td><strong>Fork</strong> (<code>/subtask &lt;tarea&gt;</code>)</td>
-<td>Una copia de la conversación actual que trabaja en segundo plano</td>
-<td>Hereda <strong>todo</strong> el historial</td>
-</tr>
-<tr>
-<td><strong><code>/btw &lt;pregunta&gt;</code></strong></td>
-<td>Pregunta lateral sobre lo que ya está en la conversación</td>
-<td>Ve tu contexto pero no usa herramientas ni lo ensucia</td>
-</tr>
-<tr>
-<td><strong>Skill con <code>context: fork</code></strong></td>
-<td>Una skill que se ejecuta dentro de un subagente</td>
-<td>Empieza de cero con la skill como tarea</td>
-</tr>
-<tr>
-<td><strong>Sesiones en segundo plano / equipos de agentes</strong></td>
-<td>Sesiones independientes que trabajan en paralelo</td>
-<td>Cada una su contexto completo</td>
-</tr>
-</tbody>
-</table>
+<p><code>claude --debug-file /tmp/claude.log</code> ofrece el detalle de carga.</p>
+<h2 id="paso-8-versionar">Paso 8: versionar<a class="headerlink" href="#paso-8-versionar" title="Permanent link">#</a></h2>
+<ul>
+<li>Pon el plugin en un repositorio Git (solo o dentro de un repositorio de marketplace, lección 58).</li>
+<li>Sigue <strong>versionado semántico</strong>: <code>0.1.0</code> → <code>0.2.0</code> (nuevas skills) → <code>1.0.0</code> (estable) → <code>2.0.0</code> (cambios incompatibles, p. ej. renombrar una skill).</li>
+<li>Mantén un <code>CHANGELOG.md</code> y un <code>README.md</code> con qué incluye, requisitos (p. ej. <code>jq</code>, <code>prettier</code>) y cómo configurarlo.</li>
+</ul>
 <h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
 <ul>
-<li>Subagente = contexto, prompt, herramientas y modelo propios; recibe una tarea y devuelve un resultado.</li>
-<li>Principal ventaja: mantener limpio tu contexto; además restringe, especializa, abarata y paraleliza.</li>
-<li>Empieza de cero: el encargo debe ser claro.</li>
-<li>No es gratis ni instantáneo: úsalo para trabajo autocontenido o voluminoso.</li>
+<li>Plugin = <code>.claude-plugin/plugin.json</code> + componentes en la raíz (<code>skills/</code>, <code>agents/</code>, <code>commands/</code>, <code>hooks/hooks.json</code>, <code>.mcp.json</code>).</li>
+<li>Cambia <code>$CLAUDE_PROJECT_DIR</code> por <code>${CLAUDE_PLUGIN_ROOT}</code> en hooks y scripts.</li>
+<li>Prueba con <code>claude --plugin-dir</code>, recarga con <code>/reload-plugins</code>, valida con <code>claude plugin validate</code>.</li>
+<li>Versiona y documenta antes de compartir.</li>
 </ul>
 <h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
 <ol>
-<li>Pide a Claude que investigue una pregunta amplia sobre tu repo <strong>con</strong> un subagente y luego <strong>sin</strong> él. Compara <code>/context</code>.</li>
-<li>Ejecuta tu suite de tests a través de un subagente y pide solo los fallos.</li>
-<li>Prueba <code>/btw</code> con una pregunta sobre algo ya discutido y <code>/subtask</code> para una tarea paralela.</li>
+<li>Empaqueta tus skills, agentes y hooks del curso en un plugin y cárgalo con <code>--plugin-dir</code> en <strong>otro</strong> repositorio.</li>
+<li>Rompe a propósito el manifiesto y observa el error en <code>/plugin</code> → Errors y en <code>claude plugin validate</code>.</li>
+<li>Añade un README y un CHANGELOG a tu plugin.</li>
 </ol>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/sub-agents">Subagentes</a></li>
-<li><a href="https://code.claude.com/docs/en/how-claude-code-works">Cómo funciona Claude Code: contexto</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/create">Crear un plugin</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/components">Componentes de plugins</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/manifest-reference">Referencia del manifiesto</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/troubleshooting">Solución de problemas de plugins</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="48-proyecto-integra-claude-en-tu-stack.html"><small>← Anterior</small>48. Proyecto de portafolio: integra Claude en tu stack</a><a class="next" href="50-subagentes-integrados.html"><small>Siguiente →</small>50. Subagentes integrados: Explore, Plan y general-purpose</a></nav>
+    <nav class="paginacion"><a class="prev" href="56-instalar-y-activar-plugins.html"><small>← Anterior</small>56. Instalar y activar plugins con /plugin, y el marketplace</a><a class="next" href="58-compartir-un-plugin-con-tu-equipo.html"><small>Siguiente →</small>58. Compartir un plugin con tu equipo</a></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#la-idea">La idea</a></li>
-<li><a href="#por-que-es-util-higiene-del-contexto">Por qué es útil: higiene del contexto</a></li>
-<li><a href="#que-recibe-un-subagente-al-empezar">Qué recibe un subagente al empezar</a></li>
-<li><a href="#como-se-usan">Cómo se usan</a><ul>
-<li><a href="#delegacion-automatica">Delegación automática</a></li>
-<li><a href="#pidiendolo-explicitamente">Pidiéndolo explícitamente</a></li>
-<li><a href="#mencionandolo-con">Mencionándolo con @</a></li>
-</ul>
-</li>
-<li><a href="#primer-plano-y-segundo-plano">Primer plano y segundo plano</a></li>
-<li><a href="#costes-y-limites">Costes y límites</a></li>
-<li><a href="#subagente-o-conversacion-principal">¿Subagente o conversación principal?</a></li>
-<li><a href="#parientes-cercanos">Parientes cercanos</a></li>
+<li><a href="#punto-de-partida">Punto de partida</a></li>
+<li><a href="#paso-1-estructura-y-manifiesto">Paso 1: estructura y manifiesto</a></li>
+<li><a href="#paso-2-copiar-los-componentes">Paso 2: copiar los componentes</a></li>
+<li><a href="#paso-3-hooks-del-plugin">Paso 3: hooks del plugin</a></li>
+<li><a href="#paso-4-servidores-mcp-del-plugin">Paso 4: servidores MCP del plugin</a></li>
+<li><a href="#paso-5-revisar-referencias-internas">Paso 5: revisar referencias internas</a></li>
+<li><a href="#paso-6-probar-sin-instalar">Paso 6: probar sin instalar</a></li>
+<li><a href="#paso-7-validar">Paso 7: validar</a></li>
+<li><a href="#depuracion">Depuración</a></li>
+<li><a href="#paso-8-versionar">Paso 8: versionar</a></li>
 <li><a href="#resumen">Resumen</a></li>
 <li><a href="#ejercicios">Ejercicios</a></li>
 <li><a href="#referencias">Referencias</a></li>

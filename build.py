@@ -47,7 +47,10 @@ def leer_leccion(ruta):
     meta = {}
     for linea in m.group(1).splitlines():
         clave, _, valor = linea.partition(":")
-        meta[clave.strip()] = valor.strip()
+        valor = valor.strip()
+        if len(valor) >= 2 and valor[0] == valor[-1] and valor[0] in "\"'":
+            valor = valor[1:-1]
+        meta[clave.strip()] = valor
     num = int(ruta.name.split("-", 1)[0])
     return {
         "num": num,
