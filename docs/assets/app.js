@@ -72,6 +72,76 @@
   });
   pintarProgreso();
 
+  // Exportar / importar progreso entre dispositivos (solo en la portada).
+  // Formato del código: "cc1:" + números de lección completadas en rangos, p. ej. "cc1:1-5,7,10-12".
+  if (window.INDICE_BUSQUEDA && document.getElementById("sync")) {
+    var numASlug = {}, slugANum = {};
+    window.INDICE_BUSQUEDA.forEach(function (l) { numASlug[l.n] = l.s; slugANum[l.s] = l.n; });
+
+    function codificar() {
+      var nums = Object.keys(hechas).filter(function (s) { return hechas[s] && slugANum[s]; })
+        .map(function (s) { return slugANum[s]; }).sort(function (a, b) { return a - b; });
+      var partes = [], i = 0;
+      while (i < nums.length) {
+        var ini = nums[i], fin = ini;
+        while (i + 1 < nums.length && nums[i + 1] === fin + 1) { fin = nums[++i]; }
+        partes.push(ini === fin ? String(ini) : ini + "-" + fin);
+        i++;
+      }
+      return "cc1:" + partes.join(",");
+    }
+    function decodificar(codigo) {
+      var m = String(codigo || "").trim().match(/^cc1:([0-9,\-\s]*)$/i);
+      if (!m) return null;
+      var nums = [];
+      m[1].split(",").forEach(function (p) {
+        p = p.trim(); if (!p) return;
+        var r = p.split("-").map(Number);
+        var a = r[0], b = r.length > 1 ? r[1] : r[0];
+        if (isNaN(a) || isNaN(b)) return;
+        for (var k = Math.min(a, b); k <= Math.max(a, b) && k - a < 500; k++) nums.push(k);
+      });
+      return nums;
+    }
+    function importar(codigo) {
+      var nums = decodificar(codigo);
+      if (nums === null) return "El código no es válido. Debe empezar por «cc1:».";
+      var nuevas = 0;
+      nums.forEach(function (n) {
+        var s = numASlug[n];
+        if (s && !hechas[s]) { hechas[s] = true; nuevas++; }
+      });
+      guardar("cc-hechas", hechas); pintarProgreso(); refrescarCodigo();
+      return nuevas ? "Importado: " + nuevas + " lecciones nuevas marcadas como completadas." : "No había lecciones nuevas que importar.";
+    }
+    var campo = document.getElementById("codigo-progreso");
+    var aviso = document.getElementById("sync-mensaje");
+    function enlace() { return location.href.split("#")[0] + "#progreso=" + encodeURIComponent(codificar()); }
+    function refrescarCodigo() { campo.value = codificar(); }
+    function copiar(texto, msg) {
+      var hecho = function () { aviso.textContent = msg; };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).then(hecho, function () { campo.value = texto; campo.select(); aviso.textContent = "Selecciona y copia el texto del campo."; });
+      } else { campo.value = texto; campo.select(); aviso.textContent = "Selecciona y copia el texto del campo."; }
+    }
+    refrescarCodigo();
+    document.getElementById("copiar-codigo").addEventListener("click", function () { copiar(codificar(), "Código copiado."); });
+    document.getElementById("copiar-enlace").addEventListener("click", function () { copiar(enlace(), "Enlace copiado. Ábrelo en el otro dispositivo."); });
+    document.getElementById("importar").addEventListener("click", function () {
+      aviso.textContent = importar(document.getElementById("importar-codigo").value);
+    });
+    // Enlace con #progreso=...: importar al abrir
+    var hash = location.hash.match(/^#progreso=(.+)$/);
+    if (hash) {
+      var codigoHash = decodeURIComponent(hash[1]);
+      document.getElementById("sync").open = true;
+      if (window.confirm("¿Importar el progreso de este enlace? Se sumará al que ya tienes en este navegador.")) {
+        aviso.textContent = importar(codigoHash);
+      }
+      try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    }
+  }
+
   // Búsqueda en la portada
   var caja = document.getElementById("buscar");
   if (caja && window.INDICE_BUSQUEDA) {
