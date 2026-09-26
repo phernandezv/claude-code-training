@@ -15,7 +15,7 @@ resumen: Los seis modos de permisos (Manual, acceptEdits, plan, auto, dontAsk, b
 Claude Code puede editar archivos y ejecutar comandos en tu máquina. Eso es lo que lo hace útil y también lo que exige **control**. Los permisos se organizan en dos capas:
 
 1. **El modo de permisos**: define la "línea base" de qué se hace sin preguntar.
-2. **Las reglas de permisos** (`allow`, `ask`, `deny`): afinan herramienta por herramienta. Las verás en la lección 15.
+2. **Las reglas de permisos** (`allow`, `ask`, `deny`): afinan herramienta por herramienta. Las verás en la lección 17.
 
 Una regla `deny` **siempre gana**, en cualquier modo.
 
@@ -43,7 +43,7 @@ Aprueba automáticamente las ediciones de archivos y los comandos de archivos m�
 
 ### `plan`
 
-Claude investiga y escribe un **plan**, pero no edita tu código hasta que lo apruebas. Lo trataremos a fondo en las lecciones 18–20. Atajo rápido: empieza un mensaje con `/plan`:
+Claude investiga y escribe un **plan**, pero no edita tu código hasta que lo apruebas. Lo trataremos a fondo en las lecciones 22–24. Atajo rápido: empieza un mensaje con `/plan`:
 
 ```text
 /plan migrar el cliente HTTP de axios a fetch
@@ -146,6 +146,9 @@ Haz clic en el indicador de modo debajo del cuadro de entrada: *Manual*, *Edit a
 ## Rutas protegidas
 
 Ciertas rutas **nunca se aprueban automáticamente** (salvo en `bypassPermissions`), para no corromper el estado del repositorio ni la propia configuración de Claude: por ejemplo el directorio `.git`, o la configuración de Claude Code. Además, borrar rutas críticas (`rm -rf /`, `rm -rf ~`) se deniega en cualquier modo.
+
+!!! tip "Permisos no es lo mismo que aislamiento"
+    Los modos deciden **si** Claude pregunta. Para limitar **a qué** puede llegar un comando que se ejecuta (archivos, red), usa el sandbox o un contenedor (lección 18).
 
 ## ¿Qué modo elijo?
 

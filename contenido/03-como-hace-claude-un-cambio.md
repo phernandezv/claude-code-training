@@ -40,7 +40,7 @@ Tú formas parte del bucle: puedes interrumpir con `Esc` en cualquier punto y ca
 | Ejecución | `Bash` (o `PowerShell` en Windows) | Tests, builds, git, scripts… |
 | Web | `WebSearch`, `WebFetch` | Buscar en internet y leer páginas/documentación |
 | Orquestación | `Agent` (subagentes), `TodoWrite`/tareas, `AskUserQuestion` | Delegar trabajo, llevar una lista de tareas, preguntarte |
-| Extensiones | Herramientas MCP, skills | Las que tú añadas (lecciones 31–41) |
+| Extensiones | Herramientas MCP, skills | Las que tú añadas (lecciones 36–46) |
 
 Puedes ver cada llamada con detalle pulsando `Ctrl+O` (visor de transcripción).
 
@@ -94,7 +94,7 @@ Los checkpoints se guardan con la sesión, así que siguen disponibles si la rea
 
 - **Dale una forma de verificar**: tests, un comando de build, un script. Un agente que puede comprobar su trabajo produce resultados mucho mejores.
 - **Trabaja sobre un árbol limpio de Git** (o en una rama) para poder revisar y revertir con facilidad.
-- **Pide primero exploración** en cambios grandes ("lee y explícame antes de editar") o usa el modo plan (lección 18).
+- **Pide primero exploración** en cambios grandes ("lee y explícame antes de editar") o usa el modo plan (lección 22).
 - **Delegar, no dictar**: describe el objetivo y deja que Claude decida qué archivos leer; interviene si se desvía.
 
 ## Ejemplo práctico

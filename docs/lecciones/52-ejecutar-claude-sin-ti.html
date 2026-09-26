@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>52. Ejecutar Claude sin ti: CI, tareas programadas y pre-commit · Curso Claude Code</title>
+<meta name="description" content="Automatizar Claude Code fuera de la sesión interactiva - GitHub Actions (menciones @claude, revisión de PRs, skills y cron), GitLab CI, scripts con claude -p, hooks de pre-commit de Git, /loop y tareas programadas, routines en la nube, y buenas prácticas de seguridad y coste.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="52-ejecutar-claude-sin-ti">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>Modos de permisos: mantener el control</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>Modo headless: respuestas rápidas sin el chat</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+<li data-slug="10-personalizar-tu-entorno"><a href="../lecciones/10-personalizar-tu-entorno.html"><span class="nav-num">10</span>Personalizar tu entorno: barra de estado, atajos, tema y terminal</a></li>
+<li data-slug="11-claude-code-en-la-web-escritorio-y-movil"><a href="../lecciones/11-claude-code-en-la-web-escritorio-y-movil.html"><span class="nav-num">11</span>Claude Code en la web, escritorio y móvil: sesiones en la nube y Remote Control</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="12-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/12-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">12</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="13-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/13-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">13</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="14-escribir-reglas-que-se-cumplan"><a href="../lecciones/14-escribir-reglas-que-se-cumplan.html"><span class="nav-num">14</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="15-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/15-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">15</span>Alcance: proyecto vs. usuario vs. archivos anidados</a></li>
+<li data-slug="16-cuando-no-usar-claude-md"><a href="../lecciones/16-cuando-no-usar-claude-md.html"><span class="nav-num">16</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="17-reglas-y-permisos-del-proyecto"><a href="../lecciones/17-reglas-y-permisos-del-proyecto.html"><span class="nav-num">17</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="18-sandbox-y-contenedores"><a href="../lecciones/18-sandbox-y-contenedores.html"><span class="nav-num">18</span>Sandbox y contenedores: ejecutar con seguridad</a></li>
+<li data-slug="19-estilos-de-salida"><a href="../lecciones/19-estilos-de-salida.html"><span class="nav-num">19</span>Estilos de salida: elegir cómo te responde Claude</a></li>
+<li data-slug="20-diagnosticar-y-depurar-tu-configuracion"><a href="../lecciones/20-diagnosticar-y-depurar-tu-configuracion.html"><span class="nav-num">20</span>Diagnosticar y depurar tu configuración</a></li>
+<li data-slug="21-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/21-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">21</span>Proyecto de portafolio: configura Claude en un proyecto real</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="22-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/22-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">22</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="23-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/23-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">23</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="24-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/24-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">24</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="25-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/25-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">25</span>Compromisos entre modelos: Opus vs. Sonnet vs. Haiku</a></li>
+<li data-slug="26-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/26-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">26</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="27-el-hibrido-opusplan"><a href="../lecciones/27-el-hibrido-opusplan.html"><span class="nav-num">27</span>El híbrido opusplan</a></li>
+<li data-slug="28-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/28-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">28</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+<li data-slug="29-buenas-practicas-y-patrones-de-fallo"><a href="../lecciones/29-buenas-practicas-y-patrones-de-fallo.html"><span class="nav-num">29</span>Buenas prácticas y patrones de fallo comunes</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="30-como-trabaja-claude-con-tu-repo"><a href="../lecciones/30-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">30</span>Cómo trabaja Claude con tu repo: estado, diffs e historial</a></li>
+<li data-slug="31-hacer-buenos-commits"><a href="../lecciones/31-hacer-buenos-commits.html"><span class="nav-num">31</span>Hacer buenos commits: staging y mensajes de commit</a></li>
+<li data-slug="32-ramas-y-pull-requests"><a href="../lecciones/32-ramas-y-pull-requests.html"><span class="nav-num">32</span>Ramas y pull requests</a></li>
+<li data-slug="33-revisar-codigo-y-prs-con-claude"><a href="../lecciones/33-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">33</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="34-resolver-conflictos-de-merge"><a href="../lecciones/34-resolver-conflictos-de-merge.html"><span class="nav-num">34</span>Resolver conflictos de merge</a></li>
+<li data-slug="35-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="../lecciones/35-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">35</span>Proyecto de portafolio: lleva un cambio de principio a fin</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">5. MCP y herramientas externas</p><ol>
+<li data-slug="36-que-es-mcp"><a href="../lecciones/36-que-es-mcp.html"><span class="nav-num">36</span>Qué es MCP: Claude Code como cliente de herramientas externas</a></li>
+<li data-slug="37-anadir-un-servidor-mcp"><a href="../lecciones/37-anadir-un-servidor-mcp.html"><span class="nav-num">37</span>Añadir un servidor MCP</a></li>
+<li data-slug="38-usar-herramientas-mcp-en-una-sesion"><a href="../lecciones/38-usar-herramientas-mcp-en-una-sesion.html"><span class="nav-num">38</span>Usar herramientas MCP dentro de una sesión</a></li>
+<li data-slug="39-alcance-y-gestion-de-servidores-proyecto-vs-usuario"><a href="../lecciones/39-alcance-y-gestion-de-servidores-proyecto-vs-usuario.html"><span class="nav-num">39</span>Alcance y gestión de servidores: proyecto vs. usuario</a></li>
+<li data-slug="40-mcp-con-seguridad-permisos-secretos-y-confianza"><a href="../lecciones/40-mcp-con-seguridad-permisos-secretos-y-confianza.html"><span class="nav-num">40</span>MCP con seguridad: permisos, secretos y confianza</a></li>
+<li data-slug="41-dejar-que-claude-use-herramientas-cli"><a href="../lecciones/41-dejar-que-claude-use-herramientas-cli.html"><span class="nav-num">41</span>Dejar que Claude use herramientas CLI</a></li>
+<li data-slug="42-cli-vs-mcp-cuando-usar-cada-uno"><a href="../lecciones/42-cli-vs-mcp-cuando-usar-cada-uno.html"><span class="nav-num">42</span>Herramientas CLI vs. servidores MCP: cuándo usar cada uno</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">6. Skills, comandos y hooks</p><ol>
+<li data-slug="43-claude-skills"><a href="../lecciones/43-claude-skills.html"><span class="nav-num">43</span>Skills de Claude</a></li>
+<li data-slug="44-claude-md-vs-skills"><a href="../lecciones/44-claude-md-vs-skills.html"><span class="nav-num">44</span>CLAUDE.md vs. skills</a></li>
+<li data-slug="45-crear-una-skill"><a href="../lecciones/45-crear-una-skill.html"><span class="nav-num">45</span>Crear una skill</a></li>
+<li data-slug="46-organizar-y-reutilizar-skills"><a href="../lecciones/46-organizar-y-reutilizar-skills.html"><span class="nav-num">46</span>Organizar y reutilizar skills</a></li>
+<li data-slug="47-comandos-slash-personalizados"><a href="../lecciones/47-comandos-slash-personalizados.html"><span class="nav-num">47</span>Comandos slash personalizados: un prompt repetido convertido en atajo</a></li>
+<li data-slug="48-pasar-argumentos-a-un-comando"><a href="../lecciones/48-pasar-argumentos-a-un-comando.html"><span class="nav-num">48</span>Pasar argumentos a un comando</a></li>
+<li data-slug="49-que-son-los-hooks"><a href="../lecciones/49-que-son-los-hooks.html"><span class="nav-num">49</span>Qué son los hooks: acciones que se ejecutan solas en momentos clave</a></li>
+<li data-slug="50-hooks-comunes"><a href="../lecciones/50-hooks-comunes.html"><span class="nav-num">50</span>Hooks comunes: formatear tras editar, bloquear un comando peligroso, ejecutar una comprobación</a></li>
+<li data-slug="51-escribir-y-acotar-tu-propio-hook"><a href="../lecciones/51-escribir-y-acotar-tu-propio-hook.html"><span class="nav-num">51</span>Escribir y acotar tu propio hook</a></li>
+<li data-slug="52-ejecutar-claude-sin-ti"><a href="../lecciones/52-ejecutar-claude-sin-ti.html"><span class="nav-num">52</span>Ejecutar Claude sin ti: CI, tareas programadas y pre-commit</a></li>
+<li data-slug="53-proyecto-integra-claude-en-tu-stack"><a href="../lecciones/53-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">53</span>Proyecto de portafolio: integra Claude en tu stack</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">7. Subagentes</p><ol>
+<li data-slug="54-que-es-un-subagente"><a href="../lecciones/54-que-es-un-subagente.html"><span class="nav-num">54</span>Qué es un subagente: contexto aislado, devuelve solo resultados</a></li>
+<li data-slug="55-subagentes-integrados"><a href="../lecciones/55-subagentes-integrados.html"><span class="nav-num">55</span>Subagentes integrados: Explore, Plan y general-purpose</a></li>
+<li data-slug="56-por-que-ayudan-los-subagentes-en-paralelo"><a href="../lecciones/56-por-que-ayudan-los-subagentes-en-paralelo.html"><span class="nav-num">56</span>Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad</a></li>
+<li data-slug="57-crear-un-subagente-personalizado"><a href="../lecciones/57-crear-un-subagente-personalizado.html"><span class="nav-num">57</span>Crear un subagente personalizado</a></li>
+<li data-slug="58-permisos-de-herramientas-y-mcp-para-subagentes"><a href="../lecciones/58-permisos-de-herramientas-y-mcp-para-subagentes.html"><span class="nav-num">58</span>Permisos de herramientas y MCP para subagentes</a></li>
+<li data-slug="59-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/59-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">59</span>Orquestar varios subagentes en paralelo</a></li>
+<li data-slug="60-equipos-de-agentes-y-workflows-dinamicos"><a href="../lecciones/60-equipos-de-agentes-y-workflows-dinamicos.html"><span class="nav-num">60</span>Equipos de agentes y workflows dinámicos</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">8. Plugins</p><ol>
+<li data-slug="61-que-es-un-plugin"><a href="../lecciones/61-que-es-un-plugin.html"><span class="nav-num">61</span>Qué es un plugin: un paquete de comandos, skills, subagentes, hooks y MCP</a></li>
+<li data-slug="62-instalar-y-activar-plugins"><a href="../lecciones/62-instalar-y-activar-plugins.html"><span class="nav-num">62</span>Instalar y activar plugins con /plugin, y el marketplace</a></li>
+<li data-slug="63-construir-tu-propio-plugin"><a href="../lecciones/63-construir-tu-propio-plugin.html"><span class="nav-num">63</span>Construir tu propio plugin con las piezas que ya has hecho</a></li>
+<li data-slug="64-compartir-un-plugin-con-tu-equipo"><a href="../lecciones/64-compartir-un-plugin-con-tu-equipo.html"><span class="nav-num">64</span>Compartir un plugin con tu equipo</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">9. Automatización y escala</p><ol>
+<li data-slug="65-agent-sdk-construir-tus-propios-agentes"><a href="../lecciones/65-agent-sdk-construir-tus-propios-agentes.html"><span class="nav-num">65</span>Agent SDK: construir tus propios agentes</a></li>
+<li data-slug="66-claude-code-en-equipos-y-empresas"><a href="../lecciones/66-claude-code-en-equipos-y-empresas.html"><span class="nav-num">66</span>Claude Code en equipos y empresas: administración, políticas y costes</a></li>
+<li data-slug="67-proyecto-construye-un-flujo-multiagente"><a href="../lecciones/67-proyecto-construye-un-flujo-multiagente.html"><span class="nav-num">67</span>Proyecto de portafolio: construye un flujo multiagente</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 6 · Skills, comandos y hooks</p>
+    <h1><span class="num-grande">52</span>Ejecutar Claude sin ti: CI, tareas programadas y pre-commit</h1>
+    <p class="resumen">Automatizar Claude Code fuera de la sesión interactiva - GitHub Actions (menciones @claude, revisión de PRs, skills y cron), GitLab CI, scripts con claude -p, hooks de pre-commit de Git, /loop y tareas programadas, routines en la nube, y buenas prácticas de seguridad y coste.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Integrar Claude en <strong>GitHub Actions</strong> (y conocer la opción de GitLab).</li>
+<li>Usar <code>claude -p</code> en scripts, <em>pre-commit hooks</em> de Git y trabajos programados.</li>
+<li>Conocer <code>/loop</code>, las tareas programadas y las <em>routines</em> en la nube.</li>
+<li>Aplicar buenas prácticas de seguridad, reproducibilidad y coste.</li>
+</ul>
+<h2 id="principios-para-ejecuciones-desatendidas">Principios para ejecuciones desatendidas<a class="headerlink" href="#principios-para-ejecuciones-desatendidas" title="Permanent link">#</a></h2>
+<p>Sin nadie delante para aprobar permisos, hay que decidirlo todo de antemano:</p>
+<table>
+<thead>
+<tr>
+<th>Principio</th>
+<th>Cómo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Permisos explícitos</strong></td>
+<td><code>--allowedTools</code> y/o <code>--permission-mode dontAsk</code>; nunca <code>--dangerously-skip-permissions</code> fuera de un contenedor aislado</td>
+</tr>
+<tr>
+<td><strong>Reproducibilidad</strong></td>
+<td><code>--bare</code> (no carga hooks, MCP ni memoria locales), <code>--model</code> con versión fija</td>
+</tr>
+<tr>
+<td><strong>Límites</strong></td>
+<td><code>--max-turns</code>, timeouts del job</td>
+</tr>
+<tr>
+<td><strong>Salida procesable</strong></td>
+<td><code>--output-format json</code> + <code>jq</code>; <code>--json-schema</code> si necesitas estructura</td>
+</tr>
+<tr>
+<td><strong>Secretos</strong></td>
+<td>En el gestor de secretos del CI, nunca en el repo</td>
+</tr>
+<tr>
+<td><strong>Coste</strong></td>
+<td>Modelos adecuados, prompts acotados, disparadores específicos</td>
+</tr>
+</tbody>
+</table>
+<h2 id="github-actions">GitHub Actions<a class="headerlink" href="#github-actions" title="Permanent link">#</a></h2>
+<p>La acción oficial <code>anthropics/claude-code-action</code> ejecuta Claude Code dentro de tus workflows.</p>
+<h3 id="instalacion-rapida">Instalación rápida<a class="headerlink" href="#instalacion-rapida" title="Permanent link">#</a></h3>
+<p>Desde una sesión en el repo:</p>
+<pre><code class="language-text">/install-github-app
+</code></pre>
+<p>Te guía para instalar la GitHub App de Claude y configurar el secreto (<code>ANTHROPIC_API_KEY</code>, o un token de suscripción generado con <code>claude setup-token</code> en el secreto <code>CLAUDE_CODE_OAUTH_TOKEN</code>).</p>
+<h3 id="modo-interactivo-responder-a-claude">Modo interactivo: responder a <code>@claude</code><a class="headerlink" href="#modo-interactivo-responder-a-claude" title="Permanent link">#</a></h3>
+<p><code>.github/workflows/claude.yml</code>:</p>
+<pre><code class="language-yaml">name: Claude (menciones)
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  claude:
+    if: contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: &quot;--model sonnet --max-turns 20&quot;
+</code></pre>
+<p>Uso, en cualquier issue o PR:</p>
+<pre><code class="language-text">@claude implementa lo descrito en este issue y abre un PR
+@claude ¿por qué falla el job de tests en este PR?
+@claude aplica las sugerencias de la revisión de arriba
+</code></pre>
+<h3 id="modo-automatizacion-un-prompt-fijo">Modo automatización: un prompt fijo<a class="headerlink" href="#modo-automatizacion-un-prompt-fijo" title="Permanent link">#</a></h3>
+<p>Con el parámetro <code>prompt</code>, Claude actúa sin necesidad de mención. Por ejemplo, revisar cada PR ejecutando una skill del repositorio:</p>
+<pre><code class="language-yaml">name: Revisión automática
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: &quot;/revisar-pr ${{ github.event.pull_request.number }}&quot;
+          claude_args: '--allowedTools &quot;Read,Grep,Glob,Bash(gh pr diff *),Bash(gh pr view *),Bash(gh pr comment *)&quot;'
+</code></pre>
+<p>(La skill <code>/revisar-pr</code> vive en <code>.claude/skills/</code> del repo; por eso se hace <code>checkout</code> antes.)</p>
+<h3 id="programado-con-cron">Programado con cron<a class="headerlink" href="#programado-con-cron" title="Permanent link">#</a></h3>
+<pre><code class="language-yaml">name: Informe semanal de dependencias
+on:
+  schedule:
+    - cron: &quot;0 8 * * 1&quot;   # lunes 08:00 UTC
+
+jobs:
+  informe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: &quot;Ejecuta /informe-dependencias y publica el resultado como un issue titulado 'Dependencias – semana actual' usando gh.&quot;
+          claude_args: '--allowedTools &quot;Bash(npm outdated *),Bash(npm audit *),Bash(gh issue create *),Read&quot;'
+</code></pre>
+<h3 id="parametros-mas-usados">Parámetros más usados<a class="headerlink" href="#parametros-mas-usados" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parámetro</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>prompt</code></td>
+<td>Instrucción fija (texto o <code>/skill</code>)</td>
+</tr>
+<tr>
+<td><code>claude_args</code></td>
+<td>Cualquier flag de la CLI (<code>--model</code>, <code>--max-turns</code>, <code>--allowedTools</code>, <code>--mcp-config</code>…)</td>
+</tr>
+<tr>
+<td><code>anthropic_api_key</code> / <code>claude_code_oauth_token</code></td>
+<td>Autenticación</td>
+</tr>
+<tr>
+<td><code>trigger_phrase</code></td>
+<td>Cambiar <code>@claude</code> por otra frase</td>
+</tr>
+<tr>
+<td><code>settings</code></td>
+<td>Configuración de Claude Code (JSON o ruta)</td>
+</tr>
+<tr>
+<td><code>plugins</code>, <code>plugin_marketplaces</code></td>
+<td>Instalar plugins antes de ejecutar</td>
+</tr>
+<tr>
+<td><code>use_bedrock</code>, <code>use_vertex</code>, <code>use_foundry</code></td>
+<td>Usar un proveedor cloud</td>
+</tr>
+</tbody>
+</table>
+<p>Claude sigue el <code>CLAUDE.md</code> del repo también en CI: úsalo para definir estándares de revisión y de código.</p>
+<h2 id="gitlab-cicd">GitLab CI/CD<a class="headerlink" href="#gitlab-cicd" title="Permanent link">#</a></h2>
+<p>Existe una integración equivalente para GitLab (menciones en <em>merge requests</em> e issues, y jobs automáticos). La idea es la misma: un job que ejecuta Claude Code con las variables de CI protegidas. Consulta la guía oficial de GitLab CI/CD.</p>
+<h2 id="claude-p-en-cualquier-ci"><code>claude -p</code> en cualquier CI<a class="headerlink" href="#claude-p-en-cualquier-ci" title="Permanent link">#</a></h2>
+<p>Para cualquier sistema (Jenkins, CircleCI, Buildkite…):</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# ci/claude-revision.sh
+set -euo pipefail
+git fetch origin main --depth=1
+git diff origin/main...HEAD &gt; /tmp/cambios.diff
+
+claude --bare -p &quot;Revisa este diff y devuelve bugs reales con archivo:línea. Si no hay, responde 'SIN HALLAZGOS'.&quot; \
+  --model sonnet --max-turns 5 --output-format json \
+  &lt; /tmp/cambios.diff | jq -r '.result' | tee revision.md
+
+grep -q &quot;SIN HALLAZGOS&quot; revision.md || exit 1
+</code></pre>
+<p>Con <code>--bare</code> necesitas <code>ANTHROPIC_API_KEY</code> (o credenciales del proveedor cloud) en el entorno.</p>
+<h2 id="pre-commit-hooks-de-git">Pre-commit hooks de Git<a class="headerlink" href="#pre-commit-hooks-de-git" title="Permanent link">#</a></h2>
+<p>Claude también puede actuar como una comprobación antes de cada commit. <code>.git/hooks/pre-commit</code> (o con herramientas como <code>husky</code> o <code>pre-commit</code>):</p>
+<pre><code class="language-bash">#!/usr/bin/env bash
+# Revisión rápida del staging con Claude antes de confirmar.
+diff=$(git diff --cached)
+[ -z &quot;$diff&quot; ] &amp;&amp; exit 0
+
+resultado=$(printf '%s' &quot;$diff&quot; | claude -p \
+  &quot;Revisa este diff buscando SOLO: secretos o credenciales, console.log/print de depuración, y TODOs sin ticket. Si todo está bien responde exactamente OK. Si no, lista los problemas.&quot; \
+  --model haiku --max-turns 1 2&gt;/dev/null)
+
+if [ &quot;$resultado&quot; != &quot;OK&quot; ]; then
+  echo &quot;⚠️  Claude encontró posibles problemas:&quot;
+  echo &quot;$resultado&quot;
+  echo &quot;Usa 'git commit --no-verify' si quieres continuar igualmente.&quot;
+  exit 1
+fi
+</code></pre>
+<pre><code class="language-bash">chmod +x .git/hooks/pre-commit
+</code></pre>
+<div class="admonition tip">
+<p class="admonition-title">Rápido y barato</p>
+<p>En un pre-commit que corre muchas veces al día: modelo pequeño (Haiku), prompt muy acotado, <code>--max-turns 1</code> y solo el diff preparado. Y combínalo con herramientas deterministas (detectores de secretos, linters) para lo que se pueda comprobar sin IA.</p>
+</div>
+<h2 id="tareas-repetidas-y-programadas-en-la-sesion">Tareas repetidas y programadas en la sesión<a class="headerlink" href="#tareas-repetidas-y-programadas-en-la-sesion" title="Permanent link">#</a></h2>
+<h3 id="loop"><code>/loop</code><a class="headerlink" href="#loop" title="Permanent link">#</a></h3>
+<p>Repite un prompt dentro de una sesión abierta:</p>
+<pre><code class="language-text">/loop 10m comprueba el estado del CI de mi PR y avísame cuando termine
+/loop revisa los logs de staging y resume los errores nuevos
+</code></pre>
+<p>Sin intervalo, Claude decide el ritmo. Para detenerlo, díselo o interrumpe.</p>
+<h3 id="recordatorios-y-tareas-de-sesion">Recordatorios y tareas de sesión<a class="headerlink" href="#recordatorios-y-tareas-de-sesion" title="Permanent link">#</a></h3>
+<p>Puedes pedir a Claude recordatorios puntuales o tareas recurrentes dentro de la sesión (se gestionan como tareas programadas; caducan tras unos días). La app de escritorio también ofrece tareas programadas locales.</p>
+<h2 id="routines-automatizacion-en-la-nube">Routines: automatización en la nube<a class="headerlink" href="#routines-automatizacion-en-la-nube" title="Permanent link">#</a></h2>
+<p>Una <strong>routine</strong> es una configuración guardada (prompt + repositorios + conectores) que se ejecuta en infraestructura de Anthropic, sin tu ordenador encendido. Disparadores:</p>
+<ul>
+<li><strong>Programado</strong>: cada hora, cada noche, semanalmente o una sola vez.</li>
+<li><strong>API</strong>: una petición HTTP POST con token.</li>
+<li><strong>GitHub</strong>: eventos del repositorio (PRs, releases…).</li>
+</ul>
+<p>Se crean en claude.ai/code/routines o desde la CLI con:</p>
+<pre><code class="language-text">/schedule revisa cada noche los issues nuevos, etiquétalos y asigna responsable
+</code></pre>
+<p>Ideal para mantenimiento de backlog, informes periódicos o revisiones nocturnas.</p>
+<h2 id="comparativa">Comparativa<a class="headerlink" href="#comparativa" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Opción</th>
+<th>Dónde corre</th>
+<th>Cuándo usarla</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub Actions / GitLab CI</td>
+<td>Tus runners de CI</td>
+<td>Integrado con PRs/MRs, eventos del repo</td>
+</tr>
+<tr>
+<td><code>claude -p</code> en scripts</td>
+<td>Donde tú lo ejecutes</td>
+<td>Cualquier CI, cron propio, herramientas internas</td>
+</tr>
+<tr>
+<td>Pre-commit</td>
+<td>Tu máquina, en cada commit</td>
+<td>Comprobaciones rápidas antes de confirmar</td>
+</tr>
+<tr>
+<td><code>/loop</code></td>
+<td>Tu sesión abierta</td>
+<td>Vigilar algo mientras trabajas</td>
+</tr>
+<tr>
+<td>Routines</td>
+<td>Nube de Anthropic</td>
+<td>Tareas recurrentes sin depender de tu máquina</td>
+</tr>
+</tbody>
+</table>
+<h2 id="buenas-practicas">Buenas prácticas<a class="headerlink" href="#buenas-practicas" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Mínimo privilegio</strong>: permisos del job (<code>permissions:</code>) y <code>--allowedTools</code> estrictos.</li>
+<li><strong>Secretos</strong> en el gestor del CI; nunca en el workflow ni en el repo.</li>
+<li><strong>Limita</strong> turnos (<code>--max-turns</code>) y tiempo del job.</li>
+<li><strong>Disparadores específicos</strong> (no ejecutes en cada push si basta con PRs listos para revisión).</li>
+<li><strong><code>CLAUDE.md</code></strong> con los estándares que quieres que aplique en CI.</li>
+<li><strong>Revisa</strong> lo que Claude sube: en automatizaciones que crean PRs, exige revisión humana antes de fusionar.</li>
+</ul>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>GitHub Actions con <code>anthropics/claude-code-action</code>: modo interactivo (<code>@claude</code>) y automatización (<code>prompt</code>).</li>
+<li><code>claude -p --bare</code> con permisos explícitos en cualquier CI; pre-commit con prompts acotados y modelo pequeño.</li>
+<li><code>/loop</code> en sesión, routines en la nube para lo recurrente.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Instala la GitHub App con <code>/install-github-app</code> en un repo de pruebas y prueba una mención <code>@claude</code>.</li>
+<li>Crea un workflow que ejecute una skill de revisión en cada PR.</li>
+<li>Implementa el pre-commit con Haiku y pruébalo con un <code>console.log</code> olvidado.</li>
+<li>Crea una routine semanal (o un workflow con cron) que genere un informe útil para tu equipo.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/github-actions">GitHub Actions</a></li>
+<li><a href="https://code.claude.com/docs/en/gitlab-ci-cd">GitLab CI/CD</a></li>
+<li><a href="https://code.claude.com/docs/en/headless">Modo headless</a></li>
+<li><a href="https://code.claude.com/docs/en/scheduled-tasks">Tareas programadas y /loop</a></li>
+<li><a href="https://code.claude.com/docs/en/routines">Routines</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="51-escribir-y-acotar-tu-propio-hook.html"><small>← Anterior</small>51. Escribir y acotar tu propio hook</a><a class="next" href="53-proyecto-integra-claude-en-tu-stack.html"><small>Siguiente →</small>53. Proyecto de portafolio: integra Claude en tu stack</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#principios-para-ejecuciones-desatendidas">Principios para ejecuciones desatendidas</a></li>
+<li><a href="#github-actions">GitHub Actions</a><ul>
+<li><a href="#instalacion-rapida">Instalación rápida</a></li>
+<li><a href="#modo-interactivo-responder-a-claude">Modo interactivo: responder a @claude</a></li>
+<li><a href="#modo-automatizacion-un-prompt-fijo">Modo automatización: un prompt fijo</a></li>
+<li><a href="#programado-con-cron">Programado con cron</a></li>
+<li><a href="#parametros-mas-usados">Parámetros más usados</a></li>
+</ul>
+</li>
+<li><a href="#gitlab-cicd">GitLab CI/CD</a></li>
+<li><a href="#claude-p-en-cualquier-ci">claude -p en cualquier CI</a></li>
+<li><a href="#pre-commit-hooks-de-git">Pre-commit hooks de Git</a></li>
+<li><a href="#tareas-repetidas-y-programadas-en-la-sesion">Tareas repetidas y programadas en la sesión</a><ul>
+<li><a href="#loop">/loop</a></li>
+<li><a href="#recordatorios-y-tareas-de-sesion">Recordatorios y tareas de sesión</a></li>
+</ul>
+</li>
+<li><a href="#routines-automatizacion-en-la-nube">Routines: automatización en la nube</a></li>
+<li><a href="#comparativa">Comparativa</a></li>
+<li><a href="#buenas-practicas">Buenas prácticas</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

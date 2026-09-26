@@ -17,7 +17,7 @@ Con `-p` Claude Code recibe un prompt, hace su trabajo (con el mismo bucle agén
 
 - Preguntas rápidas sin abrir una sesión.
 - Scripts, alias y tareas de `npm`.
-- CI/CD, cron y hooks de Git (lección 47).
+- CI/CD, cron y hooks de Git (lección 52).
 
 ```bash
 claude -p "¿Qué hace el módulo de autenticación?"
@@ -112,7 +112,7 @@ No hay nadie para pulsar "Yes", así que tienes que decidir de antemano qué se 
 claude -p "Ejecuta los tests y arregla los fallos" --allowedTools "Bash,Read,Edit"
 ```
 
-Puedes usar la sintaxis de reglas para ser más preciso (lección 15):
+Puedes usar la sintaxis de reglas para ser más preciso (lección 17):
 
 ```bash
 claude -p "Mira mis cambios en staging y crea un commit adecuado" \

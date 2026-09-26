@@ -1,6 +1,6 @@
 # Curso de Claude Code en español
 
-Material de estudio **original** sobre Claude Code: 59 lecciones en español con explicaciones, comandos, ejemplos de configuración, ejercicios y proyectos de portafolio.
+Material de estudio **original** sobre Claude Code: 67 lecciones en español con explicaciones, comandos, ejemplos de configuración, ejercicios y proyectos de portafolio.
 
 El contenido está escrito a partir de la documentación pública oficial de Claude Code ([code.claude.com/docs](https://code.claude.com/docs)), revisada en septiembre de 2026. Claude Code evoluciona rápido: si un comando o flag no coincide con tu versión, consulta `claude --help` y la documentación oficial.
 
@@ -8,14 +8,15 @@ El contenido está escrito a partir de la documentación pública oficial de Cla
 
 | Sección | Lecciones |
 |---|---|
-| 1. Primeros pasos | 1–9: instalación, primera sesión, bucle agéntico, modos de permisos, headless, sesiones, comandos y contexto, IDE, segundo plano |
-| 2. CLAUDE.md y configuración del proyecto | 10–17: CLAUDE.md, reglas, alcances, cuándo no usarlo, permisos, estilos de salida, proyecto |
-| 3. Planificar y elegir modelo | 18–24: modo plan, modelos, opusplan, contexto y coste |
-| 4. Git y flujo de trabajo | 25–30: repo, commits, ramas y PRs, revisión, conflictos, proyecto |
-| 5. MCP y herramientas externas | 31–37: MCP, servidores, alcances, seguridad, CLIs, CLI vs. MCP |
-| 6. Skills, comandos y hooks | 38–48: skills, comandos personalizados, argumentos, hooks, CI y automatización, proyecto |
-| 7. Subagentes | 49–54: concepto, integrados, paralelismo, personalizados, permisos, orquestación |
-| 8. Plugins | 55–59: plugins, instalación, construir, compartir, proyecto final multiagente |
+| 1. Primeros pasos | 1–11: instalación, primera sesión, bucle agéntico, modos de permisos, headless, sesiones, comandos y contexto, IDE, segundo plano, personalizar el entorno, web/escritorio/móvil |
+| 2. CLAUDE.md y configuración del proyecto | 12–21: CLAUDE.md, reglas, alcances, cuándo no usarlo, permisos, sandbox y contenedores, estilos de salida, diagnóstico de la configuración, proyecto |
+| 3. Planificar y elegir modelo | 22–29: modo plan, modelos, opusplan, contexto y coste, buenas prácticas y patrones de fallo |
+| 4. Git y flujo de trabajo | 30–35: repo, commits, ramas y PRs, revisión, conflictos, proyecto |
+| 5. MCP y herramientas externas | 36–42: MCP, servidores, alcances, seguridad, CLIs, CLI vs. MCP |
+| 6. Skills, comandos y hooks | 43–53: skills, comandos personalizados, argumentos, hooks, CI y automatización, proyecto |
+| 7. Subagentes | 54–60: concepto, integrados, paralelismo, personalizados, permisos, orquestación, equipos de agentes y workflows |
+| 8. Plugins | 61–64: plugins, instalación, construir, compartir |
+| 9. Automatización y escala | 65–67: Agent SDK, Claude Code en equipos y empresas, proyecto final multiagente |
 
 ## Estructura del repositorio
 

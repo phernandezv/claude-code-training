@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>33. Revisar código y PRs con Claude · Curso Claude Code</title>
+<meta name="description" content="Revisión local con /review (/code-review) y sus niveles de esfuerzo, --fix y --comment, /security-review, revisar PRs ajenos con gh, revisión adversarial en una sesión limpia, y la revisión automática en GitHub con REVIEW.md.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="33-revisar-codigo-y-prs-con-claude">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>Modos de permisos: mantener el control</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>Modo headless: respuestas rápidas sin el chat</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+<li data-slug="10-personalizar-tu-entorno"><a href="../lecciones/10-personalizar-tu-entorno.html"><span class="nav-num">10</span>Personalizar tu entorno: barra de estado, atajos, tema y terminal</a></li>
+<li data-slug="11-claude-code-en-la-web-escritorio-y-movil"><a href="../lecciones/11-claude-code-en-la-web-escritorio-y-movil.html"><span class="nav-num">11</span>Claude Code en la web, escritorio y móvil: sesiones en la nube y Remote Control</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="12-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/12-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">12</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="13-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/13-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">13</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="14-escribir-reglas-que-se-cumplan"><a href="../lecciones/14-escribir-reglas-que-se-cumplan.html"><span class="nav-num">14</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="15-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/15-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">15</span>Alcance: proyecto vs. usuario vs. archivos anidados</a></li>
+<li data-slug="16-cuando-no-usar-claude-md"><a href="../lecciones/16-cuando-no-usar-claude-md.html"><span class="nav-num">16</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="17-reglas-y-permisos-del-proyecto"><a href="../lecciones/17-reglas-y-permisos-del-proyecto.html"><span class="nav-num">17</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="18-sandbox-y-contenedores"><a href="../lecciones/18-sandbox-y-contenedores.html"><span class="nav-num">18</span>Sandbox y contenedores: ejecutar con seguridad</a></li>
+<li data-slug="19-estilos-de-salida"><a href="../lecciones/19-estilos-de-salida.html"><span class="nav-num">19</span>Estilos de salida: elegir cómo te responde Claude</a></li>
+<li data-slug="20-diagnosticar-y-depurar-tu-configuracion"><a href="../lecciones/20-diagnosticar-y-depurar-tu-configuracion.html"><span class="nav-num">20</span>Diagnosticar y depurar tu configuración</a></li>
+<li data-slug="21-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/21-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">21</span>Proyecto de portafolio: configura Claude en un proyecto real</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="22-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/22-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">22</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="23-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/23-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">23</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="24-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/24-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">24</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="25-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/25-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">25</span>Compromisos entre modelos: Opus vs. Sonnet vs. Haiku</a></li>
+<li data-slug="26-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/26-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">26</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="27-el-hibrido-opusplan"><a href="../lecciones/27-el-hibrido-opusplan.html"><span class="nav-num">27</span>El híbrido opusplan</a></li>
+<li data-slug="28-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/28-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">28</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+<li data-slug="29-buenas-practicas-y-patrones-de-fallo"><a href="../lecciones/29-buenas-practicas-y-patrones-de-fallo.html"><span class="nav-num">29</span>Buenas prácticas y patrones de fallo comunes</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="30-como-trabaja-claude-con-tu-repo"><a href="../lecciones/30-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">30</span>Cómo trabaja Claude con tu repo: estado, diffs e historial</a></li>
+<li data-slug="31-hacer-buenos-commits"><a href="../lecciones/31-hacer-buenos-commits.html"><span class="nav-num">31</span>Hacer buenos commits: staging y mensajes de commit</a></li>
+<li data-slug="32-ramas-y-pull-requests"><a href="../lecciones/32-ramas-y-pull-requests.html"><span class="nav-num">32</span>Ramas y pull requests</a></li>
+<li data-slug="33-revisar-codigo-y-prs-con-claude"><a href="../lecciones/33-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">33</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="34-resolver-conflictos-de-merge"><a href="../lecciones/34-resolver-conflictos-de-merge.html"><span class="nav-num">34</span>Resolver conflictos de merge</a></li>
+<li data-slug="35-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="../lecciones/35-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">35</span>Proyecto de portafolio: lleva un cambio de principio a fin</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">5. MCP y herramientas externas</p><ol>
+<li data-slug="36-que-es-mcp"><a href="../lecciones/36-que-es-mcp.html"><span class="nav-num">36</span>Qué es MCP: Claude Code como cliente de herramientas externas</a></li>
+<li data-slug="37-anadir-un-servidor-mcp"><a href="../lecciones/37-anadir-un-servidor-mcp.html"><span class="nav-num">37</span>Añadir un servidor MCP</a></li>
+<li data-slug="38-usar-herramientas-mcp-en-una-sesion"><a href="../lecciones/38-usar-herramientas-mcp-en-una-sesion.html"><span class="nav-num">38</span>Usar herramientas MCP dentro de una sesión</a></li>
+<li data-slug="39-alcance-y-gestion-de-servidores-proyecto-vs-usuario"><a href="../lecciones/39-alcance-y-gestion-de-servidores-proyecto-vs-usuario.html"><span class="nav-num">39</span>Alcance y gestión de servidores: proyecto vs. usuario</a></li>
+<li data-slug="40-mcp-con-seguridad-permisos-secretos-y-confianza"><a href="../lecciones/40-mcp-con-seguridad-permisos-secretos-y-confianza.html"><span class="nav-num">40</span>MCP con seguridad: permisos, secretos y confianza</a></li>
+<li data-slug="41-dejar-que-claude-use-herramientas-cli"><a href="../lecciones/41-dejar-que-claude-use-herramientas-cli.html"><span class="nav-num">41</span>Dejar que Claude use herramientas CLI</a></li>
+<li data-slug="42-cli-vs-mcp-cuando-usar-cada-uno"><a href="../lecciones/42-cli-vs-mcp-cuando-usar-cada-uno.html"><span class="nav-num">42</span>Herramientas CLI vs. servidores MCP: cuándo usar cada uno</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">6. Skills, comandos y hooks</p><ol>
+<li data-slug="43-claude-skills"><a href="../lecciones/43-claude-skills.html"><span class="nav-num">43</span>Skills de Claude</a></li>
+<li data-slug="44-claude-md-vs-skills"><a href="../lecciones/44-claude-md-vs-skills.html"><span class="nav-num">44</span>CLAUDE.md vs. skills</a></li>
+<li data-slug="45-crear-una-skill"><a href="../lecciones/45-crear-una-skill.html"><span class="nav-num">45</span>Crear una skill</a></li>
+<li data-slug="46-organizar-y-reutilizar-skills"><a href="../lecciones/46-organizar-y-reutilizar-skills.html"><span class="nav-num">46</span>Organizar y reutilizar skills</a></li>
+<li data-slug="47-comandos-slash-personalizados"><a href="../lecciones/47-comandos-slash-personalizados.html"><span class="nav-num">47</span>Comandos slash personalizados: un prompt repetido convertido en atajo</a></li>
+<li data-slug="48-pasar-argumentos-a-un-comando"><a href="../lecciones/48-pasar-argumentos-a-un-comando.html"><span class="nav-num">48</span>Pasar argumentos a un comando</a></li>
+<li data-slug="49-que-son-los-hooks"><a href="../lecciones/49-que-son-los-hooks.html"><span class="nav-num">49</span>Qué son los hooks: acciones que se ejecutan solas en momentos clave</a></li>
+<li data-slug="50-hooks-comunes"><a href="../lecciones/50-hooks-comunes.html"><span class="nav-num">50</span>Hooks comunes: formatear tras editar, bloquear un comando peligroso, ejecutar una comprobación</a></li>
+<li data-slug="51-escribir-y-acotar-tu-propio-hook"><a href="../lecciones/51-escribir-y-acotar-tu-propio-hook.html"><span class="nav-num">51</span>Escribir y acotar tu propio hook</a></li>
+<li data-slug="52-ejecutar-claude-sin-ti"><a href="../lecciones/52-ejecutar-claude-sin-ti.html"><span class="nav-num">52</span>Ejecutar Claude sin ti: CI, tareas programadas y pre-commit</a></li>
+<li data-slug="53-proyecto-integra-claude-en-tu-stack"><a href="../lecciones/53-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">53</span>Proyecto de portafolio: integra Claude en tu stack</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">7. Subagentes</p><ol>
+<li data-slug="54-que-es-un-subagente"><a href="../lecciones/54-que-es-un-subagente.html"><span class="nav-num">54</span>Qué es un subagente: contexto aislado, devuelve solo resultados</a></li>
+<li data-slug="55-subagentes-integrados"><a href="../lecciones/55-subagentes-integrados.html"><span class="nav-num">55</span>Subagentes integrados: Explore, Plan y general-purpose</a></li>
+<li data-slug="56-por-que-ayudan-los-subagentes-en-paralelo"><a href="../lecciones/56-por-que-ayudan-los-subagentes-en-paralelo.html"><span class="nav-num">56</span>Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad</a></li>
+<li data-slug="57-crear-un-subagente-personalizado"><a href="../lecciones/57-crear-un-subagente-personalizado.html"><span class="nav-num">57</span>Crear un subagente personalizado</a></li>
+<li data-slug="58-permisos-de-herramientas-y-mcp-para-subagentes"><a href="../lecciones/58-permisos-de-herramientas-y-mcp-para-subagentes.html"><span class="nav-num">58</span>Permisos de herramientas y MCP para subagentes</a></li>
+<li data-slug="59-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/59-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">59</span>Orquestar varios subagentes en paralelo</a></li>
+<li data-slug="60-equipos-de-agentes-y-workflows-dinamicos"><a href="../lecciones/60-equipos-de-agentes-y-workflows-dinamicos.html"><span class="nav-num">60</span>Equipos de agentes y workflows dinámicos</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">8. Plugins</p><ol>
+<li data-slug="61-que-es-un-plugin"><a href="../lecciones/61-que-es-un-plugin.html"><span class="nav-num">61</span>Qué es un plugin: un paquete de comandos, skills, subagentes, hooks y MCP</a></li>
+<li data-slug="62-instalar-y-activar-plugins"><a href="../lecciones/62-instalar-y-activar-plugins.html"><span class="nav-num">62</span>Instalar y activar plugins con /plugin, y el marketplace</a></li>
+<li data-slug="63-construir-tu-propio-plugin"><a href="../lecciones/63-construir-tu-propio-plugin.html"><span class="nav-num">63</span>Construir tu propio plugin con las piezas que ya has hecho</a></li>
+<li data-slug="64-compartir-un-plugin-con-tu-equipo"><a href="../lecciones/64-compartir-un-plugin-con-tu-equipo.html"><span class="nav-num">64</span>Compartir un plugin con tu equipo</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">9. Automatización y escala</p><ol>
+<li data-slug="65-agent-sdk-construir-tus-propios-agentes"><a href="../lecciones/65-agent-sdk-construir-tus-propios-agentes.html"><span class="nav-num">65</span>Agent SDK: construir tus propios agentes</a></li>
+<li data-slug="66-claude-code-en-equipos-y-empresas"><a href="../lecciones/66-claude-code-en-equipos-y-empresas.html"><span class="nav-num">66</span>Claude Code en equipos y empresas: administración, políticas y costes</a></li>
+<li data-slug="67-proyecto-construye-un-flujo-multiagente"><a href="../lecciones/67-proyecto-construye-un-flujo-multiagente.html"><span class="nav-num">67</span>Proyecto de portafolio: construye un flujo multiagente</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 4 · Git y flujo de trabajo</p>
+    <h1><span class="num-grande">33</span>Revisar código y PRs con Claude</h1>
+    <p class="resumen">Revisión local con /review (/code-review) y sus niveles de esfuerzo, --fix y --comment, /security-review, revisar PRs ajenos con gh, revisión adversarial en una sesión limpia, y la revisión automática en GitHub con REVIEW.md.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Revisar tus propios cambios antes de abrir un PR.</li>
+<li>Usar <code>/review</code> y <code>/security-review</code> y entender sus opciones.</li>
+<li>Revisar PRs de otras personas con ayuda de Claude.</li>
+<li>Conocer la revisión automática en GitHub y cómo afinarla con <code>REVIEW.md</code>.</li>
+</ul>
+<h2 id="por-que-revisar-con-claude">Por qué revisar con Claude<a class="headerlink" href="#por-que-revisar-con-claude" title="Permanent link">#</a></h2>
+<p>Claude es bueno encontrando: errores de lógica, casos límite sin cubrir, inconsistencias con el resto del código, problemas de seguridad comunes, duplicaciones y oportunidades de simplificar. <strong>No sustituye</strong> la revisión humana (contexto de negocio, decisiones de producto), pero la hace más rápida y enfocada.</p>
+<h2 id="review-alias-de-code-review"><code>/review</code> (alias de <code>/code-review</code>)<a class="headerlink" href="#review-alias-de-code-review" title="Permanent link">#</a></h2>
+<pre><code class="language-text">/review
+</code></pre>
+<p>Revisa los commits de tu rama que aún no están en su <em>upstream</em> <strong>más</strong> los cambios sin commitear. Se ejecuta como un <strong>subagente en segundo plano</strong>, con su propio contexto, así que puedes seguir trabajando; los hallazgos llegan a la conversación al terminar.</p>
+<h3 id="objetivos-distintos">Objetivos distintos<a class="headerlink" href="#objetivos-distintos" title="Permanent link">#</a></h3>
+<pre><code class="language-text">/review 1234                 ← un PR por número
+/review feat/export-csv      ← una rama
+/review src/payments/        ← una ruta
+</code></pre>
+<h3 id="nivel-de-esfuerzo">Nivel de esfuerzo<a class="headerlink" href="#nivel-de-esfuerzo" title="Permanent link">#</a></h3>
+<pre><code class="language-text">/review low        ← pocos hallazgos, alta confianza (menos falsos positivos)
+/review high       ← más cobertura, puede incluir hallazgos dudosos
+/review max
+</code></pre>
+<p>Si no indicas nivel, reutiliza el último que usaste.</p>
+<h3 id="aplicar-o-publicar">Aplicar o publicar<a class="headerlink" href="#aplicar-o-publicar" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--fix</code></td>
+<td>Aplica las correcciones propuestas en tu árbol de trabajo al terminar</td>
+</tr>
+<tr>
+<td><code>--comment</code></td>
+<td>Publica los hallazgos como comentarios en línea en el PR de GitHub (o una nota en GitLab con <code>glab</code>)</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-text">/review high --fix
+/review 1234 --comment
+</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">Revisa los --fix</p>
+<p>Las ediciones de una revisión en segundo plano no quedan en los checkpoints de tu sesión. Trabaja con Git limpio y revisa con <code>/diff</code> antes de commitear.</p>
+</div>
+<h2 id="security-review"><code>/security-review</code><a class="headerlink" href="#security-review" title="Permanent link">#</a></h2>
+<pre><code class="language-text">/security-review
+</code></pre>
+<p>Analiza el diff de tu rama respecto a la rama por defecto de <code>origin</code> buscando vulnerabilidades: inyecciones, problemas de autenticación/autorización, exposición de datos, secretos, etc. Necesita un remoto <code>origin</code>.</p>
+<p>Ideal como paso obligatorio antes de abrir PRs que tocan autenticación, pagos o datos personales.</p>
+<h2 id="revision-a-mano-con-prompts">Revisión "a mano" con prompts<a class="headerlink" href="#revision-a-mano-con-prompts" title="Permanent link">#</a></h2>
+<p>Para revisiones con un enfoque concreto:</p>
+<pre><code class="language-text">&gt; Revisa el diff de mi rama contra main centrándote en:
+  1) manejo de errores y casos límite,
+  2) consultas N+1 o sin índice,
+  3) coherencia con los patrones de src/services/.
+  Para cada problema indica archivo:línea, severidad (alta/media/baja) y
+  una propuesta de corrección. No edites nada.
+</code></pre>
+<h3 id="revisar-el-pr-de-un-companero">Revisar el PR de un compañero<a class="headerlink" href="#revisar-el-pr-de-un-companero" title="Permanent link">#</a></h3>
+<pre><code class="language-text">&gt; Revisa el PR #482. Lee la descripción y los comentarios existentes con gh,
+  luego el diff. Dame un resumen de qué hace, dudas que le plantearía al autor
+  y problemas concretos con archivo:línea.
+</code></pre>
+<pre><code class="language-bash">gh pr view 482 --comments
+gh pr diff 482
+gh pr checkout 482     # si quieres que Claude ejecute tests en local
+</code></pre>
+<h3 id="revision-adversarial-en-una-sesion-limpia">Revisión adversarial en una sesión limpia<a class="headerlink" href="#revision-adversarial-en-una-sesion-limpia" title="Permanent link">#</a></h3>
+<p>Un truco potente: quien escribió el código (la sesión actual) tiene sesgos. Abre <strong>otra sesión</strong> sin ese contexto:</p>
+<pre><code class="language-bash">claude -p &quot;Eres un revisor exigente. Revisa el diff de esta rama contra main y busca bugs reales, no estilo. Justifica cada hallazgo con archivo:línea.&quot; \
+  --allowedTools &quot;Bash(git diff *),Bash(git log *),Read,Grep,Glob&quot;
+</code></pre>
+<p>O usa un <strong>subagente revisor</strong> (lección 57) con instrucciones y herramientas de solo lectura.</p>
+<h2 id="revision-automatica-en-github">Revisión automática en GitHub<a class="headerlink" href="#revision-automatica-en-github" title="Permanent link">#</a></h2>
+<p>Hay dos caminos para que Claude revise PRs automáticamente:</p>
+<ol>
+<li>
+<p><strong>Code Review gestionado</strong> (planes Team y Enterprise): un administrador lo activa y Claude revisa los PRs al abrirse o en cada push, publicando comentarios en línea con severidad:</p>
+<table>
+<thead>
+<tr>
+<th>Marca</th>
+<th>Severidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔴</td>
+<td>Importante: bug a corregir antes de fusionar</td>
+</tr>
+<tr>
+<td>🟡</td>
+<td>Menor (<em>nit</em>)</td>
+</tr>
+<tr>
+<td>🟣</td>
+<td>Preexistente: el bug ya estaba antes del PR</td>
+</tr>
+</tbody>
+</table>
+<p>Se puede pedir manualmente comentando <code>@claude review</code> en el PR.</p>
+</li>
+<li>
+<p><strong>GitHub Actions</strong> con tu propia infraestructura (lección 52).</p>
+</li>
+</ol>
+<h3 id="afinar-con-reviewmd">Afinar con <code>REVIEW.md</code><a class="headerlink" href="#afinar-con-reviewmd" title="Permanent link">#</a></h3>
+<p>En la raíz del repo, <code>REVIEW.md</code> contiene instrucciones específicas para la revisión automática:</p>
+<pre><code class="language-markdown"># Instrucciones de revisión
+
+## Severidad
+- 🔴 solo para: bugs de lógica, problemas de seguridad, pérdida de datos,
+  cambios incompatibles en la API pública.
+- Todo lo de estilo es 🟡.
+
+## Límites
+- Máximo 5 nits por revisión; el resto, como recuento en el resumen.
+
+## Ignorar
+- `src/generated/**`, `*.lock`, `vendor/**`, ramas `renovate/*`.
+
+## Comprobaciones propias
+- Toda ruta nueva en `src/http/routes/` necesita un test de integración.
+- Cualquier consulta SQL nueva debe usar el query builder, no SQL crudo.
+
+## Evidencia
+- Afirmaciones sobre comportamiento deben citar archivo:línea.
+</code></pre>
+<p>(La revisión local con <code>/review</code> sigue tu <code>CLAUDE.md</code>, pero no lee <code>REVIEW.md</code>.)</p>
+<h2 id="actuar-sobre-los-hallazgos">Actuar sobre los hallazgos<a class="headerlink" href="#actuar-sobre-los-hallazgos" title="Permanent link">#</a></h2>
+<pre><code class="language-text">&gt; Corrige los hallazgos 1, 3 y 4 de la revisión. El 2 es un falso positivo
+  porque la validación ya se hace en el middleware; no lo toques.
+</code></pre>
+<p>Después, vuelve a ejecutar tests y, si quieres, otra <code>/review low</code> para confirmar.</p>
+<h2 id="checklist-de-auto-revision-antes-del-pr">Checklist de auto-revisión antes del PR<a class="headerlink" href="#checklist-de-auto-revision-antes-del-pr" title="Permanent link">#</a></h2>
+<ol>
+<li><code>/review</code> (o <code>/review high</code> en cambios delicados).</li>
+<li><code>/security-review</code> si tocas auth, pagos o datos personales.</li>
+<li>Tests + lint en verde.</li>
+<li><code>/diff</code> final y descripción del PR con riesgos.</li>
+</ol>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li><code>/review [nivel] [--fix] [--comment] [objetivo]</code> revisa en segundo plano.</li>
+<li><code>/security-review</code> para vulnerabilidades del diff de la rama.</li>
+<li>Revisiones con enfoque vía prompt; revisiones adversariales en una sesión limpia.</li>
+<li>En GitHub: Code Review gestionado o Actions, afinado con <code>REVIEW.md</code>.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Ejecuta <code>/review low</code> y <code>/review high</code> sobre la misma rama. Compara número y calidad de hallazgos.</li>
+<li>Introduce a propósito una inyección SQL en una rama de prueba y ejecuta <code>/security-review</code>.</li>
+<li>Revisa un PR de un compañero con Claude y redacta tus comentarios a partir de su análisis.</li>
+<li>Escribe un <code>REVIEW.md</code> para tu repo con al menos una comprobación propia.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/code-review">Code Review (incluye /code-review local)</a></li>
+<li><a href="https://code.claude.com/docs/en/commands">Comandos: /review y /security-review</a></li>
+<li><a href="https://code.claude.com/docs/en/github-actions">GitHub Actions</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="32-ramas-y-pull-requests.html"><small>← Anterior</small>32. Ramas y pull requests</a><a class="next" href="34-resolver-conflictos-de-merge.html"><small>Siguiente →</small>34. Resolver conflictos de merge</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#por-que-revisar-con-claude">Por qué revisar con Claude</a></li>
+<li><a href="#review-alias-de-code-review">/review (alias de /code-review)</a><ul>
+<li><a href="#objetivos-distintos">Objetivos distintos</a></li>
+<li><a href="#nivel-de-esfuerzo">Nivel de esfuerzo</a></li>
+<li><a href="#aplicar-o-publicar">Aplicar o publicar</a></li>
+</ul>
+</li>
+<li><a href="#security-review">/security-review</a></li>
+<li><a href="#revision-a-mano-con-prompts">Revisión "a mano" con prompts</a><ul>
+<li><a href="#revisar-el-pr-de-un-companero">Revisar el PR de un compañero</a></li>
+<li><a href="#revision-adversarial-en-una-sesion-limpia">Revisión adversarial en una sesión limpia</a></li>
+</ul>
+</li>
+<li><a href="#revision-automatica-en-github">Revisión automática en GitHub</a><ul>
+<li><a href="#afinar-con-reviewmd">Afinar con REVIEW.md</a></li>
+</ul>
+</li>
+<li><a href="#actuar-sobre-los-hallazgos">Actuar sobre los hallazgos</a></li>
+<li><a href="#checklist-de-auto-revision-antes-del-pr">Checklist de auto-revisión antes del PR</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

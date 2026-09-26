@@ -12,7 +12,7 @@ resumen: Los comandos integrados más útiles (/help, /context, /compact, /clear
 
 ## ¿Qué es un comando slash?
 
-Cualquier mensaje que empiece por `/` es un **comando**: una acción de Claude Code (no un prompt al modelo) o una *skill*. Escribe `/` y aparecerá un menú filtrable con todos los disponibles, incluidos los personalizados que crees (lección 42) y los de plugins.
+Cualquier mensaje que empiece por `/` es un **comando**: una acción de Claude Code (no un prompt al modelo) o una *skill*. Escribe `/` y aparecerá un menú filtrable con todos los disponibles, incluidos los personalizados que crees (lección 47) y los de plugins.
 
 ```text
 /help            → ayuda y lista de comandos
@@ -38,26 +38,26 @@ Cualquier mensaje que empiece por `/` es un **comando**: una acción de Claude C
 
 | Comando | Para qué sirve |
 |---|---|
-| `/model [modelo]` | Cambiar de modelo (lección 22) |
+| `/model [modelo]` | Cambiar de modelo (lección 26) |
 | `/effort [nivel]` | Nivel de esfuerzo/razonamiento: `low`, `medium`, `high`, `xhigh`, `max`, `auto` |
 | `/fast [on\|off]` | Modo rápido |
 | `/plan [descripción]` | Entrar en modo plan |
-| `/output-style [estilo]` | Cambiar el estilo de respuesta (lección 16) |
+| `/output-style [estilo]` | Cambiar el estilo de respuesta (lección 19) |
 | `/config` | Panel de ajustes (tema, modelo, etc.); también `/config clave=valor` |
 
 ### Proyecto y configuración
 
 | Comando | Para qué sirve |
 |---|---|
-| `/init` | Genera un `CLAUDE.md` inicial analizando el repo (lección 10) |
+| `/init` | Genera un `CLAUDE.md` inicial analizando el repo (lección 12) |
 | `/memory` | Editar archivos `CLAUDE.md` y la memoria automática |
-| `/permissions` | Ver/editar reglas allow/ask/deny (lección 15) |
+| `/permissions` | Ver/editar reglas allow/ask/deny (lección 17) |
 | `/add-dir <ruta>` | Dar acceso a otro directorio durante la sesión |
-| `/mcp` | Estado y autenticación de servidores MCP (lección 32) |
-| `/hooks` | Ver los hooks configurados (lección 44) |
-| `/skills` | Listar skills disponibles (lección 38) |
-| `/plugin` | Gestionar plugins (lección 56) |
-| `/agents` | Gestionar subagentes (lección 52) |
+| `/mcp` | Estado y autenticación de servidores MCP (lección 37) |
+| `/hooks` | Ver los hooks configurados (lección 49) |
+| `/skills` | Listar skills disponibles (lección 43) |
+| `/plugin` | Gestionar plugins (lección 62) |
+| `/agents` | Gestionar subagentes (lección 57) |
 
 ### Diagnóstico y cuenta
 
@@ -78,7 +78,7 @@ Cualquier mensaje que empiece por `/` es un **comando**: una acción de Claude C
 | `/review` (alias de `/code-review`) | Revisar el diff actual, una rama o un PR |
 | `/security-review` | Revisar los cambios de la rama buscando vulnerabilidades |
 
-Los veremos en la lección 28.
+Los veremos en la lección 33.
 
 ## La ventana de contexto
 
@@ -131,7 +131,7 @@ Muestra una cuadrícula de colores con cuánto ocupa cada categoría (system pro
 | Instrucciones que diste al principio en el chat | **Pueden perderse** (quedan resumidas) |
 
 !!! tip "Regla de oro"
-    Si una instrucción debe cumplirse **siempre**, no la digas solo en el chat: ponla en `CLAUDE.md` (lección 10). El chat se compacta; `CLAUDE.md` se recarga.
+    Si una instrucción debe cumplirse **siempre**, no la digas solo en el chat: ponla en `CLAUDE.md` (lección 12). El chat se compacta; `CLAUDE.md` se recarga.
 
 También puedes añadir una sección "Compact Instructions" en tu `CLAUDE.md` para indicar qué conservar siempre al compactar.
 
@@ -141,7 +141,7 @@ También puedes añadir una sección "Compact Instructions" en tu `CLAUDE.md` pa
 /usage
 ```
 
-Muestra el coste de la sesión, tus límites de uso del plan y estadísticas de actividad. En planes Pro/Max/Team/Enterprise incluye un desglose de qué consume tu cuota. Profundizaremos en la lección 24.
+Muestra el coste de la sesión, tus límites de uso del plan y estadísticas de actividad. En planes Pro/Max/Team/Enterprise incluye un desglose de qué consume tu cuota. Profundizaremos en la lección 28.
 
 ## Personalizar la barra de estado
 
@@ -150,6 +150,8 @@ Con `/statusline` puedes configurar una barra de estado que muestre, por ejemplo
 ```text
 /statusline muestra el modelo, la rama de git y el % de contexto usado
 ```
+
+En la lección 10 verás cómo personalizarla a fondo junto con atajos, tema y terminal.
 
 ## Resumen
 
