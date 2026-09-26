@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>16. &quot;Estilos de salida: elegir cómo te responde Claude&quot; · Curso Claude Code</title>
+<meta name="description" content="Los estilos integrados (Default, Proactive, Concise, Explanatory, Learning), cómo cambiarlos con /output-style o settings, y cómo crear tus propios estilos con frontmatter y keep-coding-instructions.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="16-estilos-de-salida">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 2 · CLAUDE.md y configuración del proyecto</p>
+    <h1><span class="num-grande">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</h1>
+    <p class="resumen">Los estilos integrados (Default, Proactive, Concise, Explanatory, Learning), cómo cambiarlos con /output-style o settings, y cómo crear tus propios estilos con frontmatter y keep-coding-instructions.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Entender qué es un <strong>estilo de salida</strong> y en qué se diferencia de <code>CLAUDE.md</code>.</li>
+<li>Conocer los estilos integrados y cuándo usar cada uno.</li>
+<li>Cambiar de estilo durante la sesión o fijarlo por defecto.</li>
+<li>Crear un estilo personalizado para tu equipo o para ti.</li>
+</ul>
+<h2 id="que-es-un-estilo-de-salida">¿Qué es un estilo de salida?<a class="headerlink" href="#que-es-un-estilo-de-salida" title="Permanent link">#</a></h2>
+<p>Un estilo de salida es un conjunto de instrucciones que definen el <strong>rol, el tono y el formato</strong> de las respuestas de Claude durante toda la sesión. En vez de escribir en cada prompt "sé breve" o "explícame el porqué", eliges un estilo una vez.</p>
+<table>
+<thead>
+<tr>
+<th>Mecanismo</th>
+<th>Responde a la pregunta…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>¿Qué debe <strong>saber</strong> Claude de este proyecto?</td>
+</tr>
+<tr>
+<td>Estilo de salida</td>
+<td>¿<strong>Cómo</strong> debe comunicarse y trabajar conmigo?</td>
+</tr>
+<tr>
+<td>Hooks</td>
+<td>¿Qué debe <strong>ocurrir siempre</strong>, sin excepción?</td>
+</tr>
+</tbody>
+</table>
+<p>Igual que <code>CLAUDE.md</code>, un estilo <strong>guía</strong> pero no garantiza nada; para obligaciones usa hooks.</p>
+<h2 id="estilos-integrados">Estilos integrados<a class="headerlink" href="#estilos-integrados" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Estilo</th>
+<th>Qué cambia</th>
+<th>Úsalo cuando…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>Nada: las instrucciones estándar de ingeniería de software</td>
+<td>Uso general</td>
+</tr>
+<tr>
+<td><strong>Proactive</strong></td>
+<td>Empieza a implementar enseguida y asume decisiones rutinarias en vez de preguntar</td>
+<td>Quieres avanzar rápido y corregir sobre la marcha</td>
+</tr>
+<tr>
+<td><strong>Concise</strong></td>
+<td>Va directo al resultado: sin preámbulos, narración ni resúmenes finales</td>
+<td>Las respuestas por defecto te parecen largas</td>
+</tr>
+<tr>
+<td><strong>Explanatory</strong></td>
+<td>Añade bloques breves de <code>★ Insight</code> explicando el porqué de sus decisiones</td>
+<td>Estás conociendo un código nuevo o quieres aprender el razonamiento</td>
+</tr>
+<tr>
+<td><strong>Learning</strong></td>
+<td>Además de explicar, te deja <strong>fragmentos para que los escribas tú</strong> (<code>TODO(human)</code>)</td>
+<td>Quieres practicar programando mientras se hace la tarea</td>
+</tr>
+</tbody>
+</table>
+<h3 id="proactive">Proactive<a class="headerlink" href="#proactive" title="Permanent link">#</a></h3>
+<p>Claude empieza a trabajar en cuanto envías la tarea, sin pararse a preguntar por detalles rutinarios, y no entra en modo plan salvo que se lo pidas. Aun así, está instruido para consultarte antes de borrar datos o tocar sistemas compartidos o de producción. <strong>No cambia tu modo de permisos</strong>: si estás en Manual, seguirás viendo los diálogos de aprobación.</p>
+<h3 id="concise">Concise<a class="headerlink" href="#concise" title="Permanent link">#</a></h3>
+<p>La primera frase dice qué pasó o cuál es la respuesta. Las preguntas simples se responden en una a tres frases. Sigue dando información completa cuando la pides explícitamente o cuando importa para la seguridad (errores, tests fallidos, confirmaciones de acciones destructivas).</p>
+<h3 id="explanatory">Explanatory<a class="headerlink" href="#explanatory" title="Permanent link">#</a></h3>
+<p>Hace la tarea igual que Default y añade bloques de este estilo:</p>
+<pre><code class="language-text">★ Insight ─────────────────────────────────────
+- Este repo registra todas las rutas en router.ts, por eso el endpoint nuevo
+  se añade ahí y no con un decorador.
+- La validación se hace con zod en la capa HTTP para que los servicios reciban
+  siempre datos ya tipados.
+─────────────────────────────────────────────────
+</code></pre>
+<h3 id="learning">Learning<a class="headerlink" href="#learning" title="Permanent link">#</a></h3>
+<p>Claude implementa lo rutinario, pero cuando llega a una decisión de diseño interesante deja un comentario <code>TODO(human)</code> en el archivo y te pide que lo escribas tú, con contexto y pistas. Cuando terminas, te da su opinión y continúa. Ideal para formación de juniors o para aprender un lenguaje nuevo.</p>
+<h2 id="cambiar-de-estilo">Cambiar de estilo<a class="headerlink" href="#cambiar-de-estilo" title="Permanent link">#</a></h2>
+<p><strong>Con el comando</strong> (desde el siguiente mensaje):</p>
+<pre><code class="language-text">/output-style concise
+/output-style            ← lista los disponibles y marca el actual
+</code></pre>
+<p><strong>Con el menú</strong>: <code>/config</code> → <em>Output style</em>.</p>
+<p>Ambos guardan la elección en <code>.claude/settings.local.json</code> (solo para ti, en este proyecto).</p>
+<p><strong>En un archivo de configuración</strong>:</p>
+<pre><code class="language-json">{
+  &quot;outputStyle&quot;: &quot;Explanatory&quot;
+}
+</code></pre>
+<ul>
+<li>En <code>~/.claude/settings.json</code> → tu estilo por defecto en todos los proyectos.</li>
+<li>En <code>.claude/settings.json</code> → el estilo del proyecto para todo el equipo.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Mayúsculas</p>
+<p>En el archivo el valor distingue mayúsculas: escribe <code>Proactive</code>, <code>Concise</code>, <code>Explanatory</code>, <code>Learning</code>. <code>"explanatory"</code> en minúsculas no coincide y te deja en Default. (El comando <code>/output-style</code> sí ignora mayúsculas.)</p>
+</div>
+<h2 id="crear-un-estilo-personalizado">Crear un estilo personalizado<a class="headerlink" href="#crear-un-estilo-personalizado" title="Permanent link">#</a></h2>
+<p>Un estilo es un archivo Markdown con <em>frontmatter</em> y las instrucciones.</p>
+<h3 id="donde-guardarlo">Dónde guardarlo<a class="headerlink" href="#donde-guardarlo" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Carpeta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Usuario</td>
+<td><code>~/.claude/output-styles/</code></td>
+</tr>
+<tr>
+<td>Proyecto</td>
+<td><code>.claude/output-styles/</code></td>
+</tr>
+<tr>
+<td>Organización</td>
+<td><code>.claude/output-styles/</code> dentro del directorio de <em>managed settings</em></td>
+</tr>
+</tbody>
+</table>
+<p>Los plugins también pueden incluir estilos (lección 55).</p>
+<h3 id="frontmatter">Frontmatter<a class="headerlink" href="#frontmatter" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Nombre del estilo (por defecto, el nombre del archivo)</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Descripción que aparece en el selector</td>
+</tr>
+<tr>
+<td><code>keep-coding-instructions</code></td>
+<td><code>true</code> para <strong>conservar</strong> las instrucciones de ingeniería de software de Claude Code junto a tu estilo. Por defecto <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">keep-coding-instructions</p>
+<p>Si tu estilo solo cambia <strong>cómo comunica</strong> Claude y quieres que siga programando igual, pon <code>keep-coding-instructions: true</code>. Déjalo en <code>false</code> solo si vas a usar Claude Code para algo que no es programar (por ejemplo, redactar documentación o analizar datos).</p>
+</div>
+<h3 id="ejemplo-1-revisor-en-espanol-para-el-equipo">Ejemplo 1: revisor en español para el equipo<a class="headerlink" href="#ejemplo-1-revisor-en-espanol-para-el-equipo" title="Permanent link">#</a></h3>
+<p><code>.claude/output-styles/revisor-es.md</code>:</p>
+<pre><code class="language-markdown">---
+name: Revisor ES
+description: Respuestas en español, estructuradas y con riesgos explícitos
+keep-coding-instructions: true
+---
+Responde siempre en español neutro. El código, los nombres de variables y los
+mensajes de commit se escriben en inglés.
+
+Estructura cada respuesta final así:
+1. **Resultado**: una frase con lo que hiciste o la respuesta.
+2. **Cambios**: lista de archivos tocados con una línea cada uno.
+3. **Verificación**: comandos ejecutados y su resultado.
+4. **Riesgos**: cualquier cosa que un revisor humano debería mirar.
+
+No uses emojis. No repitas el enunciado de la tarea.
+</code></pre>
+<h3 id="ejemplo-2-diagramas-primero">Ejemplo 2: diagramas primero<a class="headerlink" href="#ejemplo-2-diagramas-primero" title="Permanent link">#</a></h3>
+<pre><code class="language-markdown">---
+name: Diagramas primero
+description: Cada explicación arranca con un diagrama Mermaid
+keep-coding-instructions: true
+---
+Cuando expliques código, arquitectura o flujos de datos, empieza con un
+diagrama Mermaid y luego explica en prosa.
+
+- `flowchart TD` para control de flujo, `sequenceDiagram` para peticiones.
+- Máximo 15 nodos por diagrama.
+</code></pre>
+<h3 id="ejemplo-3-un-asistente-que-no-programa">Ejemplo 3: un asistente que no programa<a class="headerlink" href="#ejemplo-3-un-asistente-que-no-programa" title="Permanent link">#</a></h3>
+<pre><code class="language-markdown">---
+name: Redactor técnico
+description: Escribe documentación para usuarios finales
+---
+Eres un redactor técnico. Tu trabajo es escribir y mejorar documentación en
+`docs/` para usuarios no técnicos: frases cortas, voz activa, ejemplos
+concretos y sin jerga. Nunca modifiques código fuente.
+</code></pre>
+<p>Activa tu estilo con <code>/output-style revisor-es</code> o desde <code>/config</code>. En la terminal, los archivos de estilos se leen al arrancar: si creas o editas uno, reinicia la sesión.</p>
+<h2 id="estilos-coste-y-cache">Estilos, coste y caché<a class="headerlink" href="#estilos-coste-y-cache" title="Permanent link">#</a></h2>
+<p>El estilo activo se envía completo en cada petición (el Default no añade nada). Además, cambiar de estilo a mitad de sesión invalida parte de la <strong>caché de prompts</strong> para el siguiente mensaje, así que no lo cambies constantemente.</p>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Estilo de salida = cómo se comunica y trabaja Claude durante toda la sesión.</li>
+<li>Integrados: Default, Proactive, Concise, Explanatory, Learning.</li>
+<li><code>/output-style &lt;nombre&gt;</code> o <code>"outputStyle"</code> en settings (con mayúsculas correctas).</li>
+<li>Estilos propios en <code>.claude/output-styles/*.md</code>, con <code>keep-coding-instructions: true</code> si sigues programando.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Prueba la misma pregunta con <code>Concise</code> y con <code>Explanatory</code> y compara.</li>
+<li>Activa <code>Learning</code> y pide una función pequeña; completa el <code>TODO(human)</code> que te deje.</li>
+<li>Crea el estilo "Revisor ES" en tu proyecto y úsalo en una tarea real.</li>
+<li>Fija tu estilo favorito en <code>~/.claude/settings.json</code>.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/output-styles">Estilos de salida</a></li>
+<li><a href="https://code.claude.com/docs/en/settings">Settings</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="15-reglas-y-permisos-del-proyecto.html"><small>← Anterior</small>15. Reglas y permisos del proyecto</a><a class="next" href="17-proyecto-configura-claude-en-un-proyecto-real.html"><small>Siguiente →</small>17. &quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#que-es-un-estilo-de-salida">¿Qué es un estilo de salida?</a></li>
+<li><a href="#estilos-integrados">Estilos integrados</a><ul>
+<li><a href="#proactive">Proactive</a></li>
+<li><a href="#concise">Concise</a></li>
+<li><a href="#explanatory">Explanatory</a></li>
+<li><a href="#learning">Learning</a></li>
+</ul>
+</li>
+<li><a href="#cambiar-de-estilo">Cambiar de estilo</a></li>
+<li><a href="#crear-un-estilo-personalizado">Crear un estilo personalizado</a><ul>
+<li><a href="#donde-guardarlo">Dónde guardarlo</a></li>
+<li><a href="#frontmatter">Frontmatter</a></li>
+<li><a href="#ejemplo-1-revisor-en-espanol-para-el-equipo">Ejemplo 1: revisor en español para el equipo</a></li>
+<li><a href="#ejemplo-2-diagramas-primero">Ejemplo 2: diagramas primero</a></li>
+<li><a href="#ejemplo-3-un-asistente-que-no-programa">Ejemplo 3: un asistente que no programa</a></li>
+</ul>
+</li>
+<li><a href="#estilos-coste-y-cache">Estilos, coste y caché</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

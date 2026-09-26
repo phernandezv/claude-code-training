@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>17. &quot;Proyecto de portafolio: configura Claude en un proyecto real&quot; · Curso Claude Code</title>
+<meta name="description" content="Proyecto práctico de la sección 2 - llevar un repositorio real a un estado en el que cualquier persona del equipo pueda abrir Claude Code y trabajar bien desde el primer minuto.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="17-proyecto-configura-claude-en-un-proyecto-real">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 2 · CLAUDE.md y configuración del proyecto</p>
+    <h1><span class="num-grande">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</h1>
+    <p class="resumen">Proyecto práctico de la sección 2 - llevar un repositorio real a un estado en el que cualquier persona del equipo pueda abrir Claude Code y trabajar bien desde el primer minuto.</p>
+    <article class="leccion">
+<h2 id="el-reto">El reto<a class="headerlink" href="#el-reto" title="Permanent link">#</a></h2>
+<p>Vas a tomar un repositorio <strong>real</strong> (tuyo, de tu empresa o un proyecto open source que conozcas) y dejarlo "listo para Claude Code". Al terminar, cualquier compañero que clone el repo y ejecute <code>claude</code> debería:</p>
+<ul>
+<li>Encontrar instrucciones claras y breves en <code>CLAUDE.md</code>.</li>
+<li>Tener permisos razonables: los comandos habituales no preguntan y lo peligroso está bloqueado.</li>
+<li>Tener reglas específicas solo donde aplican.</li>
+<li>No filtrar secretos por accidente.</li>
+</ul>
+<p>Tu entregable será un <strong>pull request</strong> (o una rama) con esos archivos y una breve descripción de tus decisiones.</p>
+<div class="admonition tip">
+<p class="admonition-title">¿No tienes un proyecto a mano?</p>
+<p>Clona una aplicación de ejemplo de tu stack (por ejemplo, un <em>starter</em> de Express, Django, Next.js o Spring Boot) y añádele algo de lógica propia: un par de endpoints y tests.</p>
+</div>
+<h2 id="criterios-de-exito">Criterios de éxito<a class="headerlink" href="#criterios-de-exito" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Criterio</th>
+<th>Cómo se verifica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>CLAUDE.md</code> &lt; 150 líneas con comandos, arquitectura y convenciones</td>
+<td>Revisión + <code>/context</code> lo muestra en <em>Memory files</em></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cómo ejecutar <strong>un solo test</strong> documentado</td>
+<td>Claude lo usa en una tarea sin que se lo digas</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>.claude/settings.json</code> con <code>allow</code> para build/test/lint y <code>deny</code> para secretos</td>
+<td>Pedir leer <code>.env</code> → bloqueado</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Al menos una regla con <code>paths</code> en <code>.claude/rules/</code></td>
+<td>Aparece solo al tocar esos archivos</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>CLAUDE.local.md</code> y <code>settings.local.json</code> fuera de Git</td>
+<td><code>git check-ignore</code> los reconoce</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Tarea de prueba completada sin correcciones de convenciones</td>
+<td>Ver fase 5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fase-1-diagnostico-15-min">Fase 1: diagnóstico (15 min)<a class="headerlink" href="#fase-1-diagnostico-15-min" title="Permanent link">#</a></h2>
+<p>Abre Claude en <strong>modo plan</strong> para que no toque nada:</p>
+<pre><code class="language-bash">cd mi-proyecto
+git checkout -b chore/claude-code-setup
+claude --permission-mode plan
+</code></pre>
+<pre><code class="language-text">&gt; Analiza este repositorio y dime: 1) stack y versiones, 2) cómo se instala,
+  ejecuta, testea y lintea, 3) estructura de carpetas y responsabilidades,
+  4) convenciones que detectes en el código, 5) cualquier cosa que te haya
+  resultado confusa o ambigua. No edites nada.
+</code></pre>
+<p>Guarda la respuesta: la sección 5 ("confuso o ambiguo") es oro para el <code>CLAUDE.md</code>.</p>
+<h2 id="fase-2-claudemd-30-min">Fase 2: <code>CLAUDE.md</code> (30 min)<a class="headerlink" href="#fase-2-claudemd-30-min" title="Permanent link">#</a></h2>
+<ol>
+<li>
+<p>Genera el borrador:</p>
+<p><code>text
+/init</code></p>
+</li>
+<li>
+<p>Edítalo aplicando las lecciones 11–14:</p>
+<ul>
+<li>Comandos <strong>exactos</strong>, incluido un solo test y el comando de cierre.</li>
+<li>Mapa de arquitectura de 5–10 líneas.</li>
+<li>Solo las convenciones <strong>no obvias</strong>, verificables y con motivo cuando haga falta.</li>
+<li>Normas de Git/PR.</li>
+<li>Nada de procedimientos largos ni de información volátil.</li>
+</ul>
+</li>
+<li>
+<p>Plantilla de referencia:</p>
+<p>```markdown</p>
+<h1 id="_1"><Nombre del proyecto><a class="headerlink" href="#_1" title="Permanent link">#</a></h1>
+<p><Una frase: qué hace y para quién.></p>
+<h2 id="comandos">Comandos<a class="headerlink" href="#comandos" title="Permanent link">#</a></h2>
+<ul>
+<li>Instalar: <code>…</code></li>
+<li>Desarrollo: <code>…</code></li>
+<li>Tests: <code>…</code> · Un test: <code>…</code></li>
+<li>Lint/format: <code>…</code> · Tipos: <code>…</code></li>
+<li>Antes de terminar una tarea: <code>… &amp;&amp; … &amp;&amp; …</code></li>
+</ul>
+<h2 id="arquitectura">Arquitectura<a class="headerlink" href="#arquitectura" title="Permanent link">#</a></h2>
+<ul>
+<li><code>carpeta/</code> – responsabilidad</li>
+<li>Flujo principal: A → B → C</li>
+</ul>
+<h2 id="convenciones">Convenciones<a class="headerlink" href="#convenciones" title="Permanent link">#</a></h2>
+<ul>
+<li>…(solo lo que difiere de lo estándar)…</li>
+</ul>
+<h2 id="git">Git<a class="headerlink" href="#git" title="Permanent link">#</a></h2>
+<ul>
+<li>Ramas <code>feat/…</code>, <code>fix/…</code>; Conventional Commits; nunca commit directo a main.</li>
+</ul>
+<h2 id="trampas-conocidas">Trampas conocidas<a class="headerlink" href="#trampas-conocidas" title="Permanent link">#</a></h2>
+<ul>
+<li>…
+```</li>
+</ul>
+</li>
+</ol>
+<h2 id="fase-3-permisos-20-min">Fase 3: permisos (20 min)<a class="headerlink" href="#fase-3-permisos-20-min" title="Permanent link">#</a></h2>
+<p>Crea <code>.claude/settings.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;$schema&quot;: &quot;https://json.schemastore.org/claude-code-settings.json&quot;,
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;Bash(&lt;tu comando de test&gt; *)&quot;,
+      &quot;Bash(&lt;tu comando de lint&gt; *)&quot;,
+      &quot;Bash(git status)&quot;,
+      &quot;Bash(git diff *)&quot;,
+      &quot;Bash(git log *)&quot;
+    ],
+    &quot;ask&quot;: [
+      &quot;Bash(git push *)&quot;
+    ],
+    &quot;deny&quot;: [
+      &quot;Read(./.env)&quot;,
+      &quot;Read(./.env.*)&quot;,
+      &quot;Read(./**/*.pem)&quot;,
+      &quot;Bash(git push --force *)&quot;
+    ]
+  }
+}
+</code></pre>
+<p>Adáptalo: ¿hay carpetas de credenciales?, ¿scripts de despliegue que nunca deberían ejecutarse desde Claude?, ¿migraciones de producción?</p>
+<h2 id="fase-4-reglas-especificas-15-min">Fase 4: reglas específicas (15 min)<a class="headerlink" href="#fase-4-reglas-especificas-15-min" title="Permanent link">#</a></h2>
+<p>Identifica una zona del código con normas propias (tests, componentes de UI, migraciones, API…) y crea una regla:</p>
+<pre><code class="language-markdown">&lt;!-- .claude/rules/migraciones.md --&gt;
+---
+paths:
+  - &quot;db/migrations/**&quot;
+---
+# Migraciones
+- Nunca edites una migración ya aplicada; crea una nueva.
+- Toda migración debe ser reversible (implementa `down`).
+- Genera el archivo con `&lt;comando del proyecto&gt;`; no lo crees a mano.
+</code></pre>
+<p>Y protege lo personal:</p>
+<pre><code class="language-bash">printf &quot;CLAUDE.local.md\n.claude/settings.local.json\n&quot; &gt;&gt; .gitignore
+git check-ignore -v CLAUDE.local.md .claude/settings.local.json
+</code></pre>
+<h2 id="fase-5-prueba-de-fuego-20-min">Fase 5: prueba de fuego (20 min)<a class="headerlink" href="#fase-5-prueba-de-fuego-20-min" title="Permanent link">#</a></h2>
+<p>Cierra Claude y abre una sesión <strong>nueva</strong> (contexto limpio). Pide una tarea pequeña pero realista, <strong>sin</strong> dar pistas de convenciones:</p>
+<pre><code class="language-text">&gt; Añade un endpoint/función/componente que &lt;algo pequeño y útil&gt;, con sus tests.
+</code></pre>
+<p>Observa:</p>
+<ul>
+<li>¿Usó los comandos correctos para testear?</li>
+<li>¿Respetó estructura y convenciones?</li>
+<li>¿Pidió permiso para cosas que deberían estar permitidas (o al revés)?</li>
+<li>¿Intentó algo que debería estar bloqueado?</li>
+</ul>
+<p>Cada fallo es una mejora para <code>CLAUDE.md</code>, una regla o un permiso. Itera hasta que la tarea salga bien a la primera.</p>
+<h2 id="fase-6-entrega">Fase 6: entrega<a class="headerlink" href="#fase-6-entrega" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">git add CLAUDE.md .claude/ .gitignore
+git commit -m &quot;chore: configure Claude Code for the project&quot;
+git push -u origin chore/claude-code-setup
+</code></pre>
+<p>En la descripción del PR incluye:</p>
+<ul>
+<li>Qué pusiste en <code>CLAUDE.md</code> y qué <strong>dejaste fuera a propósito</strong>.</li>
+<li>Tu razonamiento sobre <code>allow</code> / <code>ask</code> / <code>deny</code>.</li>
+<li>El resultado de la prueba de fuego y qué ajustaste tras ella.</li>
+</ul>
+<h2 id="rubrica-de-autoevaluacion">Rúbrica de autoevaluación<a class="headerlink" href="#rubrica-de-autoevaluacion" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Básico</th>
+<th>Bueno</th>
+<th>Excelente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLAUDE.md</td>
+<td>Generado con <code>/init</code> sin editar</td>
+<td>Editado, conciso</td>
+<td>Conciso, con motivos, probado y sin reglas redundantes</td>
+</tr>
+<tr>
+<td>Permisos</td>
+<td>Ninguno</td>
+<td>allow/deny básicos</td>
+<td>allow/ask/deny pensados para el flujo del equipo</td>
+</tr>
+<tr>
+<td>Reglas</td>
+<td>—</td>
+<td>Una regla con <code>paths</code></td>
+<td>Varias, bien delimitadas, sin solaparse con CLAUDE.md</td>
+</tr>
+<tr>
+<td>Verificación</td>
+<td>Sin prueba</td>
+<td>Una tarea de prueba</td>
+<td>Iteración documentada hasta que la tarea sale a la primera</td>
+</tr>
+</tbody>
+</table>
+<h2 id="extra-opcional">Extra (opcional)<a class="headerlink" href="#extra-opcional" title="Permanent link">#</a></h2>
+<ul>
+<li>Añade un estilo de salida de equipo en <code>.claude/output-styles/</code> (lección 16).</li>
+<li>Mide <code>/context</code> antes y después y anota cuántos tokens ocupa tu configuración.</li>
+<li>Pide a un compañero que clone el repo y haga la prueba de fuego.</li>
+</ul>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/best-practices">Buenas prácticas</a></li>
+<li><a href="https://code.claude.com/docs/en/memory">Memoria</a> · <a href="https://code.claude.com/docs/en/permissions">Permisos</a> · <a href="https://code.claude.com/docs/en/settings">Settings</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="16-estilos-de-salida.html"><small>← Anterior</small>16. &quot;Estilos de salida: elegir cómo te responde Claude&quot;</a><span></span></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#el-reto">El reto</a></li>
+<li><a href="#criterios-de-exito">Criterios de éxito</a></li>
+<li><a href="#fase-1-diagnostico-15-min">Fase 1: diagnóstico (15 min)</a></li>
+<li><a href="#fase-2-claudemd-30-min">Fase 2: CLAUDE.md (30 min)</a></li>
+<li><a href="#comandos">Comandos</a></li>
+<li><a href="#arquitectura">Arquitectura</a></li>
+<li><a href="#convenciones">Convenciones</a></li>
+<li><a href="#git">Git</a></li>
+<li><a href="#trampas-conocidas">Trampas conocidas</a></li>
+<li><a href="#fase-3-permisos-20-min">Fase 3: permisos (20 min)</a></li>
+<li><a href="#fase-4-reglas-especificas-15-min">Fase 4: reglas específicas (15 min)</a></li>
+<li><a href="#fase-5-prueba-de-fuego-20-min">Fase 5: prueba de fuego (20 min)</a></li>
+<li><a href="#fase-6-entrega">Fase 6: entrega</a></li>
+<li><a href="#rubrica-de-autoevaluacion">Rúbrica de autoevaluación</a></li>
+<li><a href="#extra-opcional">Extra (opcional)</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

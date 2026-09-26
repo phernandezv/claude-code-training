@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>14. Cuándo no usar CLAUDE.md · Curso Claude Code</title>
+<meta name="description" content="Los límites de CLAUDE.md y a qué mecanismo llevar cada tipo de instrucción - skills, reglas con paths, permisos, hooks, subagentes, estilos de salida o simplemente el prompt.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="14-cuando-no-usar-claude-md">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 2 · CLAUDE.md y configuración del proyecto</p>
+    <h1><span class="num-grande">14</span>Cuándo no usar CLAUDE.md</h1>
+    <p class="resumen">Los límites de CLAUDE.md y a qué mecanismo llevar cada tipo de instrucción - skills, reglas con paths, permisos, hooks, subagentes, estilos de salida o simplemente el prompt.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Reconocer las señales de que un <code>CLAUDE.md</code> está sobrecargado.</li>
+<li>Elegir el mecanismo correcto para cada tipo de instrucción.</li>
+<li>Entender el <strong>coste de contexto</strong> de cada opción.</li>
+</ul>
+<h2 id="el-coste-oculto-de-claudemd">El coste oculto de CLAUDE.md<a class="headerlink" href="#el-coste-oculto-de-claudemd" title="Permanent link">#</a></h2>
+<p>Todo lo que pones en <code>CLAUDE.md</code> se envía <strong>en cada petición</strong> al modelo, en todas las sesiones, sea relevante o no. Eso tiene tres costes:</p>
+<ol>
+<li><strong>Tokens</strong>: pagas (o consumes cuota) por esas líneas una y otra vez.</li>
+<li><strong>Atención</strong>: cuanto más texto, menos peso tiene cada regla; las importantes se diluyen.</li>
+<li><strong>Mantenimiento</strong>: un archivo enorme acaba lleno de reglas obsoletas y contradictorias.</li>
+</ol>
+<p><code>CLAUDE.md</code> es para <strong>hechos que aplican casi siempre</strong>. Para todo lo demás hay herramientas más adecuadas.</p>
+<h2 id="senales-de-alarma">Señales de alarma<a class="headerlink" href="#senales-de-alarma" title="Permanent link">#</a></h2>
+<ul>
+<li>Tiene más de ~200 líneas.</li>
+<li>Contiene procedimientos paso a paso ("para publicar una versión: 1) … 12) …").</li>
+<li>Tiene secciones que solo importan para una carpeta concreta.</li>
+<li>Incluye reglas que <strong>no pueden fallar</strong> (seguridad, secretos).</li>
+<li>Copia documentación de APIs o librerías.</li>
+<li>Contiene cosas que cambian cada semana (el sprint actual, el ticket en curso).</li>
+</ul>
+<h2 id="a-donde-llevar-cada-cosa">A dónde llevar cada cosa<a class="headerlink" href="#a-donde-llevar-cada-cosa" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tipo de instrucción</th>
+<th>Mejor lugar</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Procedimiento de varios pasos (release, crear un endpoint, migrar)</td>
+<td><strong>Skill</strong> (lección 38)</td>
+<td>Solo se carga cuando se usa; al inicio solo ocupa su descripción</td>
+</tr>
+<tr>
+<td>Reglas de una zona del código</td>
+<td><strong>Regla con <code>paths</code></strong> o <code>CLAUDE.md</code> anidado (lección 13)</td>
+<td>Se carga solo al tocar esos archivos</td>
+</tr>
+<tr>
+<td>"Nunca leas <code>.env</code>", "nunca hagas <code>push --force</code>"</td>
+<td><strong>Permisos <code>deny</code></strong> (lección 15)</td>
+<td>Se impone técnicamente, no depende de la memoria</td>
+</tr>
+<tr>
+<td>"Formatea siempre tras editar", "pasa los tests antes de terminar"</td>
+<td><strong>Hooks</strong> (lección 44)</td>
+<td>Se ejecutan siempre, de forma determinista, y no cuestan contexto</td>
+</tr>
+<tr>
+<td>Investigar mucho código o tareas pesadas</td>
+<td><strong>Subagente</strong> (lección 49)</td>
+<td>Trabaja en su propio contexto y solo devuelve el resultado</td>
+</tr>
+<tr>
+<td>Tono, formato o rol de las respuestas</td>
+<td><strong>Estilo de salida</strong> (lección 16)</td>
+<td>Diseñado para eso</td>
+</tr>
+<tr>
+<td>Un prompt que repites a menudo</td>
+<td><strong>Comando personalizado / skill</strong> (lección 42)</td>
+<td>Lo invocas con <code>/nombre</code></td>
+</tr>
+<tr>
+<td>Datos de un servicio externo (tickets, BD, docs)</td>
+<td><strong>MCP</strong> o una CLI (lecciones 31–37)</td>
+<td>Se consulta cuando hace falta, con datos actualizados</td>
+</tr>
+<tr>
+<td>Contexto de la tarea de hoy</td>
+<td><strong>El prompt</strong></td>
+<td>Es efímero; no pertenece a la memoria permanente</td>
+</tr>
+<tr>
+<td>Tus preferencias personales</td>
+<td><code>~/.claude/CLAUDE.md</code> o <code>CLAUDE.local.md</code></td>
+<td>No imponérselas al equipo</td>
+</tr>
+</tbody>
+</table>
+<h2 id="comparacion-de-coste-de-contexto">Comparación de coste de contexto<a class="headerlink" href="#comparacion-de-coste-de-contexto" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Mecanismo</th>
+<th>Cuándo entra en contexto</th>
+<th>Coste</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>Al inicio de cada sesión, completo</td>
+<td>En <strong>cada</strong> petición</td>
+</tr>
+<tr>
+<td>Regla con <code>paths</code> / anidado</td>
+<td>Al leer archivos que coinciden</td>
+<td>Solo cuando aplica</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>Descripción al inicio; contenido al usarse</td>
+<td>Bajo hasta que se usa</td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>Nombres de herramientas al inicio; esquemas bajo demanda</td>
+<td>Bajo hasta que se usa</td>
+</tr>
+<tr>
+<td>Subagente</td>
+<td>En su propio contexto aislado</td>
+<td>Casi nulo para la sesión principal</td>
+</tr>
+<tr>
+<td>Hook</td>
+<td>Se ejecuta fuera del modelo</td>
+<td>Cero (salvo que devuelva texto a Claude)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ejemplo-adelgazar-un-claudemd">Ejemplo: adelgazar un CLAUDE.md<a class="headerlink" href="#ejemplo-adelgazar-un-claudemd" title="Permanent link">#</a></h2>
+<p><strong>Antes</strong> (fragmento):</p>
+<pre><code class="language-markdown">## Publicar una versión
+1. Asegúrate de estar en main y actualizado.
+2. Ejecuta los tests.
+3. Actualiza CHANGELOG.md siguiendo Keep a Changelog.
+4. Sube la versión en package.json.
+5. Crea el tag vX.Y.Z.
+6. …
+## Reglas de seguridad
+- Nunca leas el archivo .env.
+- Nunca hagas git push --force.
+## Estilo de componentes React (solo en web/)
+- …40 líneas…
+## Sprint actual
+- Estamos migrando el checkout (ticket SHOP-481).
+</code></pre>
+<p><strong>Después</strong>:</p>
+<ul>
+<li><em>Publicar una versión</em> → skill <code>.claude/skills/release/SKILL.md</code>, invocable con <code>/release</code>.</li>
+<li><em>Reglas de seguridad</em> → <code>settings.json</code>:</li>
+</ul>
+<p><code>json
+  {
+    "permissions": {
+      "deny": ["Read(./.env)", "Read(./.env.*)", "Bash(git push --force *)"]
+    }
+  }</code></p>
+<ul>
+<li><em>Estilo React</em> → <code>.claude/rules/react.md</code> con <code>paths: ["web/**/*.tsx"]</code>.</li>
+<li><em>Sprint actual</em> → fuera. Se menciona en el prompt cuando toca.</li>
+</ul>
+<p>El <code>CLAUDE.md</code> resultante queda en lo esencial: comandos, arquitectura y convenciones generales.</p>
+<h2 id="y-si-es-algo-que-claude-ya-hace-bien">¿Y si es algo que Claude ya hace bien?<a class="headerlink" href="#y-si-es-algo-que-claude-ya-hace-bien" title="Permanent link">#</a></h2>
+<p>Entonces <strong>no lo escribas</strong>. Si Claude ya usa <code>async/await</code> sin que se lo digas, esa regla solo añade ruido. Prueba a quitar líneas y observa si el comportamiento empeora.</p>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li><code>CLAUDE.md</code> cuesta contexto en cada petición: resérvalo para hechos generales y estables.</li>
+<li>Procedimientos → skills; reglas locales → <code>paths</code>; lo que no puede fallar → permisos y hooks.</li>
+<li>Trabajo pesado → subagentes; datos externos → MCP/CLI; tareas del día → el prompt.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Revisa tu <code>CLAUDE.md</code> y clasifica cada sección según la tabla "A dónde llevar cada cosa".</li>
+<li>Mueve una sección específica de una carpeta a <code>.claude/rules/</code> con <code>paths</code>.</li>
+<li>Convierte una regla de seguridad en un permiso <code>deny</code>.</li>
+<li>Compara <code>/context</code> antes y después de la limpieza.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/features-overview">Extender Claude Code: qué usar y cuándo</a></li>
+<li><a href="https://code.claude.com/docs/en/memory">Memoria y CLAUDE.md</a></li>
+<li><a href="https://code.claude.com/docs/en/skills">Skills</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="13-alcance-proyecto-usuario-y-archivos-anidados.html"><small>← Anterior</small>13. &quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a><a class="next" href="15-reglas-y-permisos-del-proyecto.html"><small>Siguiente →</small>15. Reglas y permisos del proyecto</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#el-coste-oculto-de-claudemd">El coste oculto de CLAUDE.md</a></li>
+<li><a href="#senales-de-alarma">Señales de alarma</a></li>
+<li><a href="#a-donde-llevar-cada-cosa">A dónde llevar cada cosa</a></li>
+<li><a href="#comparacion-de-coste-de-contexto">Comparación de coste de contexto</a></li>
+<li><a href="#ejemplo-adelgazar-un-claudemd">Ejemplo: adelgazar un CLAUDE.md</a></li>
+<li><a href="#y-si-es-algo-que-claude-ya-hace-bien">¿Y si es algo que Claude ya hace bien?</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

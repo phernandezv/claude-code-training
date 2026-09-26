@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curso Claude Code en español</title>
-<meta name="description" content="Curso práctico de Claude Code en español: 9 lecciones con comandos, ejemplos y proyectos.">
+<meta name="description" content="Curso práctico de Claude Code en español: 17 lecciones con comandos, ejemplos y proyectos.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body class="portada">
@@ -24,11 +24,21 @@
 <li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
 <li data-slug="08-claude-code-en-tu-editor"><a href="lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
 <li data-slug="09-comandos-largos-en-segundo-plano"><a href="lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
 </ol></div></nav>
   <main class="contenido ancho">
     <section class="hero">
       <h1>Claude Code, de cero a flujos multiagente</h1>
-      <p>9 lecciones prácticas en español: instalación, permisos, CLAUDE.md, modo plan, modelos, Git, MCP, skills, comandos, hooks, subagentes y plugins. Cada lección trae comandos, ejemplos de configuración y ejercicios.</p>
+      <p>17 lecciones prácticas en español: instalación, permisos, CLAUDE.md, modo plan, modelos, Git, MCP, skills, comandos, hooks, subagentes y plugins. Cada lección trae comandos, ejemplos de configuración y ejercicios.</p>
       <div class="progreso"><div class="barra"><span id="barra-progreso"></span></div><p id="texto-progreso"></p></div>
       <input id="buscar" type="search" placeholder="Buscar en el curso (p. ej. «hooks», «--permission-mode», «.mcp.json»)" autocomplete="off">
       <ul id="resultados"></ul>
@@ -43,6 +53,16 @@
 <a class="tarjeta" data-slug="07-comandos-slash-y-revisar-tu-contexto" href="lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="num">7</span><strong>Comandos slash y revisar tu contexto</strong><p>Los comandos integrados más útiles (/help, /context, /compact, /clear, /usage, /model, /config, /init, /memory, /doctor…) y cómo entender y administrar la ventana de contexto.</p></a>
 <a class="tarjeta" data-slug="08-claude-code-en-tu-editor" href="lecciones/08-claude-code-en-tu-editor.html"><span class="num">8</span><strong>Claude Code en tu editor</strong><p>Instalar y usar la extensión de VS Code (y Cursor) y el plugin de JetBrains - panel de chat, diffs en el editor, compartir selección, @-menciones con líneas, modos de permisos y conexión desde terminales externas con /ide.</p></a>
 <a class="tarjeta" data-slug="09-comandos-largos-en-segundo-plano" href="lecciones/09-comandos-largos-en-segundo-plano.html"><span class="num">9</span><strong>Ejecutar comandos largos en segundo plano</strong><p>Servidores de desarrollo, builds en modo watch y suites de tests largas sin bloquear la sesión - Ctrl+B, run_in_background, /tasks, la herramienta Monitor y sesiones en segundo plano.</p></a>
+</div></section>
+<section class="bloque"><h2><span>Sección 2</span>CLAUDE.md y configuración del proyecto</h2><div class="tarjetas">
+<a class="tarjeta" data-slug="10-que-es-claude-md-y-por-que-se-carga" href="lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="num">10</span><strong>Qué es CLAUDE.md y por qué se carga en cada sesión</strong><p>La memoria persistente del proyecto - qué es CLAUDE.md, cómo y cuándo se carga, cómo generarlo con /init, importar otros archivos con @, la memoria automática y AGENTS.md.</p></a>
+<a class="tarjeta" data-slug="11-convenciones-comandos-de-build-y-arquitectura" href="lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="num">11</span><strong>Convenciones, comandos de build y arquitectura</strong><p>Qué información poner en CLAUDE.md para que Claude trabaje como alguien del equipo - comandos exactos, convenciones que difieren de lo estándar, mapa de la arquitectura y reglas del repositorio, con plantillas para varios stacks.</p></a>
+<a class="tarjeta" data-slug="12-escribir-reglas-que-se-cumplan" href="lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="num">12</span><strong>Escribir reglas que se cumplan</strong><p>Técnicas para que Claude siga tus instrucciones - especificidad, verificabilidad, énfasis con moderación, explicar el porqué, evitar contradicciones, y cuándo pasar de una regla escrita a un mecanismo que la haga cumplir.</p></a>
+<a class="tarjeta" data-slug="13-alcance-proyecto-usuario-y-archivos-anidados" href="lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="num">13</span><strong>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</strong><p>Todos los niveles de CLAUDE.md (organización, usuario, proyecto, local, subcarpetas), el orden en que se cargan, las reglas modulares de .claude/rules/ con paths, y cómo gestionar monorepos con claudeMdExcludes.</p></a>
+<a class="tarjeta" data-slug="14-cuando-no-usar-claude-md" href="lecciones/14-cuando-no-usar-claude-md.html"><span class="num">14</span><strong>Cuándo no usar CLAUDE.md</strong><p>Los límites de CLAUDE.md y a qué mecanismo llevar cada tipo de instrucción - skills, reglas con paths, permisos, hooks, subagentes, estilos de salida o simplemente el prompt.</p></a>
+<a class="tarjeta" data-slug="15-reglas-y-permisos-del-proyecto" href="lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="num">15</span><strong>Reglas y permisos del proyecto</strong><p>settings.json a fondo - los niveles de configuración y su precedencia, reglas allow/ask/deny, sintaxis de patrones para Bash, Read/Edit, WebFetch, MCP y subagentes, /permissions, y configuraciones de ejemplo para equipos.</p></a>
+<a class="tarjeta" data-slug="16-estilos-de-salida" href="lecciones/16-estilos-de-salida.html"><span class="num">16</span><strong>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</strong><p>Los estilos integrados (Default, Proactive, Concise, Explanatory, Learning), cómo cambiarlos con /output-style o settings, y cómo crear tus propios estilos con frontmatter y keep-coding-instructions.</p></a>
+<a class="tarjeta" data-slug="17-proyecto-configura-claude-en-un-proyecto-real" href="lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="num">17</span><strong>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</strong><p>Proyecto práctico de la sección 2 - llevar un repositorio real a un estado en el que cualquier persona del equipo pueda abrir Claude Code y trabajar bien desde el primer minuto.</p></a>
 </div></section>
     <footer class="pie">
       <p>Material de estudio original, escrito a partir de la documentación oficial de Claude Code (<a href="https://code.claude.com/docs">code.claude.com/docs</a>). Claude Code evoluciona rápido: si un comando o flag no coincide con tu versión, revisa <code>claude --help</code> y la documentación oficial.</p>
