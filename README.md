@@ -35,6 +35,8 @@ docs/             Sitio generado (listo para GitHub Pages)
 
 El sitio incluye buscador, índice lateral, tabla de contenidos por lección, modo claro/oscuro, botón para copiar código y registro de lecciones completadas (guardado en tu navegador).
 
+El progreso se guarda solo en el navegador donde marcas las lecciones. Para llevarlo a otro dispositivo, abre en la portada «Llevar mi progreso a otro dispositivo» y copia el código (por ejemplo `cc1:1-12,15`) o el enlace; en el otro dispositivo, pega el código en «Importar» o abre el enlace. Lo importado se suma a lo que ya tengas.
+
 ## Editar y regenerar
 
 ```bash

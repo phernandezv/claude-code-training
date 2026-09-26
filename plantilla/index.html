@@ -20,6 +20,21 @@
       <h1>Claude Code, de cero a flujos multiagente</h1>
       <p>{{TOTAL}} lecciones prácticas en español: instalación, permisos, CLAUDE.md, modo plan, modelos, Git, MCP, skills, comandos, hooks, subagentes y plugins. Cada lección trae comandos, ejemplos de configuración y ejercicios.</p>
       <div class="progreso"><div class="barra"><span id="barra-progreso"></span></div><p id="texto-progreso"></p></div>
+      <details class="sync" id="sync">
+        <summary>Llevar mi progreso a otro dispositivo</summary>
+        <p>Tu progreso se guarda solo en este navegador. Para continuar en otro dispositivo o navegador, copia el código o el enlace y ábrelo allí.</p>
+        <div class="sync-fila">
+          <input id="codigo-progreso" type="text" readonly aria-label="Código de progreso">
+          <button type="button" id="copiar-codigo">Copiar código</button>
+          <button type="button" id="copiar-enlace">Copiar enlace</button>
+        </div>
+        <p class="sync-sub">¿Tienes un código de otro dispositivo? Pégalo aquí (se suma a lo que ya tengas):</p>
+        <div class="sync-fila">
+          <input id="importar-codigo" type="text" placeholder="cc1:1-12,15" aria-label="Código a importar">
+          <button type="button" id="importar">Importar</button>
+        </div>
+        <p id="sync-mensaje" role="status"></p>
+      </details>
       <input id="buscar" type="search" placeholder="Buscar en el curso (p. ej. «hooks», «--permission-mode», «.mcp.json»)" autocomplete="off">
       <ul id="resultados"></ul>
     </section>

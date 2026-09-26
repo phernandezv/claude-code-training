@@ -138,3 +138,13 @@ h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 12px; letter-spacing: -.01
   .hero h1 { font-size: 1.9rem; }
   .paginacion { flex-direction: column; }
 }
+
+/* Exportar / importar progreso */
+.sync { max-width: 640px; margin: 0 0 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); padding: 10px 14px; font-size: 15px; }
+.sync summary { cursor: pointer; font-weight: 600; }
+.sync p { font-size: 14px; color: var(--muted); margin: 10px 0 6px; }
+.sync-fila { display: flex; flex-wrap: wrap; gap: 8px; }
+.sync-fila input { flex: 1 1 200px; min-width: 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 14px; }
+.sync-fila button { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); cursor: pointer; font-size: 14px; }
+.sync-fila button:hover { border-color: var(--accent); }
+#sync-mensaje { color: var(--ok); min-height: 1.2em; }
