@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>14. Escribir reglas que se cumplan · Curso Claude Code</title>
+<meta name="description" content="Técnicas para que Claude siga tus instrucciones - especificidad, verificabilidad, énfasis con moderación, explicar el porqué, evitar contradicciones, y cuándo pasar de una regla escrita a un mecanismo que la haga cumplir.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="14-escribir-reglas-que-se-cumplan">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>Modos de permisos: mantener el control</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>Modo headless: respuestas rápidas sin el chat</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+<li data-slug="10-personalizar-tu-entorno"><a href="../lecciones/10-personalizar-tu-entorno.html"><span class="nav-num">10</span>Personalizar tu entorno: barra de estado, atajos, tema y terminal</a></li>
+<li data-slug="11-claude-code-en-la-web-escritorio-y-movil"><a href="../lecciones/11-claude-code-en-la-web-escritorio-y-movil.html"><span class="nav-num">11</span>Claude Code en la web, escritorio y móvil: sesiones en la nube y Remote Control</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="12-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/12-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">12</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="13-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/13-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">13</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="14-escribir-reglas-que-se-cumplan"><a href="../lecciones/14-escribir-reglas-que-se-cumplan.html"><span class="nav-num">14</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="15-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/15-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">15</span>Alcance: proyecto vs. usuario vs. archivos anidados</a></li>
+<li data-slug="16-cuando-no-usar-claude-md"><a href="../lecciones/16-cuando-no-usar-claude-md.html"><span class="nav-num">16</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="17-reglas-y-permisos-del-proyecto"><a href="../lecciones/17-reglas-y-permisos-del-proyecto.html"><span class="nav-num">17</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="18-sandbox-y-contenedores"><a href="../lecciones/18-sandbox-y-contenedores.html"><span class="nav-num">18</span>Sandbox y contenedores: ejecutar con seguridad</a></li>
+<li data-slug="19-estilos-de-salida"><a href="../lecciones/19-estilos-de-salida.html"><span class="nav-num">19</span>Estilos de salida: elegir cómo te responde Claude</a></li>
+<li data-slug="20-diagnosticar-y-depurar-tu-configuracion"><a href="../lecciones/20-diagnosticar-y-depurar-tu-configuracion.html"><span class="nav-num">20</span>Diagnosticar y depurar tu configuración</a></li>
+<li data-slug="21-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/21-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">21</span>Proyecto de portafolio: configura Claude en un proyecto real</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="22-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/22-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">22</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="23-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/23-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">23</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="24-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/24-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">24</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="25-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/25-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">25</span>Compromisos entre modelos: Opus vs. Sonnet vs. Haiku</a></li>
+<li data-slug="26-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/26-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">26</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="27-el-hibrido-opusplan"><a href="../lecciones/27-el-hibrido-opusplan.html"><span class="nav-num">27</span>El híbrido opusplan</a></li>
+<li data-slug="28-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/28-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">28</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+<li data-slug="29-buenas-practicas-y-patrones-de-fallo"><a href="../lecciones/29-buenas-practicas-y-patrones-de-fallo.html"><span class="nav-num">29</span>Buenas prácticas y patrones de fallo comunes</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="30-como-trabaja-claude-con-tu-repo"><a href="../lecciones/30-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">30</span>Cómo trabaja Claude con tu repo: estado, diffs e historial</a></li>
+<li data-slug="31-hacer-buenos-commits"><a href="../lecciones/31-hacer-buenos-commits.html"><span class="nav-num">31</span>Hacer buenos commits: staging y mensajes de commit</a></li>
+<li data-slug="32-ramas-y-pull-requests"><a href="../lecciones/32-ramas-y-pull-requests.html"><span class="nav-num">32</span>Ramas y pull requests</a></li>
+<li data-slug="33-revisar-codigo-y-prs-con-claude"><a href="../lecciones/33-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">33</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="34-resolver-conflictos-de-merge"><a href="../lecciones/34-resolver-conflictos-de-merge.html"><span class="nav-num">34</span>Resolver conflictos de merge</a></li>
+<li data-slug="35-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="../lecciones/35-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">35</span>Proyecto de portafolio: lleva un cambio de principio a fin</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">5. MCP y herramientas externas</p><ol>
+<li data-slug="36-que-es-mcp"><a href="../lecciones/36-que-es-mcp.html"><span class="nav-num">36</span>Qué es MCP: Claude Code como cliente de herramientas externas</a></li>
+<li data-slug="37-anadir-un-servidor-mcp"><a href="../lecciones/37-anadir-un-servidor-mcp.html"><span class="nav-num">37</span>Añadir un servidor MCP</a></li>
+<li data-slug="38-usar-herramientas-mcp-en-una-sesion"><a href="../lecciones/38-usar-herramientas-mcp-en-una-sesion.html"><span class="nav-num">38</span>Usar herramientas MCP dentro de una sesión</a></li>
+<li data-slug="39-alcance-y-gestion-de-servidores-proyecto-vs-usuario"><a href="../lecciones/39-alcance-y-gestion-de-servidores-proyecto-vs-usuario.html"><span class="nav-num">39</span>Alcance y gestión de servidores: proyecto vs. usuario</a></li>
+<li data-slug="40-mcp-con-seguridad-permisos-secretos-y-confianza"><a href="../lecciones/40-mcp-con-seguridad-permisos-secretos-y-confianza.html"><span class="nav-num">40</span>MCP con seguridad: permisos, secretos y confianza</a></li>
+<li data-slug="41-dejar-que-claude-use-herramientas-cli"><a href="../lecciones/41-dejar-que-claude-use-herramientas-cli.html"><span class="nav-num">41</span>Dejar que Claude use herramientas CLI</a></li>
+<li data-slug="42-cli-vs-mcp-cuando-usar-cada-uno"><a href="../lecciones/42-cli-vs-mcp-cuando-usar-cada-uno.html"><span class="nav-num">42</span>Herramientas CLI vs. servidores MCP: cuándo usar cada uno</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">6. Skills, comandos y hooks</p><ol>
+<li data-slug="43-claude-skills"><a href="../lecciones/43-claude-skills.html"><span class="nav-num">43</span>Skills de Claude</a></li>
+<li data-slug="44-claude-md-vs-skills"><a href="../lecciones/44-claude-md-vs-skills.html"><span class="nav-num">44</span>CLAUDE.md vs. skills</a></li>
+<li data-slug="45-crear-una-skill"><a href="../lecciones/45-crear-una-skill.html"><span class="nav-num">45</span>Crear una skill</a></li>
+<li data-slug="46-organizar-y-reutilizar-skills"><a href="../lecciones/46-organizar-y-reutilizar-skills.html"><span class="nav-num">46</span>Organizar y reutilizar skills</a></li>
+<li data-slug="47-comandos-slash-personalizados"><a href="../lecciones/47-comandos-slash-personalizados.html"><span class="nav-num">47</span>Comandos slash personalizados: un prompt repetido convertido en atajo</a></li>
+<li data-slug="48-pasar-argumentos-a-un-comando"><a href="../lecciones/48-pasar-argumentos-a-un-comando.html"><span class="nav-num">48</span>Pasar argumentos a un comando</a></li>
+<li data-slug="49-que-son-los-hooks"><a href="../lecciones/49-que-son-los-hooks.html"><span class="nav-num">49</span>Qué son los hooks: acciones que se ejecutan solas en momentos clave</a></li>
+<li data-slug="50-hooks-comunes"><a href="../lecciones/50-hooks-comunes.html"><span class="nav-num">50</span>Hooks comunes: formatear tras editar, bloquear un comando peligroso, ejecutar una comprobación</a></li>
+<li data-slug="51-escribir-y-acotar-tu-propio-hook"><a href="../lecciones/51-escribir-y-acotar-tu-propio-hook.html"><span class="nav-num">51</span>Escribir y acotar tu propio hook</a></li>
+<li data-slug="52-ejecutar-claude-sin-ti"><a href="../lecciones/52-ejecutar-claude-sin-ti.html"><span class="nav-num">52</span>Ejecutar Claude sin ti: CI, tareas programadas y pre-commit</a></li>
+<li data-slug="53-proyecto-integra-claude-en-tu-stack"><a href="../lecciones/53-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">53</span>Proyecto de portafolio: integra Claude en tu stack</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">7. Subagentes</p><ol>
+<li data-slug="54-que-es-un-subagente"><a href="../lecciones/54-que-es-un-subagente.html"><span class="nav-num">54</span>Qué es un subagente: contexto aislado, devuelve solo resultados</a></li>
+<li data-slug="55-subagentes-integrados"><a href="../lecciones/55-subagentes-integrados.html"><span class="nav-num">55</span>Subagentes integrados: Explore, Plan y general-purpose</a></li>
+<li data-slug="56-por-que-ayudan-los-subagentes-en-paralelo"><a href="../lecciones/56-por-que-ayudan-los-subagentes-en-paralelo.html"><span class="nav-num">56</span>Por qué ayudan los subagentes en paralelo: higiene del contexto y velocidad</a></li>
+<li data-slug="57-crear-un-subagente-personalizado"><a href="../lecciones/57-crear-un-subagente-personalizado.html"><span class="nav-num">57</span>Crear un subagente personalizado</a></li>
+<li data-slug="58-permisos-de-herramientas-y-mcp-para-subagentes"><a href="../lecciones/58-permisos-de-herramientas-y-mcp-para-subagentes.html"><span class="nav-num">58</span>Permisos de herramientas y MCP para subagentes</a></li>
+<li data-slug="59-orquestar-varios-subagentes-en-paralelo"><a href="../lecciones/59-orquestar-varios-subagentes-en-paralelo.html"><span class="nav-num">59</span>Orquestar varios subagentes en paralelo</a></li>
+<li data-slug="60-equipos-de-agentes-y-workflows-dinamicos"><a href="../lecciones/60-equipos-de-agentes-y-workflows-dinamicos.html"><span class="nav-num">60</span>Equipos de agentes y workflows dinámicos</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">8. Plugins</p><ol>
+<li data-slug="61-que-es-un-plugin"><a href="../lecciones/61-que-es-un-plugin.html"><span class="nav-num">61</span>Qué es un plugin: un paquete de comandos, skills, subagentes, hooks y MCP</a></li>
+<li data-slug="62-instalar-y-activar-plugins"><a href="../lecciones/62-instalar-y-activar-plugins.html"><span class="nav-num">62</span>Instalar y activar plugins con /plugin, y el marketplace</a></li>
+<li data-slug="63-construir-tu-propio-plugin"><a href="../lecciones/63-construir-tu-propio-plugin.html"><span class="nav-num">63</span>Construir tu propio plugin con las piezas que ya has hecho</a></li>
+<li data-slug="64-compartir-un-plugin-con-tu-equipo"><a href="../lecciones/64-compartir-un-plugin-con-tu-equipo.html"><span class="nav-num">64</span>Compartir un plugin con tu equipo</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">9. Automatización y escala</p><ol>
+<li data-slug="65-agent-sdk-construir-tus-propios-agentes"><a href="../lecciones/65-agent-sdk-construir-tus-propios-agentes.html"><span class="nav-num">65</span>Agent SDK: construir tus propios agentes</a></li>
+<li data-slug="66-claude-code-en-equipos-y-empresas"><a href="../lecciones/66-claude-code-en-equipos-y-empresas.html"><span class="nav-num">66</span>Claude Code en equipos y empresas: administración, políticas y costes</a></li>
+<li data-slug="67-proyecto-construye-un-flujo-multiagente"><a href="../lecciones/67-proyecto-construye-un-flujo-multiagente.html"><span class="nav-num">67</span>Proyecto de portafolio: construye un flujo multiagente</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 2 · CLAUDE.md y configuración del proyecto</p>
+    <h1><span class="num-grande">14</span>Escribir reglas que se cumplan</h1>
+    <p class="resumen">Técnicas para que Claude siga tus instrucciones - especificidad, verificabilidad, énfasis con moderación, explicar el porqué, evitar contradicciones, y cuándo pasar de una regla escrita a un mecanismo que la haga cumplir.</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Diagnosticar por qué una instrucción de <code>CLAUDE.md</code> no se respeta.</li>
+<li>Redactar reglas concretas, verificables y sin contradicciones.</li>
+<li>Usar el énfasis con criterio.</li>
+<li>Saber cuándo una regla escrita no basta y hay que <strong>imponerla</strong> (permisos, hooks).</li>
+</ul>
+<h2 id="por-que-una-regla-no-se-cumple">Por qué una regla "no se cumple"<a class="headerlink" href="#por-que-una-regla-no-se-cumple" title="Permanent link">#</a></h2>
+<p><code>CLAUDE.md</code> es contexto, no un contrato. Las causas más comunes de incumplimiento:</p>
+<ol>
+<li><strong>Vaga</strong>: "escribe buen código" no se puede verificar.</li>
+<li><strong>Enterrada</strong>: está en la línea 340 de un archivo de 500.</li>
+<li><strong>Contradictoria</strong>: otra regla (o un <code>CLAUDE.md</code> anidado) dice lo contrario.</li>
+<li><strong>Sin motivo</strong>: Claude no entiende por qué importa y la "negocia" ante un caso raro.</li>
+<li><strong>No se ha cargado</strong>: el archivo no está donde crees (compruébalo con <code>/context</code>).</li>
+<li><strong>Diluida</strong>: la sesión es muy larga y la conversación compite con ella.</li>
+</ol>
+<h2 id="principio-1-concreto-y-verificable">Principio 1: concreto y verificable<a class="headerlink" href="#principio-1-concreto-y-verificable" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>❌ Vago</th>
+<th>✅ Concreto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Formatea bien el código"</td>
+<td>"Indentación de 2 espacios; ejecuta <code>pnpm format</code> tras editar"</td>
+</tr>
+<tr>
+<td>"Prueba tus cambios"</td>
+<td>"Ejecuta <code>pnpm test</code> antes de dar la tarea por terminada"</td>
+</tr>
+<tr>
+<td>"Mantén los archivos organizados"</td>
+<td>"Los handlers van en <code>src/api/handlers/</code>, uno por recurso"</td>
+</tr>
+<tr>
+<td>"Cuidado con la seguridad"</td>
+<td>"Nunca interpoles variables en SQL; usa siempre el query builder <code>db.select()</code>"</td>
+</tr>
+</tbody>
+</table>
+<p>Una buena regla permite responder <strong>sí o no</strong> a "¿se ha cumplido?".</p>
+<h2 id="principio-2-explica-el-porque">Principio 2: explica el porqué<a class="headerlink" href="#principio-2-explica-el-porque" title="Permanent link">#</a></h2>
+<p>Una regla con motivo se aplica mejor en casos que no previste:</p>
+<pre><code class="language-markdown">- Dinero siempre en céntimos (enteros). Motivo: tuvimos errores de redondeo
+  con float en facturas; los informes contables cuadran al céntimo.
+</code></pre>
+<p>Con el motivo, Claude también evitará <code>float</code> en un cálculo de descuentos que no mencionaste.</p>
+<h2 id="principio-3-positivo-y-con-alternativa">Principio 3: positivo y con alternativa<a class="headerlink" href="#principio-3-positivo-y-con-alternativa" title="Permanent link">#</a></h2>
+<p>Decir solo lo que <strong>no</strong> hacer deja a Claude adivinando. Da la alternativa:</p>
+<pre><code class="language-markdown">- No uses `console.log` para depurar en código que se sube; usa `logger.debug()` de `src/lib/logger.ts`.
+</code></pre>
+<h2 id="principio-4-enfasis-con-moderacion">Principio 4: énfasis con moderación<a class="headerlink" href="#principio-4-enfasis-con-moderacion" title="Permanent link">#</a></h2>
+<p>Puedes marcar reglas críticas con <strong>IMPORTANTE</strong> o <strong>NUNCA</strong>, y funciona... si lo usas poco. Si todo es "IMPORTANTE", nada lo es.</p>
+<pre><code class="language-markdown">## Reglas críticas
+- IMPORTANTE: nunca ejecutes migraciones contra producción. Solo `DATABASE_URL` de `.env.local`.
+- NUNCA hagas commit de archivos en `secrets/`.
+</code></pre>
+<p>Ponlas <strong>arriba</strong> del archivo, en una sección propia.</p>
+<h2 id="principio-5-sin-contradicciones">Principio 5: sin contradicciones<a class="headerlink" href="#principio-5-sin-contradicciones" title="Permanent link">#</a></h2>
+<p>Si dos reglas chocan, Claude elegirá una casi al azar. Revisa periódicamente:</p>
+<ul>
+<li>El <code>CLAUDE.md</code> raíz, los anidados en subcarpetas y los de <code>.claude/rules/</code>.</li>
+<li>Tu <code>~/.claude/CLAUDE.md</code> personal (puede contradecir al del proyecto).</li>
+</ul>
+<p>Ejemplo de conflicto típico: el <code>CLAUDE.md</code> del usuario dice "usa npm" y el del proyecto dice "usa pnpm". Las instrucciones más cercanas al directorio de trabajo aparecen después en el contexto, pero es mejor eliminar la ambigüedad: en el personal escribe <em>"usa el gestor de paquetes que indique el proyecto; si no dice nada, npm"</em>.</p>
+<h2 id="principio-6-corto-gana">Principio 6: corto gana<a class="headerlink" href="#principio-6-corto-gana" title="Permanent link">#</a></h2>
+<p>Cada línea extra reduce la atención sobre las demás. Técnicas para adelgazar:</p>
+<ul>
+<li>Mueve procedimientos largos a <strong>skills</strong> (lección 44).</li>
+<li>Mueve reglas específicas de una carpeta a <strong>reglas con <code>paths</code></strong> (lección 15).</li>
+<li>Sustituye explicaciones por <strong>enlaces</strong> a docs (<code>@docs/arquitectura.md</code> si de verdad hace falta cargarlo siempre, o solo la ruta si basta con que Claude sepa que existe).</li>
+</ul>
+<h2 id="ejemplos-de-reglas-bien-escritas">Ejemplos de reglas bien escritas<a class="headerlink" href="#ejemplos-de-reglas-bien-escritas" title="Permanent link">#</a></h2>
+<pre><code class="language-markdown">## Flujo de trabajo
+- Tras cambiar código TypeScript, ejecuta `pnpm typecheck`. Si falla, corrige antes de seguir.
+- Prefiere ejecutar tests individuales (`pnpm test &lt;archivo&gt;`) en vez de la suite completa.
+- Si un cambio afecta a más de 5 archivos, propón un plan antes de editar.
+
+## Estilo
+- Exporta funciones con nombre; nada de `export default` (facilita el refactor y la búsqueda).
+- Errores: usa `Result&lt;T, E&gt;` de `src/lib/result.ts` en la capa de servicios; no lances excepciones.
+
+## Comunicación
+- Al terminar, resume en 3–5 viñetas qué cambiaste y cómo lo verificaste.
+</code></pre>
+<h2 id="cuando-escribir-no-basta-imponer">Cuando escribir no basta: imponer<a class="headerlink" href="#cuando-escribir-no-basta-imponer" title="Permanent link">#</a></h2>
+<p>Algunas cosas <strong>no pueden depender</strong> de que Claude "se acuerde":</p>
+<table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>Mecanismo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No leer ni editar <code>.env</code> o <code>secrets/</code></td>
+<td>Regla <code>deny</code> en permisos (lección 17)</td>
+</tr>
+<tr>
+<td>No ejecutar <code>git push --force</code></td>
+<td>Regla <code>deny</code> o hook <code>PreToolUse</code> (lección 50)</td>
+</tr>
+<tr>
+<td>Formatear siempre tras editar</td>
+<td>Hook <code>PostToolUse</code> que ejecuta el formateador</td>
+</tr>
+<tr>
+<td>Los tests deben pasar antes de terminar</td>
+<td>Hook <code>Stop</code> que ejecuta los tests</td>
+</tr>
+</tbody>
+</table>
+<p>Regla práctica: <strong>CLAUDE.md para guiar; permisos y hooks para garantizar.</strong></p>
+<h2 id="depurar-una-regla-que-falla">Depurar una regla que falla<a class="headerlink" href="#depurar-una-regla-que-falla" title="Permanent link">#</a></h2>
+<ol>
+<li><code>/context</code> → ¿aparece el archivo en <em>Memory files</em>?</li>
+<li>Pregunta a Claude: <em>"¿Qué dice tu CLAUDE.md sobre X?"</em>. Si no lo sabe, no se cargó.</li>
+<li>Busca contradicciones en todos los niveles (<code>/memory</code> los lista).</li>
+<li>Reescribe la regla con los principios 1–3.</li>
+<li>Si es crítica, conviértela en permiso o hook.</li>
+</ol>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Concreto, verificable, con motivo y con alternativa.</li>
+<li>Énfasis solo para lo crítico, arriba del todo.</li>
+<li>Sin contradicciones entre niveles; corto y enfocado.</li>
+<li>Lo que no puede fallar se impone con permisos y hooks.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Toma tres reglas vagas de tu <code>CLAUDE.md</code> y reescríbelas siguiendo los principios.</li>
+<li>Añade el "porqué" a tus dos reglas más importantes.</li>
+<li>Busca una regla que en realidad debería ser un permiso <code>deny</code> o un hook y anótala para la lección 17/50.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/memory#write-effective-instructions">Escribir instrucciones efectivas</a></li>
+<li><a href="https://code.claude.com/docs/en/memory#troubleshoot-memory-issues">Solución de problemas de memoria</a></li>
+<li><a href="https://code.claude.com/docs/en/hooks-guide">Guía de hooks</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="13-convenciones-comandos-de-build-y-arquitectura.html"><small>← Anterior</small>13. Convenciones, comandos de build y arquitectura</a><a class="next" href="15-alcance-proyecto-usuario-y-archivos-anidados.html"><small>Siguiente →</small>15. Alcance: proyecto vs. usuario vs. archivos anidados</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#por-que-una-regla-no-se-cumple">Por qué una regla "no se cumple"</a></li>
+<li><a href="#principio-1-concreto-y-verificable">Principio 1: concreto y verificable</a></li>
+<li><a href="#principio-2-explica-el-porque">Principio 2: explica el porqué</a></li>
+<li><a href="#principio-3-positivo-y-con-alternativa">Principio 3: positivo y con alternativa</a></li>
+<li><a href="#principio-4-enfasis-con-moderacion">Principio 4: énfasis con moderación</a></li>
+<li><a href="#principio-5-sin-contradicciones">Principio 5: sin contradicciones</a></li>
+<li><a href="#principio-6-corto-gana">Principio 6: corto gana</a></li>
+<li><a href="#ejemplos-de-reglas-bien-escritas">Ejemplos de reglas bien escritas</a></li>
+<li><a href="#cuando-escribir-no-basta-imponer">Cuando escribir no basta: imponer</a></li>
+<li><a href="#depurar-una-regla-que-falla">Depurar una regla que falla</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

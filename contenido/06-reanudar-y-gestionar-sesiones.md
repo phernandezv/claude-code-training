@@ -108,11 +108,11 @@ claude --resume auth-refactor --fork-session
 ```
 
 !!! warning "No abras la misma sesión en dos terminales"
-    Si reanudas la misma sesión en dos terminales sin `--fork-session`, los mensajes de ambas se mezclan en un único transcript. Usa ramas o *worktrees* (lección 27) para trabajo en paralelo.
+    Si reanudas la misma sesión en dos terminales sin `--fork-session`, los mensajes de ambas se mezclan en un único transcript. Usa ramas o *worktrees* (lección 32) para trabajo en paralelo.
 
 ## Gestionar el contexto dentro de una sesión
 
-Estos comandos no cambian de sesión, pero controlan cuánto "recuerda" Claude (lección 7 y 24):
+Estos comandos no cambian de sesión, pero controlan cuánto "recuerda" Claude (lección 7 y 28):
 
 - `/clear [nombre]`: empieza una conversación nueva con contexto vacío. La anterior se guarda y puedes volver con `/resume`.
 - `/compact [instrucciones]`: sustituye el historial por un resumen, opcionalmente centrado en lo que indiques.

@@ -45,7 +45,7 @@ Claude Code es el mismo motor en varias interfaces:
 | **Plugin de JetBrains** | IntelliJ, PyCharm, WebStorm, etc. (ejecuta la CLI en la terminal del IDE) |
 | **App de escritorio** | Interfaz gráfica sin terminal |
 | **Web (claude.ai/code) y móvil** | Sesiones en la nube sobre repos de GitHub, sin instalar nada |
-| **GitHub Actions / GitLab CI** | Automatización en tu pipeline (lección 47) |
+| **GitHub Actions / GitLab CI** | Automatización en tu pipeline (lección 52) |
 
 Todas comparten la misma configuración (`CLAUDE.md`, `settings.json`, skills, MCP…), así que lo que aprendas en la terminal se traslada al resto.
 

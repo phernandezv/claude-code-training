@@ -21,14 +21,15 @@ PLANTILLA = RAIZ / "plantilla"
 SALIDA = RAIZ / "docs"
 
 SECCIONES = [
-    (1, 9, "Primeros pasos"),
-    (10, 17, "CLAUDE.md y configuración del proyecto"),
-    (18, 24, "Planificar y elegir modelo"),
-    (25, 30, "Git y flujo de trabajo"),
-    (31, 37, "MCP y herramientas externas"),
-    (38, 48, "Skills, comandos y hooks"),
-    (49, 54, "Subagentes"),
-    (55, 59, "Plugins"),
+    (1, 11, "Primeros pasos"),
+    (12, 21, "CLAUDE.md y configuración del proyecto"),
+    (22, 29, "Planificar y elegir modelo"),
+    (30, 35, "Git y flujo de trabajo"),
+    (36, 42, "MCP y herramientas externas"),
+    (43, 53, "Skills, comandos y hooks"),
+    (54, 60, "Subagentes"),
+    (61, 64, "Plugins"),
+    (65, 67, "Automatización y escala"),
 ]
 
 

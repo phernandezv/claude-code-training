@@ -138,7 +138,7 @@ Do you want to proceed?
 ```
 
 - **Yes**: aprueba solo esta vez.
-- **Yes, and don't ask again…**: crea una regla de permiso para no volver a preguntar (lección 15).
+- **Yes, and don't ask again…**: crea una regla de permiso para no volver a preguntar (lección 17).
 - **No**: rechaza; puedes explicar qué prefieres.
 
 En la lección 4 veremos cómo los **modos de permisos** cambian cuántas veces se te pregunta.
