@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>25. &quot;Cómo trabaja Claude con tu repo: estado, diffs e historial&quot; · Curso Claude Code</title>
+<meta name="description" content="Qué sabe Claude de tu repositorio Git al empezar, cómo consulta estado, diffs, log y blame, cómo usar el historial para entender código, /diff, y la configuración relacionada (includeGitInstructions, permisos de git).">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="25-como-trabaja-claude-con-tu-repo">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="18-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/18-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">18</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="19-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/19-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">19</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="20-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/20-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">20</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/21-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">21</span>&quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></li>
+<li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="23-el-hibrido-opusplan"><a href="../lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
+<li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="25-como-trabaja-claude-con-tu-repo"><a href="../lecciones/25-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">25</span>&quot;Cómo trabaja Claude con tu repo: estado, diffs e historial&quot;</a></li>
+<li data-slug="26-hacer-buenos-commits"><a href="../lecciones/26-hacer-buenos-commits.html"><span class="nav-num">26</span>&quot;Hacer buenos commits: staging y mensajes de commit&quot;</a></li>
+<li data-slug="27-ramas-y-pull-requests"><a href="../lecciones/27-ramas-y-pull-requests.html"><span class="nav-num">27</span>Ramas y pull requests</a></li>
+<li data-slug="28-revisar-codigo-y-prs-con-claude"><a href="../lecciones/28-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">28</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="29-resolver-conflictos-de-merge"><a href="../lecciones/29-resolver-conflictos-de-merge.html"><span class="nav-num">29</span>Resolver conflictos de merge</a></li>
+<li data-slug="30-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="../lecciones/30-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">30</span>&quot;Proyecto de portafolio: lleva un cambio de principio a fin&quot;</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 4 · Git y flujo de trabajo</p>
+    <h1><span class="num-grande">25</span>&quot;Cómo trabaja Claude con tu repo: estado, diffs e historial&quot;</h1>
+    <p class="resumen">Qué sabe Claude de tu repositorio Git al empezar, cómo consulta estado, diffs, log y blame, cómo usar el historial para entender código, /diff, y la configuración relacionada (includeGitInstructions, permisos de git).</p>
+    <article class="leccion">
+<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
+<ul>
+<li>Saber qué información de Git recibe Claude automáticamente.</li>
+<li>Usar a Claude para leer estado, diferencias e historial.</li>
+<li>Aprovechar <code>git log</code> y <code>git blame</code> para entender <strong>por qué</strong> el código es como es.</li>
+<li>Configurar permisos de Git razonables.</li>
+</ul>
+<h2 id="lo-que-claude-sabe-de-tu-repo-al-empezar">Lo que Claude sabe de tu repo al empezar<a class="headerlink" href="#lo-que-claude-sabe-de-tu-repo-al-empezar" title="Permanent link">#</a></h2>
+<p>Cuando arrancas Claude Code en un repositorio Git, recibe:</p>
+<ol>
+<li><strong>Una instantánea del estado</strong>: rama actual, rama principal, archivos modificados y commits recientes.</li>
+<li><strong>Instrucciones integradas</strong> sobre cómo escribir commits y pull requests (formato de mensajes, no hacer push forzado sin permiso, etc.).</li>
+</ol>
+<p>Así, sin preguntar nada, Claude sabe en qué rama estás y si hay cambios pendientes. Si usas tu propio flujo de Git (por ejemplo mediante skills), puedes desactivar ambas cosas:</p>
+<pre><code class="language-json">{
+  &quot;includeGitInstructions&quot;: false
+}
+</code></pre>
+<h2 id="git-es-la-herramienta-de-claude">Git es la herramienta de Claude<a class="headerlink" href="#git-es-la-herramienta-de-claude" title="Permanent link">#</a></h2>
+<p>Claude no tiene una "integración mágica" con Git: usa la <strong>CLI de <code>git</code></strong> a través de la herramienta Bash, igual que tú. Eso significa:</p>
+<ul>
+<li>Puede ejecutar cualquier comando de Git (sujeto a tus permisos).</li>
+<li>Los comandos de <strong>solo lectura</strong> (<code>git status</code>, <code>git diff</code>, <code>git log</code>, <code>git show</code>, <code>git blame</code>…) no requieren aprobación.</li>
+<li>Los que modifican (<code>git commit</code>, <code>git push</code>, <code>git reset</code>…) sí, salvo que los permitas.</li>
+</ul>
+<h2 id="estado-y-diferencias">Estado y diferencias<a class="headerlink" href="#estado-y-diferencias" title="Permanent link">#</a></h2>
+<pre><code class="language-text">&gt; ¿Qué cambios tengo sin commitear? Resúmelos por archivo.
+&gt; Compara mi rama con main y dime qué funcionalidades añade.
+&gt; ¿Hay algo en staging que no debería estar (secretos, archivos generados)?
+</code></pre>
+<p>Por debajo, Claude ejecutará algo como:</p>
+<pre><code class="language-bash">git status --short
+git diff
+git diff --cached
+git diff main...HEAD --stat
+</code></pre>
+<h3 id="diff-tu-visor-integrado"><code>/diff</code>: tu visor integrado<a class="headerlink" href="#diff-tu-visor-integrado" title="Permanent link">#</a></h3>
+<pre><code class="language-text">/diff
+</code></pre>
+<p>Abre un visor de los cambios del árbol de trabajo, incluidos los que ha hecho Claude. Útil para revisar antes de commitear sin salir de la sesión.</p>
+<h3 id="mostrar-el-diff-tu-mismo">Mostrar el diff tú mismo<a class="headerlink" href="#mostrar-el-diff-tu-mismo" title="Permanent link">#</a></h3>
+<pre><code class="language-text">! git diff --stat
+</code></pre>
+<p>Recuerda que con <code>!</code> la salida entra en el contexto y Claude puede comentarla.</p>
+<h2 id="el-historial-como-fuente-de-contexto">El historial como fuente de contexto<a class="headerlink" href="#el-historial-como-fuente-de-contexto" title="Permanent link">#</a></h2>
+<p>Git guarda el <strong>porqué</strong> de las cosas. Claude puede investigarlo por ti:</p>
+<pre><code class="language-text">&gt; ¿Por qué esta función hace un reintento con backoff? Revisa el historial
+  de src/payments/client.ts y los mensajes de commit relacionados.
+
+&gt; ¿Quién cambió por última vez la lógica de descuentos y en qué PR?
+
+&gt; ¿Cuándo se introdujo este bug? Busca en el historial el commit que cambió
+  el cálculo de impuestos.
+</code></pre>
+<p>Comandos que suele usar:</p>
+<pre><code class="language-bash">git log --oneline -20 -- src/payments/client.ts
+git log -S &quot;retryWithBackoff&quot; --oneline      # commits que añadieron/quitaron ese texto
+git blame -L 40,70 src/payments/client.ts
+git show &lt;commit&gt;
+</code></pre>
+<div class="admonition tip">
+<p class="admonition-title">Arqueología de código</p>
+<p>Preguntas como <em>"¿qué problema resolvía este código cuando se escribió?"</em> son de las más valiosas en un repo heredado. Claude combina <code>git log</code>, <code>git blame</code> y la lectura del código para darte una respuesta con referencias a commits.</p>
+</div>
+<h2 id="buscar-el-commit-que-rompio-algo-git-bisect">Buscar el commit que rompió algo: <code>git bisect</code><a class="headerlink" href="#buscar-el-commit-que-rompio-algo-git-bisect" title="Permanent link">#</a></h2>
+<p>Claude puede guiar (o ejecutar) una búsqueda binaria:</p>
+<pre><code class="language-text">&gt; Los tests de facturación pasaban en la etiqueta v2.3.0 y fallan en HEAD.
+  Usa git bisect con `pnpm test billing` para encontrar el commit culpable.
+</code></pre>
+<pre><code class="language-bash">git bisect start HEAD v2.3.0
+git bisect run pnpm test billing
+git bisect reset
+</code></pre>
+<h2 id="resumir-actividad">Resumir actividad<a class="headerlink" href="#resumir-actividad" title="Permanent link">#</a></h2>
+<pre><code class="language-text">&gt; Resume lo que se ha hecho en el repo esta semana, agrupado por área.
+&gt; Genera unas notas de versión desde v1.4.0 hasta HEAD.
+</code></pre>
+<h2 id="permisos-de-git-recomendados">Permisos de Git recomendados<a class="headerlink" href="#permisos-de-git-recomendados" title="Permanent link">#</a></h2>
+<p>En <code>.claude/settings.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;Bash(git status)&quot;,
+      &quot;Bash(git diff *)&quot;,
+      &quot;Bash(git log *)&quot;,
+      &quot;Bash(git show *)&quot;,
+      &quot;Bash(git blame *)&quot;,
+      &quot;Bash(git branch *)&quot;,
+      &quot;Bash(git add *)&quot;,
+      &quot;Bash(git commit *)&quot;
+    ],
+    &quot;ask&quot;: [
+      &quot;Bash(git push *)&quot;,
+      &quot;Bash(git rebase *)&quot;,
+      &quot;Bash(git reset *)&quot;
+    ],
+    &quot;deny&quot;: [
+      &quot;Bash(git push --force *)&quot;,
+      &quot;Bash(git push -f *)&quot;,
+      &quot;Bash(git clean *)&quot;
+    ]
+  }
+}
+</code></pre>
+<p>Recuerda: en <strong>modo auto</strong>, el clasificador ya bloquea por defecto operaciones destructivas como <code>push --force</code>, <code>reset --hard</code> o <code>clean -fd</code>.</p>
+<h2 id="git-como-red-de-seguridad">Git como red de seguridad<a class="headerlink" href="#git-como-red-de-seguridad" title="Permanent link">#</a></h2>
+<p>Trabajar con Git limpio te da el mejor "deshacer":</p>
+<ul>
+<li>Empieza las tareas con el árbol <strong>limpio</strong> (o en una rama nueva).</li>
+<li>Haz commits pequeños y frecuentes para tener puntos de retorno.</li>
+<li>Los <strong>checkpoints</strong> de Claude (<code>/rewind</code>) no ven cambios hechos por comandos; Git sí.</li>
+</ul>
+<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
+<ul>
+<li>Claude recibe una instantánea de Git e instrucciones de commit/PR al empezar.</li>
+<li>Usa la CLI de <code>git</code>: lectura libre, escritura según permisos.</li>
+<li>El historial (<code>log</code>, <code>blame</code>, <code>-S</code>, <code>bisect</code>) es una fuente de contexto muy valiosa.</li>
+<li><code>/diff</code> para revisar; Git limpio como red de seguridad.</li>
+</ul>
+<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<ol>
+<li>Pregunta a Claude qué cambios tienes pendientes y revisa con <code>/diff</code>.</li>
+<li>Elige una función antigua y pide que te explique su historia con <code>git log</code> y <code>git blame</code>.</li>
+<li>Crea un bug a propósito en una rama con varios commits y pide a Claude que lo encuentre con <code>git bisect</code>.</li>
+<li>Añade los permisos de Git recomendados a tu proyecto.</li>
+</ol>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/common-workflows">Flujos de trabajo comunes</a></li>
+<li><a href="https://code.claude.com/docs/en/settings-reference">Referencia de settings: includeGitInstructions</a></li>
+<li><a href="https://code.claude.com/docs/en/permissions">Permisos</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="24-gestionar-contexto-y-coste-en-el-bucle.html"><small>← Anterior</small>24. Gestionar contexto y coste a lo largo del bucle</a><a class="next" href="26-hacer-buenos-commits.html"><small>Siguiente →</small>26. &quot;Hacer buenos commits: staging y mensajes de commit&quot;</a></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
+<li><a href="#lo-que-claude-sabe-de-tu-repo-al-empezar">Lo que Claude sabe de tu repo al empezar</a></li>
+<li><a href="#git-es-la-herramienta-de-claude">Git es la herramienta de Claude</a></li>
+<li><a href="#estado-y-diferencias">Estado y diferencias</a><ul>
+<li><a href="#diff-tu-visor-integrado">/diff: tu visor integrado</a></li>
+<li><a href="#mostrar-el-diff-tu-mismo">Mostrar el diff tú mismo</a></li>
+</ul>
+</li>
+<li><a href="#el-historial-como-fuente-de-contexto">El historial como fuente de contexto</a></li>
+<li><a href="#buscar-el-commit-que-rompio-algo-git-bisect">Buscar el commit que rompió algo: git bisect</a></li>
+<li><a href="#resumir-actividad">Resumir actividad</a></li>
+<li><a href="#permisos-de-git-recomendados">Permisos de Git recomendados</a></li>
+<li><a href="#git-como-red-de-seguridad">Git como red de seguridad</a></li>
+<li><a href="#resumen">Resumen</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

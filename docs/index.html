@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curso Claude Code en español</title>
-<meta name="description" content="Curso práctico de Claude Code en español: 24 lecciones con comandos, ejemplos y proyectos.">
+<meta name="description" content="Curso práctico de Claude Code en español: 30 lecciones con comandos, ejemplos y proyectos.">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body class="portada">
@@ -43,11 +43,19 @@
 <li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
 <li data-slug="23-el-hibrido-opusplan"><a href="lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
 <li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="25-como-trabaja-claude-con-tu-repo"><a href="lecciones/25-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">25</span>&quot;Cómo trabaja Claude con tu repo: estado, diffs e historial&quot;</a></li>
+<li data-slug="26-hacer-buenos-commits"><a href="lecciones/26-hacer-buenos-commits.html"><span class="nav-num">26</span>&quot;Hacer buenos commits: staging y mensajes de commit&quot;</a></li>
+<li data-slug="27-ramas-y-pull-requests"><a href="lecciones/27-ramas-y-pull-requests.html"><span class="nav-num">27</span>Ramas y pull requests</a></li>
+<li data-slug="28-revisar-codigo-y-prs-con-claude"><a href="lecciones/28-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">28</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="29-resolver-conflictos-de-merge"><a href="lecciones/29-resolver-conflictos-de-merge.html"><span class="nav-num">29</span>Resolver conflictos de merge</a></li>
+<li data-slug="30-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="lecciones/30-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">30</span>&quot;Proyecto de portafolio: lleva un cambio de principio a fin&quot;</a></li>
 </ol></div></nav>
   <main class="contenido ancho">
     <section class="hero">
       <h1>Claude Code, de cero a flujos multiagente</h1>
-      <p>24 lecciones prácticas en español: instalación, permisos, CLAUDE.md, modo plan, modelos, Git, MCP, skills, comandos, hooks, subagentes y plugins. Cada lección trae comandos, ejemplos de configuración y ejercicios.</p>
+      <p>30 lecciones prácticas en español: instalación, permisos, CLAUDE.md, modo plan, modelos, Git, MCP, skills, comandos, hooks, subagentes y plugins. Cada lección trae comandos, ejemplos de configuración y ejercicios.</p>
       <div class="progreso"><div class="barra"><span id="barra-progreso"></span></div><p id="texto-progreso"></p></div>
       <input id="buscar" type="search" placeholder="Buscar en el curso (p. ej. «hooks», «--permission-mode», «.mcp.json»)" autocomplete="off">
       <ul id="resultados"></ul>
@@ -81,6 +89,14 @@
 <a class="tarjeta" data-slug="22-cambiar-de-modelo-a-mitad-de-sesion" href="lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="num">22</span><strong>Cambiar de modelo a mitad de sesión</strong><p>Todas las formas de elegir modelo (/model, Alt+P, --model, ANTHROPIC_MODEL, settings) y su prioridad, cambiar solo para la sesión o como predeterminado, efectos sobre la caché, subagentes y sesiones reanudadas, y modelos de respaldo.</p></a>
 <a class="tarjeta" data-slug="23-el-hibrido-opusplan" href="lecciones/23-el-hibrido-opusplan.html"><span class="num">23</span><strong>El híbrido opusplan</strong><p>Cómo funciona el alias opusplan (Opus en modo plan, Sonnet al ejecutar), cómo activarlo, cuándo compensa, sus matices de contexto y caché, y alternativas como el advisor o combinar modelos con subagentes.</p></a>
 <a class="tarjeta" data-slug="24-gestionar-contexto-y-coste-en-el-bucle" href="lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="num">24</span><strong>Gestionar contexto y coste a lo largo del bucle</strong><p>De dónde sale el gasto de tokens, cómo medirlo con /usage y /context, la caché de prompts, y un repertorio de técnicas para mantener sesiones rápidas y baratas - /clear, /compact, modelo y esfuerzo, subagentes, MCP, hooks y skills.</p></a>
+</div></section>
+<section class="bloque"><h2><span>Sección 4</span>Git y flujo de trabajo</h2><div class="tarjetas">
+<a class="tarjeta" data-slug="25-como-trabaja-claude-con-tu-repo" href="lecciones/25-como-trabaja-claude-con-tu-repo.html"><span class="num">25</span><strong>&quot;Cómo trabaja Claude con tu repo: estado, diffs e historial&quot;</strong><p>Qué sabe Claude de tu repositorio Git al empezar, cómo consulta estado, diffs, log y blame, cómo usar el historial para entender código, /diff, y la configuración relacionada (includeGitInstructions, permisos de git).</p></a>
+<a class="tarjeta" data-slug="26-hacer-buenos-commits" href="lecciones/26-hacer-buenos-commits.html"><span class="num">26</span><strong>&quot;Hacer buenos commits: staging y mensajes de commit&quot;</strong><p>Cómo pedir a Claude commits atómicos y bien descritos - revisar antes de preparar, staging selectivo, Conventional Commits, mensajes que explican el porqué, la atribución Co-Authored-By y cómo automatizar mensajes en modo headless.</p></a>
+<a class="tarjeta" data-slug="27-ramas-y-pull-requests" href="lecciones/27-ramas-y-pull-requests.html"><span class="num">27</span><strong>Ramas y pull requests</strong><p>Crear ramas con buenos nombres, trabajar en paralelo con git worktrees (claude --worktree), abrir pull requests con gh, redactar descripciones útiles, seguir el estado del PR y retomar la sesión desde el PR.</p></a>
+<a class="tarjeta" data-slug="28-revisar-codigo-y-prs-con-claude" href="lecciones/28-revisar-codigo-y-prs-con-claude.html"><span class="num">28</span><strong>Revisar código y PRs con Claude</strong><p>Revisión local con /review (/code-review) y sus niveles de esfuerzo, --fix y --comment, /security-review, revisar PRs ajenos con gh, revisión adversarial en una sesión limpia, y la revisión automática en GitHub con REVIEW.md.</p></a>
+<a class="tarjeta" data-slug="29-resolver-conflictos-de-merge" href="lecciones/29-resolver-conflictos-de-merge.html"><span class="num">29</span><strong>Resolver conflictos de merge</strong><p>Cómo usar a Claude para entender y resolver conflictos de merge y rebase - leer la intención de ambos lados con el historial, resolver archivo a archivo, verificar con tests, casos especiales (lockfiles, generados, renombrados) y cuándo decidir tú.</p></a>
+<a class="tarjeta" data-slug="30-proyecto-lleva-un-cambio-de-principio-a-fin" href="lecciones/30-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="num">30</span><strong>&quot;Proyecto de portafolio: lleva un cambio de principio a fin&quot;</strong><p>Proyecto práctico de las secciones 3 y 4 - desde un ticket hasta un pull request fusionable, pasando por worktree, plan con opusplan, implementación verificada, commits atómicos, auto-revisión, PR y atención a comentarios.</p></a>
 </div></section>
     <footer class="pie">
       <p>Material de estudio original, escrito a partir de la documentación oficial de Claude Code (<a href="https://code.claude.com/docs">code.claude.com/docs</a>). Claude Code evoluciona rápido: si un comando o flag no coincide con tu versión, revisa <code>claude --help</code> y la documentación oficial.</p>

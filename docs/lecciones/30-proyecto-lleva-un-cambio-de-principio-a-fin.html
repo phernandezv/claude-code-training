@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>30. &quot;Proyecto de portafolio: lleva un cambio de principio a fin&quot; · Curso Claude Code</title>
+<meta name="description" content="Proyecto práctico de las secciones 3 y 4 - desde un ticket hasta un pull request fusionable, pasando por worktree, plan con opusplan, implementación verificada, commits atómicos, auto-revisión, PR y atención a comentarios.">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body data-slug="30-proyecto-lleva-un-cambio-de-principio-a-fin">
+<header class="topbar">
+  <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
+  <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
+  <button class="tema-btn" aria-label="Cambiar tema" onclick="alternarTema()">◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar"><div class="nav-seccion"><p class="nav-titulo">1. Primeros pasos</p><ol>
+<li data-slug="01-conoce-claude-code-y-ponlo-en-marcha"><a href="../lecciones/01-conoce-claude-code-y-ponlo-en-marcha.html"><span class="nav-num">1</span>Conoce Claude Code y ponlo en marcha</a></li>
+<li data-slug="02-tu-primera-sesion-con-claude"><a href="../lecciones/02-tu-primera-sesion-con-claude.html"><span class="nav-num">2</span>Tu primera sesión con Claude</a></li>
+<li data-slug="03-como-hace-claude-un-cambio"><a href="../lecciones/03-como-hace-claude-un-cambio.html"><span class="nav-num">3</span>Cómo hace Claude realmente un cambio</a></li>
+<li data-slug="04-modos-de-permisos-mantener-el-control"><a href="../lecciones/04-modos-de-permisos-mantener-el-control.html"><span class="nav-num">4</span>&quot;Modos de permisos: mantener el control&quot;</a></li>
+<li data-slug="05-modo-headless-respuestas-rapidas-sin-chat"><a href="../lecciones/05-modo-headless-respuestas-rapidas-sin-chat.html"><span class="nav-num">5</span>&quot;Modo headless: respuestas rápidas sin el chat&quot;</a></li>
+<li data-slug="06-reanudar-y-gestionar-sesiones"><a href="../lecciones/06-reanudar-y-gestionar-sesiones.html"><span class="nav-num">6</span>Reanudar y gestionar sesiones</a></li>
+<li data-slug="07-comandos-slash-y-revisar-tu-contexto"><a href="../lecciones/07-comandos-slash-y-revisar-tu-contexto.html"><span class="nav-num">7</span>Comandos slash y revisar tu contexto</a></li>
+<li data-slug="08-claude-code-en-tu-editor"><a href="../lecciones/08-claude-code-en-tu-editor.html"><span class="nav-num">8</span>Claude Code en tu editor</a></li>
+<li data-slug="09-comandos-largos-en-segundo-plano"><a href="../lecciones/09-comandos-largos-en-segundo-plano.html"><span class="nav-num">9</span>Ejecutar comandos largos en segundo plano</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">2. CLAUDE.md y configuración del proyecto</p><ol>
+<li data-slug="10-que-es-claude-md-y-por-que-se-carga"><a href="../lecciones/10-que-es-claude-md-y-por-que-se-carga.html"><span class="nav-num">10</span>Qué es CLAUDE.md y por qué se carga en cada sesión</a></li>
+<li data-slug="11-convenciones-comandos-de-build-y-arquitectura"><a href="../lecciones/11-convenciones-comandos-de-build-y-arquitectura.html"><span class="nav-num">11</span>Convenciones, comandos de build y arquitectura</a></li>
+<li data-slug="12-escribir-reglas-que-se-cumplan"><a href="../lecciones/12-escribir-reglas-que-se-cumplan.html"><span class="nav-num">12</span>Escribir reglas que se cumplan</a></li>
+<li data-slug="13-alcance-proyecto-usuario-y-archivos-anidados"><a href="../lecciones/13-alcance-proyecto-usuario-y-archivos-anidados.html"><span class="nav-num">13</span>&quot;Alcance: proyecto vs. usuario vs. archivos anidados&quot;</a></li>
+<li data-slug="14-cuando-no-usar-claude-md"><a href="../lecciones/14-cuando-no-usar-claude-md.html"><span class="nav-num">14</span>Cuándo no usar CLAUDE.md</a></li>
+<li data-slug="15-reglas-y-permisos-del-proyecto"><a href="../lecciones/15-reglas-y-permisos-del-proyecto.html"><span class="nav-num">15</span>Reglas y permisos del proyecto</a></li>
+<li data-slug="16-estilos-de-salida"><a href="../lecciones/16-estilos-de-salida.html"><span class="nav-num">16</span>&quot;Estilos de salida: elegir cómo te responde Claude&quot;</a></li>
+<li data-slug="17-proyecto-configura-claude-en-un-proyecto-real"><a href="../lecciones/17-proyecto-configura-claude-en-un-proyecto-real.html"><span class="nav-num">17</span>&quot;Proyecto de portafolio: configura Claude en un proyecto real&quot;</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">3. Planificar y elegir modelo</p><ol>
+<li data-slug="18-la-mentalidad-planificar-y-luego-ejecutar"><a href="../lecciones/18-la-mentalidad-planificar-y-luego-ejecutar.html"><span class="nav-num">18</span>La mentalidad de planificar y luego ejecutar</a></li>
+<li data-slug="19-entrar-y-leer-un-plan-en-modo-plan"><a href="../lecciones/19-entrar-y-leer-un-plan-en-modo-plan.html"><span class="nav-num">19</span>Entrar en modo plan y leer un plan</a></li>
+<li data-slug="20-aprobar-editar-e-iterar-un-plan"><a href="../lecciones/20-aprobar-editar-e-iterar-un-plan.html"><span class="nav-num">20</span>Aprobar, editar e iterar sobre un plan</a></li>
+<li data-slug="21-compromisos-entre-modelos-opus-sonnet-haiku"><a href="../lecciones/21-compromisos-entre-modelos-opus-sonnet-haiku.html"><span class="nav-num">21</span>&quot;Compromisos entre modelos: Opus vs. Sonnet vs. Haiku&quot;</a></li>
+<li data-slug="22-cambiar-de-modelo-a-mitad-de-sesion"><a href="../lecciones/22-cambiar-de-modelo-a-mitad-de-sesion.html"><span class="nav-num">22</span>Cambiar de modelo a mitad de sesión</a></li>
+<li data-slug="23-el-hibrido-opusplan"><a href="../lecciones/23-el-hibrido-opusplan.html"><span class="nav-num">23</span>El híbrido opusplan</a></li>
+<li data-slug="24-gestionar-contexto-y-coste-en-el-bucle"><a href="../lecciones/24-gestionar-contexto-y-coste-en-el-bucle.html"><span class="nav-num">24</span>Gestionar contexto y coste a lo largo del bucle</a></li>
+</ol></div>
+<div class="nav-seccion"><p class="nav-titulo">4. Git y flujo de trabajo</p><ol>
+<li data-slug="25-como-trabaja-claude-con-tu-repo"><a href="../lecciones/25-como-trabaja-claude-con-tu-repo.html"><span class="nav-num">25</span>&quot;Cómo trabaja Claude con tu repo: estado, diffs e historial&quot;</a></li>
+<li data-slug="26-hacer-buenos-commits"><a href="../lecciones/26-hacer-buenos-commits.html"><span class="nav-num">26</span>&quot;Hacer buenos commits: staging y mensajes de commit&quot;</a></li>
+<li data-slug="27-ramas-y-pull-requests"><a href="../lecciones/27-ramas-y-pull-requests.html"><span class="nav-num">27</span>Ramas y pull requests</a></li>
+<li data-slug="28-revisar-codigo-y-prs-con-claude"><a href="../lecciones/28-revisar-codigo-y-prs-con-claude.html"><span class="nav-num">28</span>Revisar código y PRs con Claude</a></li>
+<li data-slug="29-resolver-conflictos-de-merge"><a href="../lecciones/29-resolver-conflictos-de-merge.html"><span class="nav-num">29</span>Resolver conflictos de merge</a></li>
+<li data-slug="30-proyecto-lleva-un-cambio-de-principio-a-fin"><a href="../lecciones/30-proyecto-lleva-un-cambio-de-principio-a-fin.html"><span class="nav-num">30</span>&quot;Proyecto de portafolio: lleva un cambio de principio a fin&quot;</a></li>
+</ol></div></nav>
+  <main class="contenido">
+    <p class="migas">Sección 4 · Git y flujo de trabajo</p>
+    <h1><span class="num-grande">30</span>&quot;Proyecto de portafolio: lleva un cambio de principio a fin&quot;</h1>
+    <p class="resumen">Proyecto práctico de las secciones 3 y 4 - desde un ticket hasta un pull request fusionable, pasando por worktree, plan con opusplan, implementación verificada, commits atómicos, auto-revisión, PR y atención a comentarios.</p>
+    <article class="leccion">
+<h2 id="el-reto">El reto<a class="headerlink" href="#el-reto" title="Permanent link">#</a></h2>
+<p>Toma una <strong>incidencia real</strong> de tu backlog (o inventa una razonable) y llévala hasta un PR listo para fusionar usando todo lo aprendido. El foco no es solo el código, sino el <strong>proceso</strong>: plan revisado, verificación, historial limpio, revisión y comunicación.</p>
+<p>Elige algo de tamaño <strong>mediano</strong>: toca de 3 a 10 archivos, necesita tests y tiene al menos una decisión de diseño. Ejemplos:</p>
+<ul>
+<li>Añadir paginación a un endpoint que devuelve listas enteras.</li>
+<li>Permitir que el usuario cambie su email con verificación.</li>
+<li>Añadir un filtro por rango de fechas a un listado.</li>
+<li>Sustituir una librería obsoleta en un módulo.</li>
+</ul>
+<h2 id="criterios-de-exito">Criterios de éxito<a class="headerlink" href="#criterios-de-exito" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Criterio</th>
+<th>Evidencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Trabajo aislado en worktree/rama</td>
+<td><code>git worktree list</code> o nombre de rama</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Plan revisado con al menos una iteración</td>
+<td>Plan guardado (con <code>plansDirectory</code>) o captura</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Tests nuevos/actualizados y en verde</td>
+<td>Salida de tests</td>
+</tr>
+<tr>
+<td>4</td>
+<td>2–5 commits atómicos con mensajes que explican el porqué</td>
+<td><code>git log --oneline</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Auto-revisión con <code>/review</code> (y <code>/security-review</code> si aplica)</td>
+<td>Hallazgos y cómo se resolvieron</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PR con qué/por qué/cómo probar/riesgos</td>
+<td>Enlace al PR</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Al menos un comentario de revisión atendido</td>
+<td>Commit posterior</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Coste de la sesión anotado</td>
+<td><code>/usage</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="fase-1-preparar-10-min">Fase 1: preparar (10 min)<a class="headerlink" href="#fase-1-preparar-10-min" title="Permanent link">#</a></h2>
+<pre><code class="language-bash">cd mi-proyecto
+git switch main &amp;&amp; git pull
+claude -w paginacion-pedidos --model opusplan --permission-mode plan
+</code></pre>
+<p>Opcional, para versionar el plan:</p>
+<pre><code class="language-json">{ &quot;plansDirectory&quot;: &quot;./plans&quot; }
+</code></pre>
+<h2 id="fase-2-explorar-y-planificar-2030-min">Fase 2: explorar y planificar (20–30 min)<a class="headerlink" href="#fase-2-explorar-y-planificar-2030-min" title="Permanent link">#</a></h2>
+<pre><code class="language-text">&gt; Ticket: &lt;pega aquí el ticket&gt;. Antes de planificar, hazme las preguntas
+  que necesites sobre requisitos y casos límite.
+</code></pre>
+<p>Responde, y luego:</p>
+<pre><code class="language-text">&gt; Propón el plan con: archivos afectados, pasos, decisiones y alternativas,
+  riesgos, verificación y fuera de alcance.
+</code></pre>
+<p>Revísalo con la lista de la lección 19. Itera al menos una vez con feedback concreto (lección 20). Retoca con <code>Ctrl+G</code> si hace falta.</p>
+<h2 id="fase-3-implementar-3060-min">Fase 3: implementar (30–60 min)<a class="headerlink" href="#fase-3-implementar-3060-min" title="Permanent link">#</a></h2>
+<p>Aprueba con el modo que prefieras. <code>opusplan</code> pasará a Sonnet para ejecutar.</p>
+<pre><code class="language-text">&gt; Implementa el plan paso a paso. Tras cada paso ejecuta los tests afectados.
+  Si algo contradice el plan, detente y consúltame.
+</code></pre>
+<p>Durante la implementación:</p>
+<ul>
+<li>Vigila la lista de tareas (<code>Ctrl+T</code>).</li>
+<li>Interrumpe con <code>Esc</code> si se desvía.</li>
+<li>Si el contexto crece mucho, <code>/compact</code> con foco en lo pendiente.</li>
+<li>Si la implementación destapa algo imprevisto, vuelve a <code>/plan</code>.</li>
+</ul>
+<h2 id="fase-4-historial-limpio-10-min">Fase 4: historial limpio (10 min)<a class="headerlink" href="#fase-4-historial-limpio-10-min" title="Permanent link">#</a></h2>
+<pre><code class="language-text">&gt; Revisa todos los cambios y organízalos en commits atómicos siguiendo
+  Conventional Commits (por ejemplo: refactor previo, funcionalidad, tests,
+  docs). Muéstrame los mensajes antes de commitear.
+</code></pre>
+<pre><code class="language-bash">git log --oneline main..HEAD
+</code></pre>
+<h2 id="fase-5-auto-revision-15-min">Fase 5: auto-revisión (15 min)<a class="headerlink" href="#fase-5-auto-revision-15-min" title="Permanent link">#</a></h2>
+<pre><code class="language-text">/review high
+</code></pre>
+<p>Clasifica cada hallazgo: corregir / falso positivo (explica por qué) / fuera de alcance (crea un ticket).</p>
+<p>Si tocas autenticación, datos personales o pagos:</p>
+<pre><code class="language-text">/security-review
+</code></pre>
+<p>Corrige, vuelve a pasar tests y crea un commit <code>fix:</code> o enmienda el commit afectado (si aún no has subido la rama).</p>
+<h2 id="fase-6-pull-request-10-min">Fase 6: pull request (10 min)<a class="headerlink" href="#fase-6-pull-request-10-min" title="Permanent link">#</a></h2>
+<pre><code class="language-text">&gt; Sube la rama y crea un PR hacia main. Descripción con: Qué, Por qué,
+  Cómo (decisiones clave), Cómo probarlo (pasos exactos), Riesgos y
+  Fuera de alcance. Enlaza el ticket.
+</code></pre>
+<p>Revisa la descripción y pide mejoras si hace falta.</p>
+<h2 id="fase-7-atender-la-revision">Fase 7: atender la revisión<a class="headerlink" href="#fase-7-atender-la-revision" title="Permanent link">#</a></h2>
+<p>Pide a un compañero que revise (o usa una sesión limpia como revisor adversarial, lección 28). Luego:</p>
+<pre><code class="language-text">&gt; Lee los comentarios del PR con gh. Para cada uno propón cómo atenderlo;
+  espera mi confirmación y después aplica, commitea y sube.
+</code></pre>
+<p>Si pasa tiempo y <code>main</code> avanza, practica también la integración:</p>
+<pre><code class="language-text">&gt; Integra main en esta rama (merge). Si hay conflictos, explícame ambos lados
+  antes de resolver.
+</code></pre>
+<h2 id="fase-8-cierre-y-reflexion">Fase 8: cierre y reflexión<a class="headerlink" href="#fase-8-cierre-y-reflexion" title="Permanent link">#</a></h2>
+<ul>
+<li>Ejecuta <code>/usage</code> y anota coste y duración.</li>
+<li>Pregunta a Claude: <em>"¿Qué deberíamos añadir a CLAUDE.md o a las reglas del proyecto a partir de esta tarea?"</em> y aplica lo que tenga sentido.</li>
+<li>Sal de la sesión y decide si conservar el worktree.</li>
+</ul>
+<h2 id="entregable">Entregable<a class="headerlink" href="#entregable" title="Permanent link">#</a></h2>
+<p>Un breve documento (puede ir en la descripción del PR o en <code>docs/</code>) con:</p>
+<ol>
+<li>Enlace al PR.</li>
+<li>El plan final y qué cambió respecto al primero.</li>
+<li>Hallazgos de la revisión y su resolución.</li>
+<li>Coste/tiempo y lo que harías distinto.</li>
+</ol>
+<h2 id="rubrica">Rúbrica<a class="headerlink" href="#rubrica" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Básico</th>
+<th>Bueno</th>
+<th>Excelente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plan</td>
+<td>Aprobado sin revisar</td>
+<td>Revisado, una iteración</td>
+<td>Iterado, con alternativas y riesgos explícitos</td>
+</tr>
+<tr>
+<td>Verificación</td>
+<td>Tests existentes</td>
+<td>Tests nuevos</td>
+<td>Tests nuevos + casos límite + lint/tipos</td>
+</tr>
+<tr>
+<td>Historial</td>
+<td>Un único commit</td>
+<td>Varios commits</td>
+<td>Commits atómicos con cuerpo explicativo</td>
+</tr>
+<tr>
+<td>Revisión</td>
+<td>Ninguna</td>
+<td><code>/review</code></td>
+<td><code>/review</code> + seguridad + revisión humana atendida</td>
+</tr>
+<tr>
+<td>Comunicación</td>
+<td>PR sin descripción</td>
+<td>Descripción completa</td>
+<td>Descripción + pasos de prueba + riesgos + aprendizajes aplicados</td>
+</tr>
+</tbody>
+</table>
+<h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/worktrees">Worktrees</a> · <a href="https://code.claude.com/docs/en/permission-modes">Modo plan</a> · <a href="https://code.claude.com/docs/en/code-review">Code Review</a></li>
+<li><a href="https://code.claude.com/docs/en/best-practices">Buenas prácticas</a></li>
+</ul>
+    </article>
+    <div class="completar">
+      <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
+    </div>
+    <nav class="paginacion"><a class="prev" href="29-resolver-conflictos-de-merge.html"><small>← Anterior</small>29. Resolver conflictos de merge</a><span></span></nav>
+  </main>
+  <aside class="toc"><p>En esta lección</p><div class="toc">
+<ul>
+<li><a href="#el-reto">El reto</a></li>
+<li><a href="#criterios-de-exito">Criterios de éxito</a></li>
+<li><a href="#fase-1-preparar-10-min">Fase 1: preparar (10 min)</a></li>
+<li><a href="#fase-2-explorar-y-planificar-2030-min">Fase 2: explorar y planificar (20–30 min)</a></li>
+<li><a href="#fase-3-implementar-3060-min">Fase 3: implementar (30–60 min)</a></li>
+<li><a href="#fase-4-historial-limpio-10-min">Fase 4: historial limpio (10 min)</a></li>
+<li><a href="#fase-5-auto-revision-15-min">Fase 5: auto-revisión (15 min)</a></li>
+<li><a href="#fase-6-pull-request-10-min">Fase 6: pull request (10 min)</a></li>
+<li><a href="#fase-7-atender-la-revision">Fase 7: atender la revisión</a></li>
+<li><a href="#fase-8-cierre-y-reflexion">Fase 8: cierre y reflexión</a></li>
+<li><a href="#entregable">Entregable</a></li>
+<li><a href="#rubrica">Rúbrica</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ul>
+</div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>
