@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>9. Ejecutar comandos largos en segundo plano · Curso Claude Code</title>
-<meta name="description" content="Servidores de desarrollo, builds en modo watch y suites de tests largas sin bloquear la sesión - Ctrl+B, run_in_background, /tasks, la herramienta Monitor y sesiones en segundo plano.">
+<title>48. &quot;Proyecto de portafolio: integra Claude en tu stack&quot; · Curso Claude Code</title>
+<meta name="description" content="Proyecto práctico de las secciones 5 y 6 - conectar un servicio por MCP o CLI, crear skills y comandos del equipo, añadir hooks de calidad y seguridad, y automatizar una tarea en CI, todo documentado y versionado en el repositorio.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="09-comandos-largos-en-segundo-plano">
+<body data-slug="48-proyecto-integra-claude-en-tu-stack">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -76,194 +76,232 @@
 <li data-slug="48-proyecto-integra-claude-en-tu-stack"><a href="../lecciones/48-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">48</span>&quot;Proyecto de portafolio: integra Claude en tu stack&quot;</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 1 · Primeros pasos</p>
-    <h1><span class="num-grande">9</span>Ejecutar comandos largos en segundo plano</h1>
-    <p class="resumen">Servidores de desarrollo, builds en modo watch y suites de tests largas sin bloquear la sesión - Ctrl+B, run_in_background, /tasks, la herramienta Monitor y sesiones en segundo plano.</p>
+    <p class="migas">Sección 6 · Skills, comandos y hooks</p>
+    <h1><span class="num-grande">48</span>&quot;Proyecto de portafolio: integra Claude en tu stack&quot;</h1>
+    <p class="resumen">Proyecto práctico de las secciones 5 y 6 - conectar un servicio por MCP o CLI, crear skills y comandos del equipo, añadir hooks de calidad y seguridad, y automatizar una tarea en CI, todo documentado y versionado en el repositorio.</p>
     <article class="leccion">
-<h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
-<ul>
-<li>Entender por qué un comando largo bloquea a Claude y cómo evitarlo.</li>
-<li>Mandar comandos a segundo plano con <code>Ctrl+B</code> o pidiéndoselo a Claude.</li>
-<li>Consultar y detener tareas con <code>/tasks</code>.</li>
-<li>Vigilar logs o procesos con la herramienta <strong>Monitor</strong>.</li>
-<li>Conocer las sesiones en segundo plano (<code>/background</code>).</li>
-</ul>
-<h2 id="el-problema">El problema<a class="headerlink" href="#el-problema" title="Permanent link">#</a></h2>
-<p>Por defecto, cuando Claude ejecuta un comando con la herramienta <code>Bash</code>, <strong>espera a que termine</strong> para leer la salida. Con un <code>npm test</code> de 10 segundos no pasa nada, pero con:</p>
-<ul>
-<li>un servidor de desarrollo (<code>npm run dev</code>, <code>rails server</code>, <code>docker compose up</code>),</li>
-<li>un build en modo <em>watch</em> (<code>vite</code>, <code>tsc --watch</code>),</li>
-<li>una suite de tests de 15 minutos,</li>
-</ul>
-<p>la sesión quedaría bloqueada o el comando alcanzaría su tiempo máximo (por defecto 2 minutos).</p>
-<h2 id="como-funciona-el-segundo-plano">Cómo funciona el segundo plano<a class="headerlink" href="#como-funciona-el-segundo-plano" title="Permanent link">#</a></h2>
-<p>Un comando en segundo plano:</p>
-<ul>
-<li>Se ejecuta de forma <strong>asíncrona</strong> y devuelve inmediatamente un <strong>ID de tarea</strong>.</li>
-<li>Escribe su salida en un <strong>archivo</strong> que Claude puede leer cuando quiera.</li>
-<li>Permite que Claude siga trabajando (y que tú sigas escribiendo) mientras corre.</li>
-<li>Se limpia automáticamente al salir de Claude Code.</li>
-</ul>
-<p>Además, si un comando normal <strong>supera su timeout</strong>, Claude Code lo mueve automáticamente a segundo plano en lugar de matarlo (excepto los que empiezan por <code>sleep</code>).</p>
-<h2 id="tres-formas-de-enviar-algo-a-segundo-plano">Tres formas de enviar algo a segundo plano<a class="headerlink" href="#tres-formas-de-enviar-algo-a-segundo-plano" title="Permanent link">#</a></h2>
-<h3 id="1-pedirselo-a-claude">1. Pedírselo a Claude<a class="headerlink" href="#1-pedirselo-a-claude" title="Permanent link">#</a></h3>
-<pre><code class="language-text">&gt; Arranca el servidor de desarrollo en segundo plano y luego comprueba
-  que /api/health responde 200.
-</code></pre>
-<p>Claude usará la opción <code>run_in_background</code> de la herramienta Bash, esperará a que el servidor esté listo leyendo su salida y hará la comprobación.</p>
-<h3 id="2-ctrlb-sobre-un-comando-en-marcha">2. <code>Ctrl+B</code> sobre un comando en marcha<a class="headerlink" href="#2-ctrlb-sobre-un-comando-en-marcha" title="Permanent link">#</a></h3>
-<p>Si Claude lanzó un comando que está tardando, pulsa <strong><code>Ctrl+B</code></strong> para mandarlo a segundo plano sin cancelarlo.</p>
-<div class="admonition note">
-<p class="admonition-title">Usuarios de tmux</p>
-<p>En tmux <code>Ctrl+B</code> es la tecla prefijo, así que tendrás que pulsarlo <strong>dos veces</strong>.</p>
-</div>
-<h3 id="3-tus-propios-comandos-con">3. Tus propios comandos con <code>!</code><a class="headerlink" href="#3-tus-propios-comandos-con" title="Permanent link">#</a></h3>
-<p>El modo shell también admite <code>Ctrl+B</code>:</p>
-<pre><code class="language-text">! npm run dev
-(pulsa Ctrl+B)
-</code></pre>
-<h2 id="ver-y-gestionar-tareas-tasks">Ver y gestionar tareas: <code>/tasks</code><a class="headerlink" href="#ver-y-gestionar-tareas-tasks" title="Permanent link">#</a></h2>
-<pre><code class="language-text">/tasks
-</code></pre>
-<p>Lista las tareas en segundo plano de la sesión (comandos y subagentes), su estado, y te permite ver su salida o <strong>detenerlas</strong>. También está disponible como <code>/bashes</code>.</p>
-<p>Ejemplo de flujo:</p>
-<pre><code class="language-text">&gt; Arranca `npm run dev` en segundo plano.
-  ● Bash(npm run dev) → running in background (id: b1)
-
-&gt; Ahora añade un endpoint /api/version y comprueba que responde.
-  ● Edit(src/server/routes.ts)
-  ● Read(salida de b1) → &quot;server restarted&quot;
-  ● Bash(curl -s localhost:3000/api/version) → {&quot;version&quot;:&quot;1.4.0&quot;}
-
-&gt; /tasks   → detener b1
-</code></pre>
-<h2 id="vigilar-cosas-la-herramienta-monitor">Vigilar cosas: la herramienta Monitor<a class="headerlink" href="#vigilar-cosas-la-herramienta-monitor" title="Permanent link">#</a></h2>
-<p>La herramienta <strong>Monitor</strong> permite a Claude observar algo en segundo plano y <strong>reaccionar cuando cambia</strong>, sin pausar la conversación. Por ejemplo:</p>
-<ul>
-<li>Seguir un archivo de log y avisar cuando aparece un error.</li>
-<li>Consultar el estado de un job de CI o de un PR y avisar cuando cambia.</li>
-<li>Vigilar un directorio.</li>
-<li>Seguir la salida de cualquier script largo.</li>
-</ul>
-<pre><code class="language-text">&gt; Vigila logs/app.log y avísame cada vez que aparezca un ERROR o un stack trace.
-  Mientras tanto, vamos a revisar el módulo de facturación.
-</code></pre>
-<p>Tú sigues trabajando y Claude interviene cuando llega un evento.</p>
-<h2 id="sesiones-enteras-en-segundo-plano">Sesiones enteras en segundo plano<a class="headerlink" href="#sesiones-enteras-en-segundo-plano" title="Permanent link">#</a></h2>
-<p>Además de comandos sueltos, puedes mandar <strong>toda la sesión</strong> a segundo plano para liberar la terminal:</p>
-<table>
-<thead>
-<tr>
-<th>Comando</th>
-<th>Qué hace</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>/background [prompt]</code></td>
-<td>Separa la sesión actual y la deja trabajando en segundo plano</td>
-</tr>
-<tr>
-<td><code>/fork [prompt]</code></td>
-<td>Copia la conversación a una nueva sesión en segundo plano y tú sigues aquí</td>
-</tr>
-<tr>
-<td><code>claude agents</code></td>
-<td>Vista para monitorizar tus sesiones en segundo plano</td>
-</tr>
-</tbody>
-</table>
-<p>Esto es útil cuando una tarea larga (una migración, una batería de refactors) no necesita tu atención constante.</p>
-<h2 id="limites-y-detalles-a-tener-en-cuenta">Límites y detalles a tener en cuenta<a class="headerlink" href="#limites-y-detalles-a-tener-en-cuenta" title="Permanent link">#</a></h2>
-<ul>
-<li>En <strong>modo headless</strong> (<code>claude -p</code>), los comandos en segundo plano se terminan unos segundos después de que Claude devuelva su resultado final.</li>
-<li>Las tareas en segundo plano que generan más de 5 GB de salida se terminan automáticamente.</li>
-<li>Un <code>cd</code> dentro de un comando movido a segundo plano <strong>no</strong> cambia el directorio de la sesión.</li>
-<li>Para desactivar por completo esta funcionalidad: variable de entorno <code>CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1</code>.</li>
-</ul>
-<h2 id="candidatos-tipicos-para-segundo-plano">Candidatos típicos para segundo plano<a class="headerlink" href="#candidatos-tipicos-para-segundo-plano" title="Permanent link">#</a></h2>
-<table>
-<thead>
-<tr>
-<th>Tipo</th>
-<th>Ejemplos</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Servidores de desarrollo</td>
-<td><code>npm run dev</code>, <code>python manage.py runserver</code>, <code>rails s</code></td>
-</tr>
-<tr>
-<td>Builds en watch</td>
-<td><code>vite</code>, <code>webpack --watch</code>, <code>tsc --watch</code>, <code>cargo watch</code></td>
-</tr>
-<tr>
-<td>Tests largos</td>
-<td><code>pytest</code>, <code>jest --runInBand</code>, tests e2e</td>
-</tr>
-<tr>
-<td>Infraestructura local</td>
-<td><code>docker compose up</code>, <code>terraform plan</code></td>
-</tr>
-<tr>
-<td>Instalaciones pesadas</td>
-<td><code>npm ci</code>, <code>pip install -r requirements.txt</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="buenas-practicas">Buenas prácticas<a class="headerlink" href="#buenas-practicas" title="Permanent link">#</a></h2>
-<ul>
-<li>Di explícitamente <em>"en segundo plano"</em> cuando pidas arrancar servidores.</li>
-<li>Pide a Claude que <strong>espere a una señal</strong> ("espera a ver 'ready on port 3000'") antes de continuar.</li>
-<li>Revisa <code>/tasks</code> antes de cerrar para no dejar procesos huérfanos (aunque se limpian al salir).</li>
-<li>En tareas muy largas, combina segundo plano + Monitor para que Claude te avise.</li>
-</ul>
-<h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
-<ul>
-<li>Los comandos largos bloquean; el segundo plano los hace asíncronos.</li>
-<li><code>Ctrl+B</code> (dos veces en tmux) o pedírselo a Claude; los que exceden el timeout pasan solos a segundo plano.</li>
-<li><code>/tasks</code> lista y detiene; Monitor vigila y reacciona.</li>
-<li><code>/background</code> y <code>/fork</code> llevan sesiones enteras a segundo plano.</li>
-</ul>
-<h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
+<h2 id="el-reto">El reto<a class="headerlink" href="#el-reto" title="Permanent link">#</a></h2>
+<p>Vas a convertir tu repositorio en un entorno donde Claude Code está <strong>integrado con las herramientas del equipo</strong> y trabaja con <strong>guardarraíles</strong>. Al terminar tendrás, versionado en Git:</p>
 <ol>
-<li>Pide a Claude que arranque tu servidor de desarrollo en segundo plano y compruebe un endpoint.</li>
-<li>Ejecuta <code>! npm test</code> (o equivalente) y pulsa <code>Ctrl+B</code>. Consulta después <code>/tasks</code>.</li>
-<li>Pide a Claude que vigile un log mientras hace otra tarea; genera un error a propósito y observa cómo reacciona.</li>
-<li>Detén todas las tareas desde <code>/tasks</code>.</li>
+<li>Al menos <strong>una integración externa</strong> (MCP o CLI) con permisos de mínimo privilegio.</li>
+<li>Al menos <strong>dos skills</strong> (una de conocimiento y una de tarea) y <strong>dos comandos</strong> con argumentos.</li>
+<li>Al menos <strong>tres hooks</strong>: calidad, seguridad y notificación/registro.</li>
+<li>Al menos <strong>una automatización</strong> en CI o programada.</li>
+<li>Documentación para el equipo.</li>
 </ol>
+<h2 id="criterios-de-exito">Criterios de éxito<a class="headerlink" href="#criterios-de-exito" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Criterio</th>
+<th>Evidencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Integración funcionando con permisos allow/ask/deny por herramienta</td>
+<td><code>/mcp</code> o uso de la CLI + reglas en <code>settings.json</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Sin secretos en el repo (<code>${VAR}</code> en <code>.mcp.json</code>)</td>
+<td>Revisión del diff</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Skill de conocimiento que Claude activa sola</td>
+<td>Petición natural que la activa</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Skill/comando de tarea con argumentos</td>
+<td><code>/comando arg1 arg2</code> funcionando</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Hook de calidad (formato/lint)</td>
+<td>Archivo formateado o feedback de lint</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Hook de seguridad (proteger archivos o comandos)</td>
+<td>Intento bloqueado con explicación</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Automatización en CI o programada</td>
+<td>Ejecución exitosa del workflow</td>
+</tr>
+<tr>
+<td>8</td>
+<td>README de la configuración de Claude</td>
+<td><code>docs/claude-code.md</code> o similar</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fase-1-elige-la-integracion-30-min">Fase 1: elige la integración (30 min)<a class="headerlink" href="#fase-1-elige-la-integracion-30-min" title="Permanent link">#</a></h2>
+<p>Piensa en la información externa que <strong>más copias a mano</strong> al chat: tickets, errores de producción, datos, documentación. Decide entre MCP y CLI con la tabla de la lección 37.</p>
+<p><strong>Opción MCP (ejemplo con Sentry):</strong></p>
+<pre><code class="language-bash">claude mcp add --transport http sentry --scope project https://mcp.sentry.dev/mcp
+</code></pre>
+<pre><code class="language-text">/mcp   → Authenticate
+</code></pre>
+<p><strong>Opción CLI (ejemplo con gh):</strong></p>
+<pre><code class="language-bash">gh auth login
+</code></pre>
+<p>Añade permisos en <code>.claude/settings.json</code> separando lectura, escritura y destrucción:</p>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [&quot;mcp__sentry__search_issues&quot;, &quot;mcp__sentry__get_issue_details&quot;],
+    &quot;ask&quot;: [&quot;mcp__sentry__update_issue&quot;],
+    &quot;deny&quot;: []
+  }
+}
+</code></pre>
+<h2 id="fase-2-skills-45-min">Fase 2: skills (45 min)<a class="headerlink" href="#fase-2-skills-45-min" title="Permanent link">#</a></h2>
+<p><strong>Skill de conocimiento</strong> (Claude la usa cuando hace falta), por ejemplo cómo interpretar vuestros errores o cómo consultar vuestros datos:</p>
+<pre><code class="language-text">.claude/skills/errores-produccion/SKILL.md
+</code></pre>
+<pre><code class="language-markdown">---
+name: errores-produccion
+description: Cómo investigar errores de producción del proyecto con Sentry y el código. Úsala cuando pregunten por errores, excepciones, caídas o incidencias en producción.
+---
+1. Busca el error en Sentry (proyecto &quot;&lt;nombre&gt;&quot;), filtra por entorno &quot;production&quot;.
+2. Obtén el stack trace y localiza el archivo y la línea en el repo.
+3. Revisa `git log` del archivo para ver cambios recientes relacionados.
+4. Propón la causa raíz y una corrección con test que la reproduzca.
+Convenciones: los errores de negocio heredan de DomainError y no se reportan como bugs.
+</code></pre>
+<p><strong>Skill o comando de tarea</strong> con argumentos:</p>
+<pre><code class="language-markdown">---
+name: investigar-error
+description: Investiga un error concreto de Sentry y propone una corrección
+argument-hint: &quot;[id-del-issue-de-sentry]&quot;
+disable-model-invocation: true
+---
+Investiga el error de Sentry $0 siguiendo la skill errores-produccion.
+No edites código: entrega un informe con causa raíz, archivos afectados y plan de corrección.
+</code></pre>
+<p>Añade un segundo comando útil para tu día a día (p. ej. <code>/standup</code>, <code>/revisar</code>, <code>/resumen-pr</code>).</p>
+<h2 id="fase-3-hooks-45-min">Fase 3: hooks (45 min)<a class="headerlink" href="#fase-3-hooks-45-min" title="Permanent link">#</a></h2>
+<p>Crea <code>.claude/hooks/</code> con al menos:</p>
+<ol>
+<li><strong>Calidad</strong>: formateo o lint tras <code>Edit|Write</code> (lección 45).</li>
+<li><strong>Seguridad</strong>: protección de archivos sensibles o bloqueo de comandos peligrosos.</li>
+<li><strong>Experiencia</strong>: notificación de escritorio (en tu configuración de usuario) o registro de auditoría.</li>
+</ol>
+<p>Prueba cada script por stdin antes de conectarlo:</p>
+<pre><code class="language-bash">echo '{&quot;tool_name&quot;:&quot;Edit&quot;,&quot;tool_input&quot;:{&quot;file_path&quot;:&quot;.env&quot;}}' | .claude/hooks/proteger.sh; echo &quot;exit=$?&quot;
+</code></pre>
+<p>Y verifica con <code>/hooks</code>.</p>
+<h2 id="fase-4-automatizacion-45-min">Fase 4: automatización (45 min)<a class="headerlink" href="#fase-4-automatizacion-45-min" title="Permanent link">#</a></h2>
+<p>Elige una:</p>
+<ul>
+<li><strong>GitHub Actions</strong>: workflow de menciones <code>@claude</code> o de revisión automática de PRs con tu skill.</li>
+<li><strong>Programada</strong>: workflow con <code>cron</code> o una routine que genere un informe semanal.</li>
+<li><strong>Pre-commit</strong>: revisión rápida del staging con <code>claude -p</code> y Haiku.</li>
+</ul>
+<p>Requisitos: permisos explícitos (<code>--allowedTools</code>), secretos en el gestor del CI, <code>--max-turns</code>.</p>
+<h2 id="fase-5-documentacion-20-min">Fase 5: documentación (20 min)<a class="headerlink" href="#fase-5-documentacion-20-min" title="Permanent link">#</a></h2>
+<p>Crea <code>docs/claude-code.md</code> con:</p>
+<pre><code class="language-markdown"># Claude Code en este repositorio
+
+## Integraciones
+- Sentry (MCP, alcance project). Autenticación: `/mcp` → Authenticate.
+
+## Skills y comandos
+| Comando | Qué hace |
+|---|---|
+| /investigar-error &lt;id&gt; | Informe de causa raíz de un error de Sentry |
+| … | … |
+
+## Hooks
+| Hook | Evento | Qué hace |
+|---|---|---|
+| proteger.sh | PreToolUse (Edit\|Write) | Bloquea .env, secrets/, lockfiles |
+| … | … | … |
+
+## Automatizaciones
+- `.github/workflows/claude-review.yml`: revisión automática en PRs.
+
+## Cómo desactivar algo
+- Hooks: `&quot;disableAllHooks&quot;: true` en `.claude/settings.local.json`.
+- Un servidor MCP: `/mcp disable &lt;nombre&gt;`.
+</code></pre>
+<h2 id="fase-6-prueba-de-extremo-a-extremo">Fase 6: prueba de extremo a extremo<a class="headerlink" href="#fase-6-prueba-de-extremo-a-extremo" title="Permanent link">#</a></h2>
+<p>En una sesión nueva:</p>
+<pre><code class="language-text">&gt; ¿Cuál es el error más frecuente de producción esta semana? Investígalo.
+</code></pre>
+<p>Comprueba que: se activa la skill de conocimiento, se usan las herramientas MCP/CLI permitidas sin preguntar, se pide confirmación en las de escritura, los hooks formatean/protegen, y el resultado es útil.</p>
+<h2 id="entrega">Entrega<a class="headerlink" href="#entrega" title="Permanent link">#</a></h2>
+<p>Un PR con toda la configuración (<code>.claude/</code>, <code>.mcp.json</code>, workflows, docs) y en la descripción: decisiones (MCP vs. CLI, permisos), qué hooks y por qué, y el resultado de la prueba de extremo a extremo.</p>
+<h2 id="rubrica">Rúbrica<a class="headerlink" href="#rubrica" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Básico</th>
+<th>Bueno</th>
+<th>Excelente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Integración</td>
+<td>Funciona</td>
+<td>Con permisos por herramienta</td>
+<td>Mínimo privilegio + sin secretos + documentada</td>
+</tr>
+<tr>
+<td>Skills/comandos</td>
+<td>Uno</td>
+<td>Conocimiento + tarea</td>
+<td>Descripciones que activan bien + argumentos + archivos de apoyo</td>
+</tr>
+<tr>
+<td>Hooks</td>
+<td>Uno</td>
+<td>Calidad + seguridad</td>
+<td>Probados por stdin, rápidos, con mensajes útiles para Claude</td>
+</tr>
+<tr>
+<td>Automatización</td>
+<td>Workflow copiado</td>
+<td>Adaptado al repo</td>
+<td>Permisos mínimos, límites, útil para el equipo</td>
+</tr>
+<tr>
+<td>Documentación</td>
+<td>—</td>
+<td>Lista de piezas</td>
+<td>Guía para el equipo con cómo usar y desactivar</td>
+</tr>
+</tbody>
+</table>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/interactive-mode#background-bash-commands">Comandos Bash en segundo plano</a></li>
-<li><a href="https://code.claude.com/docs/en/tools-reference">Referencia de herramientas (Bash, Monitor)</a></li>
-<li><a href="https://code.claude.com/docs/en/agent-view">Vista de agentes y sesiones en segundo plano</a></li>
+<li><a href="https://code.claude.com/docs/en/mcp">MCP</a> · <a href="https://code.claude.com/docs/en/skills">Skills</a> · <a href="https://code.claude.com/docs/en/hooks-guide">Hooks</a> · <a href="https://code.claude.com/docs/en/github-actions">GitHub Actions</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="08-claude-code-en-tu-editor.html"><small>← Anterior</small>8. Claude Code en tu editor</a><a class="next" href="10-que-es-claude-md-y-por-que-se-carga.html"><small>Siguiente →</small>10. Qué es CLAUDE.md y por qué se carga en cada sesión</a></nav>
+    <nav class="paginacion"><a class="prev" href="47-ejecutar-claude-sin-ti.html"><small>← Anterior</small>47. &quot;Ejecutar Claude sin ti: CI, tareas programadas y pre-commit&quot;</a><span></span></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
-<li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#el-problema">El problema</a></li>
-<li><a href="#como-funciona-el-segundo-plano">Cómo funciona el segundo plano</a></li>
-<li><a href="#tres-formas-de-enviar-algo-a-segundo-plano">Tres formas de enviar algo a segundo plano</a><ul>
-<li><a href="#1-pedirselo-a-claude">1. Pedírselo a Claude</a></li>
-<li><a href="#2-ctrlb-sobre-un-comando-en-marcha">2. Ctrl+B sobre un comando en marcha</a></li>
-<li><a href="#3-tus-propios-comandos-con">3. Tus propios comandos con !</a></li>
-</ul>
-</li>
-<li><a href="#ver-y-gestionar-tareas-tasks">Ver y gestionar tareas: /tasks</a></li>
-<li><a href="#vigilar-cosas-la-herramienta-monitor">Vigilar cosas: la herramienta Monitor</a></li>
-<li><a href="#sesiones-enteras-en-segundo-plano">Sesiones enteras en segundo plano</a></li>
-<li><a href="#limites-y-detalles-a-tener-en-cuenta">Límites y detalles a tener en cuenta</a></li>
-<li><a href="#candidatos-tipicos-para-segundo-plano">Candidatos típicos para segundo plano</a></li>
-<li><a href="#buenas-practicas">Buenas prácticas</a></li>
-<li><a href="#resumen">Resumen</a></li>
-<li><a href="#ejercicios">Ejercicios</a></li>
+<li><a href="#el-reto">El reto</a></li>
+<li><a href="#criterios-de-exito">Criterios de éxito</a></li>
+<li><a href="#fase-1-elige-la-integracion-30-min">Fase 1: elige la integración (30 min)</a></li>
+<li><a href="#fase-2-skills-45-min">Fase 2: skills (45 min)</a></li>
+<li><a href="#fase-3-hooks-45-min">Fase 3: hooks (45 min)</a></li>
+<li><a href="#fase-4-automatizacion-45-min">Fase 4: automatización (45 min)</a></li>
+<li><a href="#fase-5-documentacion-20-min">Fase 5: documentación (20 min)</a></li>
+<li><a href="#fase-6-prueba-de-extremo-a-extremo">Fase 6: prueba de extremo a extremo</a></li>
+<li><a href="#entrega">Entrega</a></li>
+<li><a href="#rubrica">Rúbrica</a></li>
 <li><a href="#referencias">Referencias</a></li>
 </ul>
 </div>

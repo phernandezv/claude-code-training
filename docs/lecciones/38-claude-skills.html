@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>9. Ejecutar comandos largos en segundo plano · Curso Claude Code</title>
-<meta name="description" content="Servidores de desarrollo, builds en modo watch y suites de tests largas sin bloquear la sesión - Ctrl+B, run_in_background, /tasks, la herramienta Monitor y sesiones en segundo plano.">
+<title>38. Skills de Claude · Curso Claude Code</title>
+<meta name="description" content="Qué es una skill, cómo funciona la carga progresiva (descripción siempre, contenido al usarse), tipos de skills (conocimiento y tarea), quién puede invocarlas, dónde viven, las skills incluidas (/run, /verify, /code-review…) y el estándar abierto Agent Skills.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="09-comandos-largos-en-segundo-plano">
+<body data-slug="38-claude-skills">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -76,192 +76,273 @@
 <li data-slug="48-proyecto-integra-claude-en-tu-stack"><a href="../lecciones/48-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">48</span>&quot;Proyecto de portafolio: integra Claude en tu stack&quot;</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 1 · Primeros pasos</p>
-    <h1><span class="num-grande">9</span>Ejecutar comandos largos en segundo plano</h1>
-    <p class="resumen">Servidores de desarrollo, builds en modo watch y suites de tests largas sin bloquear la sesión - Ctrl+B, run_in_background, /tasks, la herramienta Monitor y sesiones en segundo plano.</p>
+    <p class="migas">Sección 6 · Skills, comandos y hooks</p>
+    <h1><span class="num-grande">38</span>Skills de Claude</h1>
+    <p class="resumen">Qué es una skill, cómo funciona la carga progresiva (descripción siempre, contenido al usarse), tipos de skills (conocimiento y tarea), quién puede invocarlas, dónde viven, las skills incluidas (/run, /verify, /code-review…) y el estándar abierto Agent Skills.</p>
     <article class="leccion">
 <h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
 <ul>
-<li>Entender por qué un comando largo bloquea a Claude y cómo evitarlo.</li>
-<li>Mandar comandos a segundo plano con <code>Ctrl+B</code> o pidiéndoselo a Claude.</li>
-<li>Consultar y detener tareas con <code>/tasks</code>.</li>
-<li>Vigilar logs o procesos con la herramienta <strong>Monitor</strong>.</li>
-<li>Conocer las sesiones en segundo plano (<code>/background</code>).</li>
+<li>Entender qué es una <strong>skill</strong> y qué problema resuelve.</li>
+<li>Conocer la <strong>carga progresiva</strong> y por qué hace a las skills baratas en contexto.</li>
+<li>Diferenciar skills de <strong>conocimiento</strong> y de <strong>tarea</strong>.</li>
+<li>Descubrir las skills incluidas y dónde se guardan las tuyas.</li>
 </ul>
-<h2 id="el-problema">El problema<a class="headerlink" href="#el-problema" title="Permanent link">#</a></h2>
-<p>Por defecto, cuando Claude ejecuta un comando con la herramienta <code>Bash</code>, <strong>espera a que termine</strong> para leer la salida. Con un <code>npm test</code> de 10 segundos no pasa nada, pero con:</p>
-<ul>
-<li>un servidor de desarrollo (<code>npm run dev</code>, <code>rails server</code>, <code>docker compose up</code>),</li>
-<li>un build en modo <em>watch</em> (<code>vite</code>, <code>tsc --watch</code>),</li>
-<li>una suite de tests de 15 minutos,</li>
-</ul>
-<p>la sesión quedaría bloqueada o el comando alcanzaría su tiempo máximo (por defecto 2 minutos).</p>
-<h2 id="como-funciona-el-segundo-plano">Cómo funciona el segundo plano<a class="headerlink" href="#como-funciona-el-segundo-plano" title="Permanent link">#</a></h2>
-<p>Un comando en segundo plano:</p>
-<ul>
-<li>Se ejecuta de forma <strong>asíncrona</strong> y devuelve inmediatamente un <strong>ID de tarea</strong>.</li>
-<li>Escribe su salida en un <strong>archivo</strong> que Claude puede leer cuando quiera.</li>
-<li>Permite que Claude siga trabajando (y que tú sigas escribiendo) mientras corre.</li>
-<li>Se limpia automáticamente al salir de Claude Code.</li>
-</ul>
-<p>Además, si un comando normal <strong>supera su timeout</strong>, Claude Code lo mueve automáticamente a segundo plano en lugar de matarlo (excepto los que empiezan por <code>sleep</code>).</p>
-<h2 id="tres-formas-de-enviar-algo-a-segundo-plano">Tres formas de enviar algo a segundo plano<a class="headerlink" href="#tres-formas-de-enviar-algo-a-segundo-plano" title="Permanent link">#</a></h2>
-<h3 id="1-pedirselo-a-claude">1. Pedírselo a Claude<a class="headerlink" href="#1-pedirselo-a-claude" title="Permanent link">#</a></h3>
-<pre><code class="language-text">&gt; Arranca el servidor de desarrollo en segundo plano y luego comprueba
-  que /api/health responde 200.
+<h2 id="que-es-una-skill">¿Qué es una skill?<a class="headerlink" href="#que-es-una-skill" title="Permanent link">#</a></h2>
+<p>Una skill es una <strong>carpeta con un archivo <code>SKILL.md</code></strong>: instrucciones, conocimiento o un procedimiento que Claude puede usar cuando lo necesita. Puede incluir archivos de apoyo (documentación de referencia, plantillas, scripts).</p>
+<pre><code class="language-text">.claude/skills/
+└── release/
+    ├── SKILL.md          ← instrucciones (obligatorio)
+    ├── checklist.md      ← material de referencia (opcional)
+    └── scripts/
+        └── bump.sh       ← script que Claude puede ejecutar (opcional)
 </code></pre>
-<p>Claude usará la opción <code>run_in_background</code> de la herramienta Bash, esperará a que el servidor esté listo leyendo su salida y hará la comprobación.</p>
-<h3 id="2-ctrlb-sobre-un-comando-en-marcha">2. <code>Ctrl+B</code> sobre un comando en marcha<a class="headerlink" href="#2-ctrlb-sobre-un-comando-en-marcha" title="Permanent link">#</a></h3>
-<p>Si Claude lanzó un comando que está tardando, pulsa <strong><code>Ctrl+B</code></strong> para mandarlo a segundo plano sin cancelarlo.</p>
+<p>Se invoca de dos formas:</p>
+<ul>
+<li><strong>Tú</strong>, escribiendo <code>/nombre-de-la-skill</code> (por eso las skills también son "comandos slash").</li>
+<li><strong>Claude</strong>, automáticamente, cuando tu petición encaja con la <strong>descripción</strong> de la skill.</li>
+</ul>
 <div class="admonition note">
-<p class="admonition-title">Usuarios de tmux</p>
-<p>En tmux <code>Ctrl+B</code> es la tecla prefijo, así que tendrás que pulsarlo <strong>dos veces</strong>.</p>
+<p class="admonition-title">Comandos personalizados = skills</p>
+<p>Los antiguos comandos en <code>.claude/commands/&lt;nombre&gt;.md</code> y las skills en <code>.claude/skills/&lt;nombre&gt;/SKILL.md</code> crean el mismo <code>/nombre</code> y funcionan igual. Los comandos siguen funcionando; las skills añaden carpeta propia con archivos de apoyo. Lo verás en la lección 42.</p>
 </div>
-<h3 id="3-tus-propios-comandos-con">3. Tus propios comandos con <code>!</code><a class="headerlink" href="#3-tus-propios-comandos-con" title="Permanent link">#</a></h3>
-<p>El modo shell también admite <code>Ctrl+B</code>:</p>
-<pre><code class="language-text">! npm run dev
-(pulsa Ctrl+B)
-</code></pre>
-<h2 id="ver-y-gestionar-tareas-tasks">Ver y gestionar tareas: <code>/tasks</code><a class="headerlink" href="#ver-y-gestionar-tareas-tasks" title="Permanent link">#</a></h2>
-<pre><code class="language-text">/tasks
-</code></pre>
-<p>Lista las tareas en segundo plano de la sesión (comandos y subagentes), su estado, y te permite ver su salida o <strong>detenerlas</strong>. También está disponible como <code>/bashes</code>.</p>
-<p>Ejemplo de flujo:</p>
-<pre><code class="language-text">&gt; Arranca `npm run dev` en segundo plano.
-  ● Bash(npm run dev) → running in background (id: b1)
-
-&gt; Ahora añade un endpoint /api/version y comprueba que responde.
-  ● Edit(src/server/routes.ts)
-  ● Read(salida de b1) → &quot;server restarted&quot;
-  ● Bash(curl -s localhost:3000/api/version) → {&quot;version&quot;:&quot;1.4.0&quot;}
-
-&gt; /tasks   → detener b1
-</code></pre>
-<h2 id="vigilar-cosas-la-herramienta-monitor">Vigilar cosas: la herramienta Monitor<a class="headerlink" href="#vigilar-cosas-la-herramienta-monitor" title="Permanent link">#</a></h2>
-<p>La herramienta <strong>Monitor</strong> permite a Claude observar algo en segundo plano y <strong>reaccionar cuando cambia</strong>, sin pausar la conversación. Por ejemplo:</p>
-<ul>
-<li>Seguir un archivo de log y avisar cuando aparece un error.</li>
-<li>Consultar el estado de un job de CI o de un PR y avisar cuando cambia.</li>
-<li>Vigilar un directorio.</li>
-<li>Seguir la salida de cualquier script largo.</li>
-</ul>
-<pre><code class="language-text">&gt; Vigila logs/app.log y avísame cada vez que aparezca un ERROR o un stack trace.
-  Mientras tanto, vamos a revisar el módulo de facturación.
-</code></pre>
-<p>Tú sigues trabajando y Claude interviene cuando llega un evento.</p>
-<h2 id="sesiones-enteras-en-segundo-plano">Sesiones enteras en segundo plano<a class="headerlink" href="#sesiones-enteras-en-segundo-plano" title="Permanent link">#</a></h2>
-<p>Además de comandos sueltos, puedes mandar <strong>toda la sesión</strong> a segundo plano para liberar la terminal:</p>
+<h2 id="carga-progresiva-por-que-las-skills-son-baratas">Carga progresiva: por qué las skills son baratas<a class="headerlink" href="#carga-progresiva-por-que-las-skills-son-baratas" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Comando</th>
-<th>Qué hace</th>
+<th>Momento</th>
+<th>Qué entra en el contexto</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>/background [prompt]</code></td>
-<td>Separa la sesión actual y la deja trabajando en segundo plano</td>
+<td>Inicio de sesión</td>
+<td>Solo el <strong>nombre y la descripción</strong> de cada skill</td>
 </tr>
 <tr>
-<td><code>/fork [prompt]</code></td>
-<td>Copia la conversación a una nueva sesión en segundo plano y tú sigues aquí</td>
+<td>Cuando se invoca</td>
+<td>El contenido completo de <code>SKILL.md</code></td>
 </tr>
 <tr>
-<td><code>claude agents</code></td>
-<td>Vista para monitorizar tus sesiones en segundo plano</td>
+<td>Si hace falta</td>
+<td>Los archivos de apoyo que <code>SKILL.md</code> referencia, leídos bajo demanda</td>
+</tr>
+<tr>
+<td>Scripts</td>
+<td>Se <strong>ejecutan</strong>; su código no tiene por qué entrar en contexto</td>
 </tr>
 </tbody>
 </table>
-<p>Esto es útil cuando una tarea larga (una migración, una batería de refactors) no necesita tu atención constante.</p>
-<h2 id="limites-y-detalles-a-tener-en-cuenta">Límites y detalles a tener en cuenta<a class="headerlink" href="#limites-y-detalles-a-tener-en-cuenta" title="Permanent link">#</a></h2>
-<ul>
-<li>En <strong>modo headless</strong> (<code>claude -p</code>), los comandos en segundo plano se terminan unos segundos después de que Claude devuelva su resultado final.</li>
-<li>Las tareas en segundo plano que generan más de 5 GB de salida se terminan automáticamente.</li>
-<li>Un <code>cd</code> dentro de un comando movido a segundo plano <strong>no</strong> cambia el directorio de la sesión.</li>
-<li>Para desactivar por completo esta funcionalidad: variable de entorno <code>CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1</code>.</li>
-</ul>
-<h2 id="candidatos-tipicos-para-segundo-plano">Candidatos típicos para segundo plano<a class="headerlink" href="#candidatos-tipicos-para-segundo-plano" title="Permanent link">#</a></h2>
+<p>Por eso puedes tener decenas de skills sin saturar el contexto, algo imposible si todo estuviera en <code>CLAUDE.md</code>.</p>
+<h2 id="dos-tipos-de-contenido">Dos tipos de contenido<a class="headerlink" href="#dos-tipos-de-contenido" title="Permanent link">#</a></h2>
+<h3 id="skills-de-conocimiento-referencia">Skills de conocimiento (referencia)<a class="headerlink" href="#skills-de-conocimiento-referencia" title="Permanent link">#</a></h3>
+<p>Aportan información que Claude aplica a lo que esté haciendo: guías de estilo, convenciones de API, conocimiento del dominio, cómo funciona un sistema heredado.</p>
+<pre><code class="language-markdown">---
+name: convenciones-api
+description: Convenciones de diseño de la API REST del proyecto. Úsala al crear o modificar endpoints.
+---
+- Rutas en plural y kebab-case: `/order-items/{id}`.
+- Errores: `{ &quot;error&quot;: { &quot;code&quot;: &quot;ORDER_NOT_FOUND&quot;, &quot;message&quot;: &quot;…&quot; } }` con el status adecuado.
+- Paginación por cursor: `?cursor=…&amp;limit=50`, respuesta con `next_cursor`.
+- Fechas en ISO 8601 UTC.
+</code></pre>
+<h3 id="skills-de-tarea-procedimiento">Skills de tarea (procedimiento)<a class="headerlink" href="#skills-de-tarea-procedimiento" title="Permanent link">#</a></h3>
+<p>Pasos concretos para una acción: publicar, migrar, generar código, preparar un informe. Suelen invocarse a mano.</p>
+<pre><code class="language-markdown">---
+name: nueva-migracion
+description: Crea una migración de base de datos siguiendo el flujo del equipo.
+disable-model-invocation: true
+---
+Crea una migración para: $ARGUMENTS
+1. Genera el archivo con `pnpm db:migration:new &lt;nombre-en-kebab-case&gt;`.
+2. Implementa `up` y `down` (debe ser reversible).
+3. Ejecuta `pnpm db:migrate` y luego `pnpm db:rollback` para comprobar `down`.
+4. Actualiza los tipos con `pnpm db:types`.
+5. Resume los cambios de esquema.
+</code></pre>
+<h2 id="quien-puede-invocar-una-skill">Quién puede invocar una skill<a class="headerlink" href="#quien-puede-invocar-una-skill" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Tipo</th>
-<th>Ejemplos</th>
+<th>Configuración</th>
+<th>Tú (<code>/nombre</code>)</th>
+<th>Claude (automático)</th>
+<th>Contexto al inicio</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Servidores de desarrollo</td>
-<td><code>npm run dev</code>, <code>python manage.py runserver</code>, <code>rails s</code></td>
+<td>Por defecto</td>
+<td>Sí</td>
+<td>Sí</td>
+<td>Descripción</td>
 </tr>
 <tr>
-<td>Builds en watch</td>
-<td><code>vite</code>, <code>webpack --watch</code>, <code>tsc --watch</code>, <code>cargo watch</code></td>
+<td><code>disable-model-invocation: true</code></td>
+<td>Sí</td>
+<td>No</td>
+<td>Nada (ni la descripción)</td>
 </tr>
 <tr>
-<td>Tests largos</td>
-<td><code>pytest</code>, <code>jest --runInBand</code>, tests e2e</td>
-</tr>
-<tr>
-<td>Infraestructura local</td>
-<td><code>docker compose up</code>, <code>terraform plan</code></td>
-</tr>
-<tr>
-<td>Instalaciones pesadas</td>
-<td><code>npm ci</code>, <code>pip install -r requirements.txt</code></td>
+<td><code>user-invocable: false</code></td>
+<td>No</td>
+<td>Sí</td>
+<td>Descripción</td>
 </tr>
 </tbody>
 </table>
-<h2 id="buenas-practicas">Buenas prácticas<a class="headerlink" href="#buenas-practicas" title="Permanent link">#</a></h2>
 <ul>
-<li>Di explícitamente <em>"en segundo plano"</em> cuando pidas arrancar servidores.</li>
-<li>Pide a Claude que <strong>espere a una señal</strong> ("espera a ver 'ready on port 3000'") antes de continuar.</li>
-<li>Revisa <code>/tasks</code> antes de cerrar para no dejar procesos huérfanos (aunque se limpian al salir).</li>
-<li>En tareas muy largas, combina segundo plano + Monitor para que Claude te avise.</li>
+<li>Usa <code>disable-model-invocation: true</code> para acciones con efectos (desplegar, publicar, enviar mensajes): tú decides cuándo.</li>
+<li>Usa <code>user-invocable: false</code> para conocimiento de fondo que no tiene sentido como comando.</li>
+</ul>
+<h2 id="donde-viven-las-skills">Dónde viven las skills<a class="headerlink" href="#donde-viven-las-skills" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Ubicación</th>
+<th>Ruta</th>
+<th>Disponible en</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Personal</td>
+<td><code>~/.claude/skills/&lt;nombre&gt;/SKILL.md</code></td>
+<td>Todos tus proyectos en esta máquina</td>
+</tr>
+<tr>
+<td>Proyecto</td>
+<td><code>.claude/skills/&lt;nombre&gt;/SKILL.md</code></td>
+<td>Ese repositorio (súbela a Git para el equipo)</td>
+</tr>
+<tr>
+<td>Anidada</td>
+<td><code>&lt;subcarpeta&gt;/.claude/skills/&lt;nombre&gt;/SKILL.md</code></td>
+<td>Al trabajar en esa subcarpeta (monorepos)</td>
+</tr>
+<tr>
+<td>Plugin</td>
+<td><code>&lt;plugin&gt;/skills/&lt;nombre&gt;/SKILL.md</code></td>
+<td>Donde el plugin esté activo, como <code>/plugin:nombre</code></td>
+</tr>
+<tr>
+<td>Organización</td>
+<td>Directorio de <em>managed settings</em></td>
+<td>Todos los usuarios de la organización</td>
+</tr>
+<tr>
+<td>Cuenta de claude.ai</td>
+<td>Skills activadas en tu cuenta</td>
+<td>Sesiones en la nube, Cowork y terminal con esa cuenta</td>
+</tr>
+</tbody>
+</table>
+<h2 id="skills-incluidas">Skills incluidas<a class="headerlink" href="#skills-incluidas" title="Permanent link">#</a></h2>
+<p>Claude Code trae skills listas para usar. Algunas destacadas:</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/code-review</code> (<code>/review</code>)</td>
+<td>Revisar un diff, rama o PR (lección 28)</td>
+</tr>
+<tr>
+<td><code>/simplify</code></td>
+<td>Revisar el código cambiado buscando simplificaciones y aplicarlas</td>
+</tr>
+<tr>
+<td><code>/debug</code></td>
+<td>Depuración guiada</td>
+</tr>
+<tr>
+<td><code>/doctor</code></td>
+<td>Diagnóstico de la instalación y configuración</td>
+</tr>
+<tr>
+<td><code>/run</code></td>
+<td>Arrancar y manejar tu app para ver un cambio funcionando</td>
+</tr>
+<tr>
+<td><code>/verify</code></td>
+<td>Construir y ejecutar la app para confirmar que un cambio hace lo que debe</td>
+</tr>
+<tr>
+<td><code>/run-skill-generator</code></td>
+<td>Enseñar a <code>/run</code> y <code>/verify</code> cómo arrancar tu proyecto (guarda una skill en el repo)</td>
+</tr>
+<tr>
+<td><code>/loop</code></td>
+<td>Repetir un prompt a intervalos</td>
+</tr>
+<tr>
+<td><code>/batch</code></td>
+<td>Aplicar una instrucción a muchos elementos</td>
+</tr>
+<tr>
+<td><code>/claude-api</code></td>
+<td>Referencia para construir con la API de Claude</td>
+</tr>
+</tbody>
+</table>
+<p>Se pueden desactivar con el ajuste <code>disableBundledSkills</code>.</p>
+<h2 id="ver-y-gestionar-skills-skills">Ver y gestionar skills: <code>/skills</code><a class="headerlink" href="#ver-y-gestionar-skills-skills" title="Permanent link">#</a></h2>
+<pre><code class="language-text">/skills
+</code></pre>
+<p>Lista las skills disponibles; puedes filtrar, ordenar por tamaño en tokens (<code>t</code>) y cambiar su visibilidad para Claude y para el menú <code>/</code>. También puedes preguntar: <em>"¿Qué skills tienes disponibles?"</em>.</p>
+<h2 id="un-estandar-abierto">Un estándar abierto<a class="headerlink" href="#un-estandar-abierto" title="Permanent link">#</a></h2>
+<p>Las skills de Claude Code siguen el estándar abierto <strong>Agent Skills</strong>, así que una skill básica (con <code>name</code>, <code>description</code> y contenido) también funciona en otras herramientas y en claude.ai. Claude Code añade campos extra (control de invocación, subagentes, argumentos, etc.).</p>
+<h2 id="cuando-crear-una-skill">Cuándo crear una skill<a class="headerlink" href="#cuando-crear-una-skill" title="Permanent link">#</a></h2>
+<ul>
+<li>Pegas a menudo las mismas instrucciones o la misma checklist en el chat.</li>
+<li>Una sección de <code>CLAUDE.md</code> se ha convertido en un procedimiento.</li>
+<li>Tienes conocimiento del dominio que Claude necesita <strong>a veces</strong>, no siempre.</li>
+<li>Quieres un comando <code>/algo</code> para un flujo repetible.</li>
 </ul>
 <h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
 <ul>
-<li>Los comandos largos bloquean; el segundo plano los hace asíncronos.</li>
-<li><code>Ctrl+B</code> (dos veces en tmux) o pedírselo a Claude; los que exceden el timeout pasan solos a segundo plano.</li>
-<li><code>/tasks</code> lista y detiene; Monitor vigila y reacciona.</li>
-<li><code>/background</code> y <code>/fork</code> llevan sesiones enteras a segundo plano.</li>
+<li>Skill = carpeta con <code>SKILL.md</code> (+ archivos de apoyo), invocable por ti (<code>/nombre</code>) o por Claude.</li>
+<li>Carga progresiva: descripción siempre, contenido al usarse → coste de contexto bajo.</li>
+<li>Conocimiento vs. tarea; controla quién invoca con <code>disable-model-invocation</code> y <code>user-invocable</code>.</li>
+<li>Personal (<code>~/.claude/skills</code>), proyecto (<code>.claude/skills</code>), plugins y organización.</li>
 </ul>
 <h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
 <ol>
-<li>Pide a Claude que arranque tu servidor de desarrollo en segundo plano y compruebe un endpoint.</li>
-<li>Ejecuta <code>! npm test</code> (o equivalente) y pulsa <code>Ctrl+B</code>. Consulta después <code>/tasks</code>.</li>
-<li>Pide a Claude que vigile un log mientras hace otra tarea; genera un error a propósito y observa cómo reacciona.</li>
-<li>Detén todas las tareas desde <code>/tasks</code>.</li>
+<li>Ejecuta <code>/skills</code> y explora las skills incluidas. Prueba <code>/simplify</code> sobre un cambio reciente.</li>
+<li>Identifica en tu <code>CLAUDE.md</code> una sección que debería ser una skill.</li>
+<li>Clasifica tres procedimientos de tu equipo como skill de conocimiento o de tarea.</li>
 </ol>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/interactive-mode#background-bash-commands">Comandos Bash en segundo plano</a></li>
-<li><a href="https://code.claude.com/docs/en/tools-reference">Referencia de herramientas (Bash, Monitor)</a></li>
-<li><a href="https://code.claude.com/docs/en/agent-view">Vista de agentes y sesiones en segundo plano</a></li>
+<li><a href="https://code.claude.com/docs/en/skills">Skills en Claude Code</a></li>
+<li><a href="https://agentskills.io">Estándar Agent Skills</a></li>
+<li><a href="https://code.claude.com/docs/en/commands">Comandos y skills incluidas</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="08-claude-code-en-tu-editor.html"><small>← Anterior</small>8. Claude Code en tu editor</a><a class="next" href="10-que-es-claude-md-y-por-que-se-carga.html"><small>Siguiente →</small>10. Qué es CLAUDE.md y por qué se carga en cada sesión</a></nav>
+    <nav class="paginacion"><a class="prev" href="37-cli-vs-mcp-cuando-usar-cada-uno.html"><small>← Anterior</small>37. &quot;Herramientas CLI vs. servidores MCP: cuándo usar cada uno&quot;</a><a class="next" href="39-claude-md-vs-skills.html"><small>Siguiente →</small>39. CLAUDE.md vs. skills</a></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#el-problema">El problema</a></li>
-<li><a href="#como-funciona-el-segundo-plano">Cómo funciona el segundo plano</a></li>
-<li><a href="#tres-formas-de-enviar-algo-a-segundo-plano">Tres formas de enviar algo a segundo plano</a><ul>
-<li><a href="#1-pedirselo-a-claude">1. Pedírselo a Claude</a></li>
-<li><a href="#2-ctrlb-sobre-un-comando-en-marcha">2. Ctrl+B sobre un comando en marcha</a></li>
-<li><a href="#3-tus-propios-comandos-con">3. Tus propios comandos con !</a></li>
+<li><a href="#que-es-una-skill">¿Qué es una skill?</a></li>
+<li><a href="#carga-progresiva-por-que-las-skills-son-baratas">Carga progresiva: por qué las skills son baratas</a></li>
+<li><a href="#dos-tipos-de-contenido">Dos tipos de contenido</a><ul>
+<li><a href="#skills-de-conocimiento-referencia">Skills de conocimiento (referencia)</a></li>
+<li><a href="#skills-de-tarea-procedimiento">Skills de tarea (procedimiento)</a></li>
 </ul>
 </li>
-<li><a href="#ver-y-gestionar-tareas-tasks">Ver y gestionar tareas: /tasks</a></li>
-<li><a href="#vigilar-cosas-la-herramienta-monitor">Vigilar cosas: la herramienta Monitor</a></li>
-<li><a href="#sesiones-enteras-en-segundo-plano">Sesiones enteras en segundo plano</a></li>
-<li><a href="#limites-y-detalles-a-tener-en-cuenta">Límites y detalles a tener en cuenta</a></li>
-<li><a href="#candidatos-tipicos-para-segundo-plano">Candidatos típicos para segundo plano</a></li>
-<li><a href="#buenas-practicas">Buenas prácticas</a></li>
+<li><a href="#quien-puede-invocar-una-skill">Quién puede invocar una skill</a></li>
+<li><a href="#donde-viven-las-skills">Dónde viven las skills</a></li>
+<li><a href="#skills-incluidas">Skills incluidas</a></li>
+<li><a href="#ver-y-gestionar-skills-skills">Ver y gestionar skills: /skills</a></li>
+<li><a href="#un-estandar-abierto">Un estándar abierto</a></li>
+<li><a href="#cuando-crear-una-skill">Cuándo crear una skill</a></li>
 <li><a href="#resumen">Resumen</a></li>
 <li><a href="#ejercicios">Ejercicios</a></li>
 <li><a href="#referencias">Referencias</a></li>

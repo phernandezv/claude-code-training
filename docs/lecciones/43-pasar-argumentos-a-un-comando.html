@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>9. Ejecutar comandos largos en segundo plano · Curso Claude Code</title>
-<meta name="description" content="Servidores de desarrollo, builds en modo watch y suites de tests largas sin bloquear la sesión - Ctrl+B, run_in_background, /tasks, la herramienta Monitor y sesiones en segundo plano.">
+<title>43. Pasar argumentos a un comando · Curso Claude Code</title>
+<meta name="description" content="Hacer comandos y skills parametrizables - $ARGUMENTS, argumentos posicionales ($0, $1, $ARGUMENTS[N]), argumentos con nombre, comillas para valores con espacios, argument-hint, combinar argumentos con inyección de comandos y encadenar varias skills.">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 </head>
-<body data-slug="09-comandos-largos-en-segundo-plano">
+<body data-slug="43-pasar-argumentos-a-un-comando">
 <header class="topbar">
   <button class="menu-btn" aria-label="Abrir índice" onclick="document.body.classList.toggle('nav-abierta')">☰</button>
   <a class="marca" href="../index.html">Curso Claude Code <small>en español</small></a>
@@ -76,192 +76,202 @@
 <li data-slug="48-proyecto-integra-claude-en-tu-stack"><a href="../lecciones/48-proyecto-integra-claude-en-tu-stack.html"><span class="nav-num">48</span>&quot;Proyecto de portafolio: integra Claude en tu stack&quot;</a></li>
 </ol></div></nav>
   <main class="contenido">
-    <p class="migas">Sección 1 · Primeros pasos</p>
-    <h1><span class="num-grande">9</span>Ejecutar comandos largos en segundo plano</h1>
-    <p class="resumen">Servidores de desarrollo, builds en modo watch y suites de tests largas sin bloquear la sesión - Ctrl+B, run_in_background, /tasks, la herramienta Monitor y sesiones en segundo plano.</p>
+    <p class="migas">Sección 6 · Skills, comandos y hooks</p>
+    <h1><span class="num-grande">43</span>Pasar argumentos a un comando</h1>
+    <p class="resumen">Hacer comandos y skills parametrizables - $ARGUMENTS, argumentos posicionales ($0, $1, $ARGUMENTS[N]), argumentos con nombre, comillas para valores con espacios, argument-hint, combinar argumentos con inyección de comandos y encadenar varias skills.</p>
     <article class="leccion">
 <h2 id="objetivos-de-la-leccion">Objetivos de la lección<a class="headerlink" href="#objetivos-de-la-leccion" title="Permanent link">#</a></h2>
 <ul>
-<li>Entender por qué un comando largo bloquea a Claude y cómo evitarlo.</li>
-<li>Mandar comandos a segundo plano con <code>Ctrl+B</code> o pidiéndoselo a Claude.</li>
-<li>Consultar y detener tareas con <code>/tasks</code>.</li>
-<li>Vigilar logs o procesos con la herramienta <strong>Monitor</strong>.</li>
-<li>Conocer las sesiones en segundo plano (<code>/background</code>).</li>
+<li>Usar <code>$ARGUMENTS</code> para recibir todo lo que escribes tras el comando.</li>
+<li>Acceder a argumentos por posición y por nombre.</li>
+<li>Pasar valores con espacios correctamente.</li>
+<li>Combinar argumentos con contexto dinámico y con otras skills.</li>
 </ul>
-<h2 id="el-problema">El problema<a class="headerlink" href="#el-problema" title="Permanent link">#</a></h2>
-<p>Por defecto, cuando Claude ejecuta un comando con la herramienta <code>Bash</code>, <strong>espera a que termine</strong> para leer la salida. Con un <code>npm test</code> de 10 segundos no pasa nada, pero con:</p>
-<ul>
-<li>un servidor de desarrollo (<code>npm run dev</code>, <code>rails server</code>, <code>docker compose up</code>),</li>
-<li>un build en modo <em>watch</em> (<code>vite</code>, <code>tsc --watch</code>),</li>
-<li>una suite de tests de 15 minutos,</li>
-</ul>
-<p>la sesión quedaría bloqueada o el comando alcanzaría su tiempo máximo (por defecto 2 minutos).</p>
-<h2 id="como-funciona-el-segundo-plano">Cómo funciona el segundo plano<a class="headerlink" href="#como-funciona-el-segundo-plano" title="Permanent link">#</a></h2>
-<p>Un comando en segundo plano:</p>
-<ul>
-<li>Se ejecuta de forma <strong>asíncrona</strong> y devuelve inmediatamente un <strong>ID de tarea</strong>.</li>
-<li>Escribe su salida en un <strong>archivo</strong> que Claude puede leer cuando quiera.</li>
-<li>Permite que Claude siga trabajando (y que tú sigas escribiendo) mientras corre.</li>
-<li>Se limpia automáticamente al salir de Claude Code.</li>
-</ul>
-<p>Además, si un comando normal <strong>supera su timeout</strong>, Claude Code lo mueve automáticamente a segundo plano en lugar de matarlo (excepto los que empiezan por <code>sleep</code>).</p>
-<h2 id="tres-formas-de-enviar-algo-a-segundo-plano">Tres formas de enviar algo a segundo plano<a class="headerlink" href="#tres-formas-de-enviar-algo-a-segundo-plano" title="Permanent link">#</a></h2>
-<h3 id="1-pedirselo-a-claude">1. Pedírselo a Claude<a class="headerlink" href="#1-pedirselo-a-claude" title="Permanent link">#</a></h3>
-<pre><code class="language-text">&gt; Arranca el servidor de desarrollo en segundo plano y luego comprueba
-  que /api/health responde 200.
+<h2 id="arguments-todo-lo-que-sigue-al-comando"><code>$ARGUMENTS</code>: todo lo que sigue al comando<a class="headerlink" href="#arguments-todo-lo-que-sigue-al-comando" title="Permanent link">#</a></h2>
+<p><code>.claude/commands/arreglar-issue.md</code>:</p>
+<pre><code class="language-markdown">---
+description: Resuelve un issue de GitHub siguiendo nuestro flujo
+argument-hint: &quot;[número-de-issue]&quot;
+disable-model-invocation: true
+---
+Resuelve el issue #$ARGUMENTS:
+1. Léelo con `gh issue view $ARGUMENTS --comments`.
+2. Crea una rama `fix/$ARGUMENTS-&lt;descripcion-corta&gt;`.
+3. Reproduce el problema con un test que falle.
+4. Corrígelo y comprueba que el test pasa.
+5. Haz commit con `fix: … (closes #$ARGUMENTS)`.
 </code></pre>
-<p>Claude usará la opción <code>run_in_background</code> de la herramienta Bash, esperará a que el servidor esté listo leyendo su salida y hará la comprobación.</p>
-<h3 id="2-ctrlb-sobre-un-comando-en-marcha">2. <code>Ctrl+B</code> sobre un comando en marcha<a class="headerlink" href="#2-ctrlb-sobre-un-comando-en-marcha" title="Permanent link">#</a></h3>
-<p>Si Claude lanzó un comando que está tardando, pulsa <strong><code>Ctrl+B</code></strong> para mandarlo a segundo plano sin cancelarlo.</p>
+<pre><code class="language-text">/arreglar-issue 482
+</code></pre>
+<p>Claude recibe el texto con <code>482</code> en cada <code>$ARGUMENTS</code>.</p>
 <div class="admonition note">
-<p class="admonition-title">Usuarios de tmux</p>
-<p>En tmux <code>Ctrl+B</code> es la tecla prefijo, así que tendrás que pulsarlo <strong>dos veces</strong>.</p>
+<p class="admonition-title">Si no hay marcador</p>
+<p>Si invocas un comando con argumentos pero su contenido no tiene ningún marcador, Claude Code añade al final <code>ARGUMENTS: &lt;lo que escribiste&gt;</code> para que Claude lo vea igualmente.</p>
 </div>
-<h3 id="3-tus-propios-comandos-con">3. Tus propios comandos con <code>!</code><a class="headerlink" href="#3-tus-propios-comandos-con" title="Permanent link">#</a></h3>
-<p>El modo shell también admite <code>Ctrl+B</code>:</p>
-<pre><code class="language-text">! npm run dev
-(pulsa Ctrl+B)
-</code></pre>
-<h2 id="ver-y-gestionar-tareas-tasks">Ver y gestionar tareas: <code>/tasks</code><a class="headerlink" href="#ver-y-gestionar-tareas-tasks" title="Permanent link">#</a></h2>
-<pre><code class="language-text">/tasks
-</code></pre>
-<p>Lista las tareas en segundo plano de la sesión (comandos y subagentes), su estado, y te permite ver su salida o <strong>detenerlas</strong>. También está disponible como <code>/bashes</code>.</p>
-<p>Ejemplo de flujo:</p>
-<pre><code class="language-text">&gt; Arranca `npm run dev` en segundo plano.
-  ● Bash(npm run dev) → running in background (id: b1)
-
-&gt; Ahora añade un endpoint /api/version y comprueba que responde.
-  ● Edit(src/server/routes.ts)
-  ● Read(salida de b1) → &quot;server restarted&quot;
-  ● Bash(curl -s localhost:3000/api/version) → {&quot;version&quot;:&quot;1.4.0&quot;}
-
-&gt; /tasks   → detener b1
-</code></pre>
-<h2 id="vigilar-cosas-la-herramienta-monitor">Vigilar cosas: la herramienta Monitor<a class="headerlink" href="#vigilar-cosas-la-herramienta-monitor" title="Permanent link">#</a></h2>
-<p>La herramienta <strong>Monitor</strong> permite a Claude observar algo en segundo plano y <strong>reaccionar cuando cambia</strong>, sin pausar la conversación. Por ejemplo:</p>
-<ul>
-<li>Seguir un archivo de log y avisar cuando aparece un error.</li>
-<li>Consultar el estado de un job de CI o de un PR y avisar cuando cambia.</li>
-<li>Vigilar un directorio.</li>
-<li>Seguir la salida de cualquier script largo.</li>
-</ul>
-<pre><code class="language-text">&gt; Vigila logs/app.log y avísame cada vez que aparezca un ERROR o un stack trace.
-  Mientras tanto, vamos a revisar el módulo de facturación.
-</code></pre>
-<p>Tú sigues trabajando y Claude interviene cuando llega un evento.</p>
-<h2 id="sesiones-enteras-en-segundo-plano">Sesiones enteras en segundo plano<a class="headerlink" href="#sesiones-enteras-en-segundo-plano" title="Permanent link">#</a></h2>
-<p>Además de comandos sueltos, puedes mandar <strong>toda la sesión</strong> a segundo plano para liberar la terminal:</p>
+<h2 id="argumentos-posicionales">Argumentos posicionales<a class="headerlink" href="#argumentos-posicionales" title="Permanent link">#</a></h2>
+<p>Para varios valores, accede por índice (empezando en 0):</p>
 <table>
 <thead>
 <tr>
-<th>Comando</th>
-<th>Qué hace</th>
+<th>Marcador</th>
+<th>Valor</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>/background [prompt]</code></td>
-<td>Separa la sesión actual y la deja trabajando en segundo plano</td>
+<td><code>$ARGUMENTS[0]</code> o <code>$0</code></td>
+<td>Primer argumento</td>
 </tr>
 <tr>
-<td><code>/fork [prompt]</code></td>
-<td>Copia la conversación a una nueva sesión en segundo plano y tú sigues aquí</td>
+<td><code>$ARGUMENTS[1]</code> o <code>$1</code></td>
+<td>Segundo argumento</td>
 </tr>
 <tr>
-<td><code>claude agents</code></td>
-<td>Vista para monitorizar tus sesiones en segundo plano</td>
+<td><code>$ARGUMENTS</code></td>
+<td>La cadena completa, tal como la escribiste</td>
 </tr>
 </tbody>
 </table>
-<p>Esto es útil cuando una tarea larga (una migración, una batería de refactors) no necesita tu atención constante.</p>
-<h2 id="limites-y-detalles-a-tener-en-cuenta">Límites y detalles a tener en cuenta<a class="headerlink" href="#limites-y-detalles-a-tener-en-cuenta" title="Permanent link">#</a></h2>
+<p><code>.claude/commands/migrar-componente.md</code>:</p>
+<pre><code class="language-markdown">---
+description: Migra un componente entre frameworks o lenguajes
+argument-hint: &quot;[Componente] [origen] [destino]&quot;
+---
+Migra el componente $0 de $1 a $2.
+- Mantén el mismo comportamiento y la misma API pública.
+- Migra también sus tests y asegúrate de que pasan.
+- Enumera al final cualquier diferencia inevitable.
+</code></pre>
+<pre><code class="language-text">/migrar-componente SearchBar JavaScript TypeScript
+</code></pre>
+<h2 id="argumentos-con-nombre">Argumentos con nombre<a class="headerlink" href="#argumentos-con-nombre" title="Permanent link">#</a></h2>
+<p>Más legible: declara nombres en el <em>frontmatter</em> y úsalos como <code>$nombre</code>:</p>
+<pre><code class="language-markdown">---
+description: Compara el rendimiento de un endpoint entre dos ramas
+argument-hint: &quot;[endpoint] [rama-base] [rama-nueva]&quot;
+arguments: [endpoint, base, nueva]
+---
+Compara el rendimiento de `$endpoint` entre las ramas `$base` y `$nueva`:
+1. En un worktree de `$base`, arranca el servidor y mide 200 peticiones con `autocannon`.
+2. Repite en `$nueva`.
+3. Presenta una tabla con p50, p95, p99 y peticiones/s, y comenta la diferencia.
+</code></pre>
+<pre><code class="language-text">/comparar-rendimiento /api/orders main feat/cache-pedidos
+</code></pre>
+<p>Los nombres se asignan por posición: <code>endpoint</code> = primero, <code>base</code> = segundo, <code>nueva</code> = tercero.</p>
+<h2 id="valores-con-espacios-comillas">Valores con espacios: comillas<a class="headerlink" href="#valores-con-espacios-comillas" title="Permanent link">#</a></h2>
+<p>Los argumentos posicionales siguen reglas de comillas tipo shell:</p>
+<pre><code class="language-text">/crear-ticket &quot;El login falla con emails en mayúsculas&quot; alta backend
+</code></pre>
 <ul>
-<li>En <strong>modo headless</strong> (<code>claude -p</code>), los comandos en segundo plano se terminan unos segundos después de que Claude devuelva su resultado final.</li>
-<li>Las tareas en segundo plano que generan más de 5 GB de salida se terminan automáticamente.</li>
-<li>Un <code>cd</code> dentro de un comando movido a segundo plano <strong>no</strong> cambia el directorio de la sesión.</li>
-<li>Para desactivar por completo esta funcionalidad: variable de entorno <code>CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1</code>.</li>
+<li><code>$0</code> → <code>El login falla con emails en mayúsculas</code></li>
+<li><code>$1</code> → <code>alta</code></li>
+<li><code>$2</code> → <code>backend</code></li>
+<li><code>$ARGUMENTS</code> → la cadena completa tal cual</li>
 </ul>
-<h2 id="candidatos-tipicos-para-segundo-plano">Candidatos típicos para segundo plano<a class="headerlink" href="#candidatos-tipicos-para-segundo-plano" title="Permanent link">#</a></h2>
+<h2 id="argument-hint-ayuda-al-escribir"><code>argument-hint</code>: ayuda al escribir<a class="headerlink" href="#argument-hint-ayuda-al-escribir" title="Permanent link">#</a></h2>
+<pre><code class="language-markdown">argument-hint: &quot;[archivo] [formato: json|csv]&quot;
+</code></pre>
+<p>Aparece en el autocompletado cuando escribes <code>/comando</code>, recordándote qué pasar.</p>
+<h2 id="argumentos-contexto-dinamico">Argumentos + contexto dinámico<a class="headerlink" href="#argumentos-contexto-dinamico" title="Permanent link">#</a></h2>
+<p>Los marcadores de argumentos también se sustituyen dentro de los comandos inyectados con <code>!`…`</code>:</p>
+<pre><code class="language-markdown">---
+description: Resume un PR concreto
+argument-hint: &quot;[número-de-PR]&quot;
+allowed-tools: Bash(gh pr view *) Bash(gh pr diff *)
+---
+## Descripción y comentarios
+!`gh pr view $0 --comments`
+
+## Diff (resumen)
+!`gh pr diff $0 --name-only`
+
+Resume el PR #$0: objetivo, cambios principales, puntos de discusión abiertos
+y riesgos. Máximo 15 líneas.
+</code></pre>
+<pre><code class="language-text">/resumen-pr 1234
+</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">Cuidado con la inyección</p>
+<p>Si un argumento acaba dentro de un comando de shell, alguien podría pasar algo como <code>1234; rm -rf ~</code>. Usa comandos inyectados solo con argumentos que controlas tú, limita con <code>allowed-tools</code> y recuerda que tus reglas <code>deny</code> siguen aplicándose.</p>
+</div>
+<h2 id="encadenar-skills">Encadenar skills<a class="headerlink" href="#encadenar-skills" title="Permanent link">#</a></h2>
+<p>Puedes invocar varias skills al principio de un mismo mensaje; el texto que sigue se pasa como argumentos a cada una:</p>
+<pre><code class="language-text">/escribir-tests /arreglar-issue 482
+</code></pre>
+<p>Se cargan ambas y las dos reciben <code>482</code>.</p>
+<h2 id="variables-disponibles-ademas-de-los-argumentos">Variables disponibles además de los argumentos<a class="headerlink" href="#variables-disponibles-ademas-de-los-argumentos" title="Permanent link">#</a></h2>
 <table>
 <thead>
 <tr>
-<th>Tipo</th>
-<th>Ejemplos</th>
+<th>Variable</th>
+<th>Valor</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Servidores de desarrollo</td>
-<td><code>npm run dev</code>, <code>python manage.py runserver</code>, <code>rails s</code></td>
+<td><code>${CLAUDE_SESSION_ID}</code></td>
+<td>ID de la sesión actual</td>
 </tr>
 <tr>
-<td>Builds en watch</td>
-<td><code>vite</code>, <code>webpack --watch</code>, <code>tsc --watch</code>, <code>cargo watch</code></td>
+<td><code>${CLAUDE_EFFORT}</code></td>
+<td>Nivel de esfuerzo actual</td>
 </tr>
 <tr>
-<td>Tests largos</td>
-<td><code>pytest</code>, <code>jest --runInBand</code>, tests e2e</td>
+<td><code>${CLAUDE_SKILL_DIR}</code></td>
+<td>Carpeta de la skill (solo skills)</td>
 </tr>
 <tr>
-<td>Infraestructura local</td>
-<td><code>docker compose up</code>, <code>terraform plan</code></td>
-</tr>
-<tr>
-<td>Instalaciones pesadas</td>
-<td><code>npm ci</code>, <code>pip install -r requirements.txt</code></td>
+<td><code>${CLAUDE_PROJECT_DIR}</code></td>
+<td>Raíz del proyecto</td>
 </tr>
 </tbody>
 </table>
-<h2 id="buenas-practicas">Buenas prácticas<a class="headerlink" href="#buenas-practicas" title="Permanent link">#</a></h2>
-<ul>
-<li>Di explícitamente <em>"en segundo plano"</em> cuando pidas arrancar servidores.</li>
-<li>Pide a Claude que <strong>espere a una señal</strong> ("espera a ver 'ready on port 3000'") antes de continuar.</li>
-<li>Revisa <code>/tasks</code> antes de cerrar para no dejar procesos huérfanos (aunque se limpian al salir).</li>
-<li>En tareas muy largas, combina segundo plano + Monitor para que Claude te avise.</li>
-</ul>
+<p>Ejemplo: guardar un informe con el ID de sesión:</p>
+<pre><code class="language-markdown">Guarda el informe en `informes/${CLAUDE_SESSION_ID}-$0.md`.
+</code></pre>
+<h2 id="argumentos-en-modo-headless">Argumentos en modo headless<a class="headerlink" href="#argumentos-en-modo-headless" title="Permanent link">#</a></h2>
+<p>Funcionan igual dentro del prompt de <code>claude -p</code>:</p>
+<pre><code class="language-bash">claude -p &quot;/resumen-pr 1234&quot; --output-format json | jq -r '.result'
+</code></pre>
+<p>Muy útil para scripts y CI (lección 47).</p>
 <h2 id="resumen">Resumen<a class="headerlink" href="#resumen" title="Permanent link">#</a></h2>
 <ul>
-<li>Los comandos largos bloquean; el segundo plano los hace asíncronos.</li>
-<li><code>Ctrl+B</code> (dos veces en tmux) o pedírselo a Claude; los que exceden el timeout pasan solos a segundo plano.</li>
-<li><code>/tasks</code> lista y detiene; Monitor vigila y reacciona.</li>
-<li><code>/background</code> y <code>/fork</code> llevan sesiones enteras a segundo plano.</li>
+<li><code>$ARGUMENTS</code> = todo; <code>$0</code>, <code>$1</code>… o <code>$ARGUMENTS[N]</code> = por posición; <code>$nombre</code> con <code>arguments:</code>.</li>
+<li>Comillas para valores con espacios; <code>argument-hint</code> para recordar el formato.</li>
+<li>Los argumentos también se sustituyen en <code>!`comandos`</code> (con cuidado).</li>
+<li>Puedes encadenar skills y usarlas en <code>claude -p</code>.</li>
 </ul>
 <h2 id="ejercicios">Ejercicios<a class="headerlink" href="#ejercicios" title="Permanent link">#</a></h2>
 <ol>
-<li>Pide a Claude que arranque tu servidor de desarrollo en segundo plano y compruebe un endpoint.</li>
-<li>Ejecuta <code>! npm test</code> (o equivalente) y pulsa <code>Ctrl+B</code>. Consulta después <code>/tasks</code>.</li>
-<li>Pide a Claude que vigile un log mientras hace otra tarea; genera un error a propósito y observa cómo reacciona.</li>
-<li>Detén todas las tareas desde <code>/tasks</code>.</li>
+<li>Crea <code>/arreglar-issue</code> y pruébalo con un issue real (o uno de prueba).</li>
+<li>Crea un comando con tres argumentos con nombre y <code>argument-hint</code>.</li>
+<li>Pasa un argumento con espacios usando comillas y comprueba qué recibe cada marcador.</li>
+<li>Ejecuta uno de tus comandos con argumentos desde <code>claude -p</code>.</li>
 </ol>
 <h2 id="referencias">Referencias<a class="headerlink" href="#referencias" title="Permanent link">#</a></h2>
 <ul>
-<li><a href="https://code.claude.com/docs/en/interactive-mode#background-bash-commands">Comandos Bash en segundo plano</a></li>
-<li><a href="https://code.claude.com/docs/en/tools-reference">Referencia de herramientas (Bash, Monitor)</a></li>
-<li><a href="https://code.claude.com/docs/en/agent-view">Vista de agentes y sesiones en segundo plano</a></li>
+<li><a href="https://code.claude.com/docs/en/skills#pass-arguments-to-skills">Pasar argumentos a skills</a></li>
+<li><a href="https://code.claude.com/docs/en/skills">Sustituciones disponibles</a></li>
 </ul>
     </article>
     <div class="completar">
       <label><input type="checkbox" id="completada"> Marcar esta lección como completada</label>
     </div>
-    <nav class="paginacion"><a class="prev" href="08-claude-code-en-tu-editor.html"><small>← Anterior</small>8. Claude Code en tu editor</a><a class="next" href="10-que-es-claude-md-y-por-que-se-carga.html"><small>Siguiente →</small>10. Qué es CLAUDE.md y por qué se carga en cada sesión</a></nav>
+    <nav class="paginacion"><a class="prev" href="42-comandos-slash-personalizados.html"><small>← Anterior</small>42. &quot;Comandos slash personalizados: un prompt repetido convertido en atajo&quot;</a><a class="next" href="44-que-son-los-hooks.html"><small>Siguiente →</small>44. &quot;Qué son los hooks: acciones que se ejecutan solas en momentos clave&quot;</a></nav>
   </main>
   <aside class="toc"><p>En esta lección</p><div class="toc">
 <ul>
 <li><a href="#objetivos-de-la-leccion">Objetivos de la lección</a></li>
-<li><a href="#el-problema">El problema</a></li>
-<li><a href="#como-funciona-el-segundo-plano">Cómo funciona el segundo plano</a></li>
-<li><a href="#tres-formas-de-enviar-algo-a-segundo-plano">Tres formas de enviar algo a segundo plano</a><ul>
-<li><a href="#1-pedirselo-a-claude">1. Pedírselo a Claude</a></li>
-<li><a href="#2-ctrlb-sobre-un-comando-en-marcha">2. Ctrl+B sobre un comando en marcha</a></li>
-<li><a href="#3-tus-propios-comandos-con">3. Tus propios comandos con !</a></li>
-</ul>
-</li>
-<li><a href="#ver-y-gestionar-tareas-tasks">Ver y gestionar tareas: /tasks</a></li>
-<li><a href="#vigilar-cosas-la-herramienta-monitor">Vigilar cosas: la herramienta Monitor</a></li>
-<li><a href="#sesiones-enteras-en-segundo-plano">Sesiones enteras en segundo plano</a></li>
-<li><a href="#limites-y-detalles-a-tener-en-cuenta">Límites y detalles a tener en cuenta</a></li>
-<li><a href="#candidatos-tipicos-para-segundo-plano">Candidatos típicos para segundo plano</a></li>
-<li><a href="#buenas-practicas">Buenas prácticas</a></li>
+<li><a href="#arguments-todo-lo-que-sigue-al-comando">$ARGUMENTS: todo lo que sigue al comando</a></li>
+<li><a href="#argumentos-posicionales">Argumentos posicionales</a></li>
+<li><a href="#argumentos-con-nombre">Argumentos con nombre</a></li>
+<li><a href="#valores-con-espacios-comillas">Valores con espacios: comillas</a></li>
+<li><a href="#argument-hint-ayuda-al-escribir">argument-hint: ayuda al escribir</a></li>
+<li><a href="#argumentos-contexto-dinamico">Argumentos + contexto dinámico</a></li>
+<li><a href="#encadenar-skills">Encadenar skills</a></li>
+<li><a href="#variables-disponibles-ademas-de-los-argumentos">Variables disponibles además de los argumentos</a></li>
+<li><a href="#argumentos-en-modo-headless">Argumentos en modo headless</a></li>
 <li><a href="#resumen">Resumen</a></li>
 <li><a href="#ejercicios">Ejercicios</a></li>
 <li><a href="#referencias">Referencias</a></li>
